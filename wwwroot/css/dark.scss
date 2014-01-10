@@ -8,7 +8,7 @@ $unfilled_bg_color: rgba(255,255,255,0.1);
 $gray: rgba(255,255,255,0.5);
 
 body {
-	background: url(/pic/bg-wood-logo.jpg) top center fixed #111;
+	background: url(/pic/bg-wood-logo.jpg) center center fixed #111;
 	color: white;
 }
 
@@ -56,7 +56,7 @@ a {
 }
 
 .panel {
-	background: url(/pic/bg-wood-logo-blured.jpg) top center fixed;
+	background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 	box-shadow: 0 0 4px black;
 	margin: 10px;
 	display: inline-block;

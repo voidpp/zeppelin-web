@@ -22,14 +22,18 @@ body {
 	margin: 0;
 	font-family: Arial;
 	font-size: 12px;
-}
-
-.player { 
+	display: table;
 	text-align: center;
 }
 
-a {
-	
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+.player {
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .panel {
@@ -99,6 +103,9 @@ a {
 	overflow: hidden;
 	.header {
 		padding: 2px;
+		height: 30px;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 	.music_list {
 

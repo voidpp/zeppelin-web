@@ -265,8 +265,13 @@ var MusicTree = {
 
 		return cont;
 	},
-	listItem: function(p_data, p_itemProcess, p_boxingName)
+	listItem: function(p_data, p_itemProcess, p_boxingName, p_sortName)
 	{
+		if(p_boxingName || p_sortName) {
+			var sortName = def(p_sortName, p_boxingName)
+			p_data.list.sort(function(a, b){ return strcmp(a[sortName], b[sortName]); });
+		}
+
 		return p_data.list.length > 100 ? this.listItemBoxed(p_data, p_itemProcess, p_boxingName) : this.listItemMixed(p_data, p_itemProcess);
 	},
 	listItemBase: function()
@@ -485,6 +490,7 @@ var MusicTree = {
 				}}));
 			});
 			m_breadcrumbs.set(parts.quilt(' > '));
+			g_env.eventMgr.notify('onload');
 		}
 
 		m_cont.back = function() 

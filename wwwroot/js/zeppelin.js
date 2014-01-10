@@ -1,8 +1,4 @@
 
-/*
-	library_get_artists
-*/
-
 function ZeppelinClient()
 {
 	var main = div({class: 'panel', style:'padding: 10px; width: 700px'},
@@ -24,8 +20,6 @@ function ZeppelinClient()
 		);
 			
 	body().add(player);
-	
-	$(player).center();
 
 	g_env.eventMgr.notify('onload');
 	

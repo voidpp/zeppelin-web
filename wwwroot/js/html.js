@@ -11,63 +11,65 @@ function registerHTML(p_name, p_preferredChild, p_customCreate, p_parent)
 		}
 }
 
-var html_elements = {
-
-	text: {
-		custom: function(p_content) { 
-			return document.createTextNode(p_content); 
-		}
-	},
-	div: {},
-	span: {},
-	a: {},
-	u: {},
-	s: {},
-	b: {},
-	i: {},
-	table: {
-		child: 'tr',
-	},
-	tr: {
-		child: 'td',
-	},
-	td: {},
-	th: {},
-	form: {},
-	input: {},
-	br: {
-		custom: function() {
-			return document.createElement('br');
-		}
-	},
-	span: {},
-	ul: {
-		child:'li',
-	},
-	li: {},
-	select: {
-		child:'option',
-	},
-	option: {},
-	textarea: {},
-	fieldset: {
-		child:'legend',
-	},
-	legend: {},
-	img: {},
-	thead: {},
-	tbody: {},
-	tfoot: {},
-	hr: {},
-	progress: {},
-	pre: {},
-	script: {},
-	link: {},
-	iframe: {}
+var html = {
+	elements: {
+		text: {
+			custom: function(p_content) { 
+				return document.createTextNode(p_content); 
+			}
+		},
+		div: {},
+		span: {},
+		a: {},
+		u: {},
+		s: {},
+		b: {},
+		i: {},
+		table: {
+			child: 'tr',
+		},
+		tr: {
+			child: 'td',
+		},
+		td: {},
+		th: {},
+		form: {},
+		input: {},
+		br: {
+			custom: function() {
+				return document.createElement('br');
+			}
+		},
+		span: {},
+		ul: {
+			child:'li',
+		},
+		li: {},
+		select: {
+			child:'option',
+		},
+		option: {},
+		textarea: {},
+		fieldset: {
+			child:'legend',
+		},
+		legend: {},
+		img: {},
+		thead: {},
+		tbody: {},
+		tfoot: {},
+		hr: {},
+		progress: {},
+		pre: {},
+		script: {},
+		link: {},
+		iframe: {}
+	}, 
+	externals: {}
 }
 
-for(var name in html_elements) {
-	var desc = html_elements[name];
+for(var name in html.elements) {
+	var desc = html.elements[name];
 	registerHTML(name, desc.child || null, desc.custom || null);
 }
 
@@ -323,6 +325,10 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		element.innerHTML = p_html;
 		return element;
 	}
+	
+	for(var name in html.externals) {
+		element[name] = html.externals[name];
+	}
 }
 
 function create_html(p_type, p_args, p_preferredChild)
@@ -334,14 +340,3 @@ function create_html(p_type, p_args, p_preferredChild)
 	
 	return element;
 }
-
-
-
-/*
-var clFileProto = Object.create(HTMLElement.prototype);
-
-clFileProto.createdCallback = function() {
-	this.innerHTML = "<b>yeah, this is a file element</b>";
-}
-var XFoo = document.register('cl-file', {prototype: clFileProto});
-*/
