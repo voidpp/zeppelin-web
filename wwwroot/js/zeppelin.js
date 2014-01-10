@@ -17,12 +17,15 @@ function ZeppelinClient()
 
 	$(main).draggable()/*.resizable()*/;
 			
-	body().add(div({class: 'player'},
+	var player = div({class: 'player'},
 			main, br(),
 			queueWidget({css: {width: 340, height: 500}}),
 			libraryWidget({css: {width: 340, height: 500}})
-		)
-	);
+		);
+			
+	body().add(player);
+	
+	$(player).center();
 
 	g_env.eventMgr.notify('onload');
 	
