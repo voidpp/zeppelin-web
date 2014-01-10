@@ -97,7 +97,7 @@ function currentSongWidget(p_args)
 		
 		var t = m_text;
 		
-		m_text.set(file.title + ' (' + formatTime(file.length) + ') really very very long song title name');
+		m_text.set(file.title + ' (' + formatTime(file.length) + ')');
 		
 		$(t).autoScroll({
 			duration: 5000, 
