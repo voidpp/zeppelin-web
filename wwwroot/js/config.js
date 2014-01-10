@@ -2,10 +2,10 @@ function parseConfig(p_data)
 {
 	Map.init(p_data, {
 		rpc: {
-			host: window.location.host
+			host: window.location.hostname
 		}
 	});
-	
+
 	var parseURL = function(p_parts) 
 	{
 		var res = '';
@@ -20,8 +20,8 @@ function parseConfig(p_data)
 		
 		return res;
 	}
-	
+
 	p_data.rpc.url = parseURL(p_data.rpc);
-	
+
 	return p_data;
 }
