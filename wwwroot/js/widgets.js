@@ -1,4 +1,4 @@
-
+	
 function widget(p_args)
 {
 	var m_cont = div({class: 'widget'});
@@ -384,12 +384,18 @@ var MusicTree = {
 	container: function(p_args) 
 	{
 		var m_cont = widget(p_args).addClass('music_container');
-		var m_header = div({class: 'header'});
+		var m_menu = div();
+		var m_breadcrumbs = div();
+		var m_header = div({class: 'header'}, m_menu, m_breadcrumbs);
 		var m_nodesCont = div({class: 'nodes'});
 		var m_nodes = {};
 		var m_path = [];
+		
+		foreach(p_args.rpc_menu, function(menu) {
+			m_menu.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd) }, class: 'miniButton3D'}), ' ');
+		});
 
-		$(m_cont).draggable({handle: m_header});
+		//$(m_cont).draggable({handle: m_header});
 		//$(m_cont).resizable({alsoResize: '.music_list'});
 
 		m_cont.reset = function()
@@ -397,7 +403,7 @@ var MusicTree = {
 			m_nodes = {};
 			m_path = [];
 			m_nodesCont.clear();
-			this.updateHeader();
+			this.updateBreadcrumbs();
 		}
 
 		m_cont.switchNextNode = function(p_id) 
@@ -414,7 +420,7 @@ var MusicTree = {
 				this.hideNode(m_path.last().id);
 			
 			m_path.push({id: p_id, title: node.title});
-			this.updateHeader();
+			this.updateBreadcrumbs();
 		}
 
 		m_cont.switchPrevNode = function(p_id)
@@ -448,7 +454,7 @@ var MusicTree = {
 
 			m_path.splice(idx+1, m_path.length);
 			
-			this.updateHeader();
+			this.updateBreadcrumbs();
 		}
 
 		m_cont.hideNode = function(p_id) 
@@ -470,7 +476,7 @@ var MusicTree = {
 			return m_nodes.hasOwnProperty(p_id);
 		}
 
-		m_cont.updateHeader = function() 
+		m_cont.updateBreadcrumbs = function() 
 		{
 			var parts = [];
 			foreach(m_path, function(part) {
@@ -478,7 +484,7 @@ var MusicTree = {
 					m_cont.switchPrevNode(part.id);
 				}}));
 			});
-			m_header.set(parts.quilt(' > '));
+			m_breadcrumbs.set(parts.quilt(' > '));
 		}
 
 		m_cont.back = function() 
@@ -624,6 +630,11 @@ function queueWidget(p_args)
 function libraryWidget(p_args)
 {
 	var m_args = def(p_args, {});
+	
+	m_args.rpc_menu = [
+		{title: 'Scan', cmd: 'library_scan'},
+		{title: 'Refresh', cmd: 'library_get_artists'}
+	];
 	var m_cont = MusicTree.container(m_args).addClass('library panel');
 	
 	var m_renderers = {	
@@ -697,12 +708,19 @@ function libraryWidget(p_args)
 			return item;
 		}
 	}
-
-	g_env.rpc.request.send('library_get_artists', null, function(p_data) {
+	
+	g_env.data.request('library_get_artists');
+	
+	g_env.data.mgr.subscribe('library_get_artists', function(p_data) {
+		m_cont.reset();
 		var list = MusicTree.listItem({list: p_data}, m_renderers.artist, 'name');
 		m_cont.addNode({title: 'Artists', id: -1, container: list});
 		m_cont.switchNextNode(-1);
-		g_env.eventMgr.notify('onload');		
+		g_env.eventMgr.notify('onload');
+	});
+
+	g_env.eventMgr.subscribe('send_library_get_artists', function() {
+		m_cont.reset();
 	});
 	
 	return m_cont;

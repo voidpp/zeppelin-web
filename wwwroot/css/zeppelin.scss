@@ -212,3 +212,34 @@ $default_radius: 1px;
 		height: 7px;
 	}
 }
+
+.miniButton3D {
+	display: inline-block;
+	line-height: 10px;
+	font-family: Visitor;
+	font-size: 13px;
+	padding: 1px 2px;
+	cursor: pointer;
+	cursor: hand;
+	outline: none;
+	user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;	
+	background-image: linear-gradient(to bottom, #eee, #aaa);
+	border-radius: 2px;	
+	color: #222;
+	text-shadow: 1px 1px 1px #eee;
+	@include transition(color 1s);
+} 
+
+.miniButton3D:active {
+	background-image: linear-gradient(to top, #eee, #aaa);
+}
+
+miniButton3D:hover {
+	@include transition(color 0.1s);
+}
+
+.preloader {
+	margin: auto auto;
+}

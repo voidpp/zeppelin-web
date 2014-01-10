@@ -47,6 +47,7 @@ function createEnviroment()
 		data: {
 			mgr: new EventManager(),
 			request: function(p_command, p_params) {
+				g_env.eventMgr.notify('send_'+p_command, p_params);
 				g_env.rpc.request.send(p_command, p_params, function(res) {
 					g_env.data.mgr.notify(p_command, res);
 				});

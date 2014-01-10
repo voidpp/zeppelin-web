@@ -1,3 +1,8 @@
+@mixin transition($p) {
+	transition: $p;
+	-webkit-transition: $p;
+}
+
 $base_color: #0099CC;
 $unfilled_bg_color: rgba(255,255,255,0.1);
 $gray: rgba(255,255,255,0.5);
@@ -123,4 +128,9 @@ a {
 .slider {
 	border: none;
 	background: $unfilled_bg_color;
+}
+
+.miniButton3D:hover {
+	color: $base_color;
+	box-shadow: 0 0 2px $base_color;
 }
