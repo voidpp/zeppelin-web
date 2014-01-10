@@ -1,0 +1,133 @@
+/*modalDialog*/
+div.mdBg {
+	position: fixed;
+	top: 0px; 
+	left: 0px; 
+	bottom: 0px;
+	right: 0px;
+	z-index: 4200;
+	background-color: #FF0000;
+	background-color: rgba(255,255,255,0);
+	filter: alpha(opacity = 50);
+	font: normal 12px Arial, Helvetica, sans-serif;
+	padding: 15px;	
+}
+div.mdMain {
+	z-index: 4201;
+	border: 0px solid #555;	
+	box-shadow: 0 0 15px black;
+    -webkit-box-shadow: 0 0 15px black;
+    -moz-box-shadow: 0 0 15px black;	
+	/*background-color: #eee;*/
+	position: fixed; 
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	-khtml-border-radius: 7px;
+	display: inline-block;
+}
+
+div.mdMain_aero {
+	padding: 4px;
+	background-color: rgba(220,220,220,0.2);
+}
+
+div.mdHead{
+	background-image: -o-linear-gradient(#CCCCCC, #888);	
+	background-image: -moz-linear-gradient(center top , #CCCCCC, #888);	
+	background-image: -webkit-gradient(linear,left top, left bottom, from(#CCCCCC), to(#888888));
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#CCCCCC', EndColorStr='#888888', GradientType=0);		
+	padding: 4px;
+	text-shadow: 0px 1px 1px white;	
+	color: #222;
+	border-bottom: 1px solid #666;
+	font-weight: bold;
+	user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+
+	border-radius: 7px 7px 0 0;	
+	-moz-border-radius: 7px 7px 0 0;	
+	-webkit-border-radius: 7px 7px 0 0;
+	-khtml-border-radius: 7px 7px 0 0;	
+	text-align: left;
+}
+div.mdHead_aero{
+	border: 1px solid #666;
+}
+div.mdHead_1{
+}
+div.mdHead_2{
+	/*color: white; */
+	background-image: -o-linear-gradient(#006699, #003E5B);
+	background-image: -moz-linear-gradient(center top , #006699, #003E5B);
+	background-image: -webkit-gradient(linear,left top, left bottom, from(#006699), to(#003E5B));
+}
+div.mdBody{
+	padding: 10px;
+	text-shadow: 1px 1px 1px white;
+	color: #333;
+	background-image: -o-linear-gradient(rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
+	background-image: -moz-linear-gradient(center top , rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
+	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(221, 221, 221, 0.9)), to(rgba(187, 187, 187, 0.9)));
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#E5DDDDDD', EndColorStr='#E5BBBBBB', GradientType=0);	
+	border-radius: 0 0 7px 7px;	
+	-moz-border-radius: 0 0 7px 7px;	
+	-webkit-border-radius: 0 0 7px 7px;
+	-khtml-border-radius: 0 0 7px 7px;
+	text-align: left;
+}
+div.mdBody_aero{
+	border: 1px solid #666;
+	margin-top: -1px;
+	background-color: transparent;
+}
+div.mdFoot{
+	margin-bottom: -5px;
+	padding-top: 5px;
+	text-align: center;
+}
+div.mdBody input[type="text,password"], div.mdBody textarea, div.mdBody select {
+	border: 1px solid #555;	
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	background-color: #eee;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) inset;
+	/*width: 99%;*/
+	padding-left: 2px;
+}
+.mdBody_field_table{
+	font-size: inherit;	
+	width: 100%;
+}
+.mdBody_field_table td{
+	padding: 3px;
+}
+.mdBody_msg{
+	margin-bottom: 8px;
+}
+.mbHead_caption{
+	margin-left: 3px;
+	cursor: default;
+}
+.mbHead_close {
+	float: right;
+	cursor: hand;
+	cursor: pointer;
+	background-image: url("/pic/close16.png");
+	width: 16px;
+	height: 16px;
+	vertical-align: top;	
+}
+
+img.mbBanner {
+	position: fixed;
+}
+
+table.clMessageBox td {
+	padding: 3px;
+	vertical-align: middle;
+	font-size: 13px;
+}

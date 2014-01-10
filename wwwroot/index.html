@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<head>
+<title>Zeppelin player</title>
+<script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery.mCustomScrollbar.concat.min.js"></script>
+<script type="text/javascript" src="/js/jquery.marquee.min.js"></script>
+<script type="text/javascript" src="/js/tools.js"></script>
+<script type="text/javascript" src="/js/html.js"></script>
+<script type="text/javascript" src="/js/bricks.js"></script>
+<script type="text/javascript" src="/js/clButton.js"></script>
+<script type="text/javascript" src="/js/clMenu.js"></script>
+<script type="text/javascript" src="/js/clDialog.js"></script>
+<script type="text/javascript" src="/js/buttons.js"></script>
+<script type="text/javascript" src="/js/modules.js"></script>
+<script type="text/javascript" src="/js/widgets.js"></script>
+<script type="text/javascript" src="/js/zeppelin.js"></script>
+<script type="text/javascript" src="/config.json"></script>
+<link rel="stylesheet" type="text/css" href="/css/dark-hive/jquery-ui-1.10.3.custom.min.css">
+<link rel="stylesheet" type="text/css" href="/css/jquery.mCustomScrollbar.css">
+<link rel="stylesheet" type="text/css" href="/css/zeppelin.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css">
+<link rel="stylesheet" type="text/css" href="/css/clButton-3d.css">
+<link rel="stylesheet" type="text/css" href="/css/clMenu-3d.css">
+<link rel="stylesheet" type="text/css" href="/css/clDialog-3d.css">
+<script type="text/javascript">
+
+var g_env = {};
+
+var g_descriptors = {
+	codecs: {
+		1: {
+			title: 'MP3'
+		},
+		2: {
+			title: 'FLAC'
+		}
+	},
+}
+
+function createEnviroment()
+{
+	g_env = {
+		rpc: {
+			request: new RPC({host: 'http://' + g_config.rpc.host + ':' + g_config.rpc.port}),
+		},
+		data: {
+			mgr: new EventManager(),
+			request: function(p_command, p_params) {
+				g_env.rpc.request.send(p_command, p_params, function(res) {
+					g_env.data.mgr.notify(p_command, res);
+				});
+			}
+		},
+		eventMgr: new EventManager(),
+		storage: {
+			queue: {
+				file: {},
+				album: {},
+				playlist: {}
+			},
+			library: {
+				file: {},
+				album: {},
+				artist: {}
+			}		
+		},
+		clearTipsy: function() {
+		
+		}
+	}
+}
+	
+function start_engine()
+{
+	createEnviroment();
+
+	new ZeppelinClient();
+}
+
+</script>
+</head>
+<body onload="start_engine()">
+</body>
+</html>
+<!-- The answer to Life, the Universe, and Everything: 42 -->

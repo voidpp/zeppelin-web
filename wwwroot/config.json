@@ -1,0 +1,6 @@
+var g_config = {
+	rpc: {
+		host: window.location.host,
+		port: 8080
+	}
+};

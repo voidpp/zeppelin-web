@@ -1,0 +1,60 @@
+body {
+  background: url(/pic/bg-wood-logo.jpg) top center fixed #111;
+  color: white; }
+
+  a {
+    color: #0099CC; }
+
+    .widget .music_item {
+      border-top: 1px solid #333; }
+      .widget .music_item .face .image .label {
+        text-shadow: 0 0 2px black;
+        color: white;
+        font-weight: bold; }
+      .widget .music_item .face .content .desc {
+        color: #aaa; }
+      .widget .music_item .face:hover {
+        background-color: rgba(255, 255, 255, 0.1); }
+
+.panel {
+  background: url(/pic/bg-wood-logo-blured.jpg) top center fixed;
+  box-shadow: 0 0 4px black;
+  margin: 10px;
+  display: inline-block;
+  box-sizing: padding-box;
+  -moz-box-sizing: padding-box;
+  position: relative; }
+
+  .current_song_info tr td:first-child {
+    color: #0099CC;
+    text-shadow: 0 0 2px #0099CC; }
+    .current_song_info tr td:last-child {
+      color: rgba(255, 255, 255, 0.5); }
+
+.player_status .indicator {
+  color: rgba(255, 255, 255, 0.1); }
+  .player_status .active {
+    color: #0099CC;
+    text-shadow: 0 0 2px #0099CC; }
+
+.music_container .header .clTextButton {
+  color: white; }
+
+.current_num .display {
+  color: #0099CC; }
+  .current_num .background {
+    color: rgba(255, 255, 255, 0.1); }
+
+.current_song .display {
+  color: #0099CC;
+  text-shadow: 0 0 2px #0099CC; }
+  .current_song .background {
+    color: rgba(255, 255, 255, 0.1); }
+
+.custom-slider-value {
+  background: #0099CC;
+  box-shadow: 0 0 2px #0099CC; }
+
+  .slider {
+    border: none;
+    background: rgba(255, 255, 255, 0.1); }

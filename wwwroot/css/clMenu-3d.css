@@ -1,0 +1,86 @@
+.clMenu_container{
+	position: absolute;	
+	box-shadow: 0 0 3px black;	
+	background-color: #eee;
+	font-weight: normal;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;	
+	color: black;
+	text-align: left;
+}
+
+.clMenu_container_column{
+	display: inline-block;
+	background: transparent url("/pic/hrv.png") repeat-y 26px 50%;	
+	margin: 1px;
+	vertical-align: top;
+}
+
+.clMenu_container_column hr{
+	margin: 2px 1px 2px 28px;
+	border-color: #CCCCCC #CCCCCC white transparent;
+	border-style: solid solid solid none;
+	border-width: 1px 1px 1px 0;
+	height: 0px;
+}
+
+.clMenu_menuItem, .clMenu_menuTitleItem{
+	cursor: default;
+	padding: 3px 1px;
+	margin: 1px;
+	border: 1px solid transparent;	
+}
+.disabledMenuItem{
+	color: #999;
+	text-shadow: 1px 1px 0 white;
+}
+.clMenu_menuTitleItem {
+	color: white;
+	font-weight: bold;
+	background-color: #444;
+	padding: 2px 1px 2px 5px;
+}
+.disabledMenuItem:hover{
+	background-image: -o-linear-gradient(rgba(200,200,200, 0.01), rgba(100,100,100,0.15)) !important;	
+	background-image: -moz-linear-gradient(center top , rgba(200,200,200, 0.01), rgba(100,100,100,0.15)) !important;
+	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(200,200,200, 0.01)), to(rgba(100,100,100,0.15))) !important;
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#01C8C8C8', EndColorStr='#26646464', GradientType=0) !important;
+	border: 1px solid #ccc !important;
+}
+.clMenu_menuItem:hover, .clMenu_menuItem_sub {
+	/*background-color: #bbb;*/
+	background-image: -o-linear-gradient(rgba(0, 118, 236, 0.01), rgba(0, 49, 97, 0.2));	
+	background-image: -moz-linear-gradient(center top , rgba(0, 118, 236, 0.01), rgba(0, 49, 97, 0.2));
+	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(0, 118, 236, 0.01)), to(rgba(0, 49, 97, 0.2)));
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#010076EC ', EndColorStr='#33003161', GradientType=0);
+	border: 1px solid #003161;	
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;	
+}
+.clMenu_menuItem_iconCont{
+	vertical-align: bottom;
+	display: inline-block;
+	width: 14px;
+	text-align: center;
+	margin-left: 1px;
+}
+
+.clMenu_menuItem_iconCont img {
+	
+}
+
+.clMenu_menuItem_labelCont{
+	display: inline-block;
+	padding-right: 15px;
+	margin-left: 14px;
+}
+
+.clMenu_menuItem_submenuimg {
+	float: right;
+	margin-top: 3px;
+}

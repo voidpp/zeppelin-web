@@ -1,0 +1,215 @@
+@mixin transition($p) {
+	transition: $p;
+	-webkit-transition: $p;
+}
+
+@font-face {
+	font-family: Digital7;
+	src: url('/css/digital7.otf');
+}
+
+@font-face {
+	font-family: DotMatrix;
+	src: url('/css/BPdotsLight-extended.otf');
+}
+@font-face {
+	font-family: Visitor;
+	src: url('/css/visitor2.otf');
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	font-family: Arial;
+	font-size: 12px;	
+}
+
+.player { 
+	text-align: center;
+	margin-top: 100px;
+}
+
+a {
+	
+}
+
+.panel {
+	text-align: left;
+}
+
+.widget {
+	text-align: left;
+	display: inline-block;
+	position: relative;
+	.music_item {
+		cursor: pointer;
+		.face {
+			@include transition(background-color 1.5s);
+			width: 100%;
+			.image {
+				padding: 2px;
+				padding-left: 6px;
+				.label{
+					border-radius: 2px;
+					padding: 1px 2px;
+					font-size: 8px;
+					display: inline-block;
+					position: absolute;
+					bottom: 0;
+					right: -5px;
+					line-height: 8px;
+				}
+				img {
+					vertical-align: middle;
+					max-height: 32px;
+				}
+			}			
+			.content {
+				padding: 2px;
+				text-align: right;
+				width: 100%;	
+				.name {
+					display: inline-block;
+					margin-bottom: 5px;
+					font-weight: bold;
+				}
+				.desc {
+					display: inline-block;
+				}
+				padding-right: 8px;
+			}
+			&:hover{
+				@include transition(background-color 0.5s);
+			}
+		}
+	}
+	.playlist {
+
+	}
+}
+
+.player_status {
+	.indicator {
+		font-size: 10px;
+		margin: -5px 0;
+		text-align: center;
+	}
+}
+
+.music_container{
+	overflow: hidden;
+	.header {
+		padding: 2px;
+	}
+	.music_list {
+
+		display: inline-block;
+		.nodes {
+		}	
+	}
+}
+
+.current_num {
+	font-family: Digital7;
+	font-size: 42px;
+	.display {
+		display: inline-block;
+		position: absolute;
+		top: 0;
+		right: 0;		
+	}
+	.background {
+		display: inline-block;
+
+	}
+}
+
+.current_song {
+	font-family: DotMatrix;
+	font-size: 20px;
+	overflow: hidden;
+	.display {
+		display: inline-block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		white-space: nowrap;
+		width: 100%;
+		overflow: hidden;
+	}
+	.background {
+		display: inline-block;
+	}
+}
+
+.current_song_info {
+	line-height: 10px;
+	font-family: Visitor;
+	font-size: 13px;
+	tr {
+		td:first-child {
+			text-align: right;
+		}
+		td:last-child {
+			padding-left: 3px;
+		}
+	}
+}
+
+.volume {
+	text-align: center;
+	img {
+		padding-right: 10px;
+		vertical-align: middle;
+	}
+	.slider {
+		display: inline-block;
+		vertical-align: middle;
+	}
+}
+
+.queue, .library {
+	border-radius: 3px;
+}
+
+.mCustomScrollBox > .mCSB_scrollTools {
+	width: 8px;
+}
+
+.mCSB_container {
+	margin-right: 0px;
+}
+
+$default_radius: 1px;
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br{
+	border-bottom-right-radius: $default_radius;
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl{
+	border-bottom-left-radius: $default_radius;
+}
+
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr{
+	border-top-right-radius: $default_radius;
+}
+
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl{
+	border-top-left-radius: $default_radius;
+}
+
+.ui-slider-vertical {
+	width: 3px;
+	.ui-slider-handle {
+		left: -3px;
+		width: 7px;
+	}
+}
+
+.ui-slider-horizontal {
+	height: 3px;
+	.ui-slider-handle {
+		top: -3px;
+		height: 7px;
+	}
+}

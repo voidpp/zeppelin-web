@@ -1,0 +1,126 @@
+$base_color: #0099CC;
+$unfilled_bg_color: rgba(255,255,255,0.1);
+$gray: rgba(255,255,255,0.5);
+
+body {
+	background: url(/pic/bg-wood-logo.jpg) top center fixed #111;
+	color: white;
+}
+
+a {
+	color: $base_color;
+}
+
+.widget {
+	.music_item {
+		.face {			
+			.image {
+				.label {
+					text-shadow: 0 0 2px black;
+					color: white;
+					font-weight: bold;
+				}
+				img {
+				}
+			}
+			.content {
+				.name {
+				}
+				.desc {
+					color: #aaa;
+				}
+			}
+			.subitem {
+			
+			}
+			&:hover {
+				background-color: $unfilled_bg_color;
+			}
+		}
+		border-top: 1px solid #333;
+	}
+	.playlist {
+	
+	}
+	.album {
+	
+	}
+	.file {
+	
+	}
+}
+
+.panel {
+	background: url(/pic/bg-wood-logo-blured.jpg) top center fixed;
+	box-shadow: 0 0 4px black;
+	margin: 10px;
+	display: inline-block;
+	box-sizing: padding-box;
+	-moz-box-sizing: padding-box;
+	position: relative;
+}
+
+.queue, .library {
+
+}
+.current_song_info { 
+	tr {
+		td:first-child {
+			color: $base_color;
+			text-shadow: 0 0 2px $base_color;
+		}
+		td:last-child {
+			color: $gray;
+		}
+	}	
+}
+
+.player_status {
+	.indicator {
+		color: $unfilled_bg_color;
+	}
+	.active {
+		color: $base_color;
+		text-shadow: 0 0 2px $base_color;
+	}
+}
+
+.music_container{
+	.header {
+		//background-color: #777;
+		.clTextButton {
+			color: white;
+		}
+	}
+}
+	
+.current_num {
+	.display {
+		color: $base_color;
+	}
+	.background {
+		color: $unfilled_bg_color;
+	}
+}
+
+
+.current_song {
+	.display {
+		color: $base_color;
+		text-shadow: 0 0 2px $base_color;
+	}
+	.background {
+		color: $unfilled_bg_color;
+	}
+}
+
+
+.custom-slider-value {
+	background: $base_color;
+	box-shadow: 0 0 2px $base_color;
+}
+
+.slider {
+	border: none;
+	background: $unfilled_bg_color;
+}
