@@ -438,7 +438,8 @@ var MusicTree = {
 			}}), ' ');
 		});
 		
-		var showBox = function(p_letter) {
+		var showBox = function(p_letter) 
+		{
 			var desc = m_letters[p_letter];
 
 			if(!desc.cont)
@@ -472,15 +473,15 @@ var MusicTree = {
 	container: function(p_args) 
 	{
 		var m_cont = widget(p_args).addClass('music_container');
-		var m_menu = div();
-		var m_breadcrumbs = div();
-		var m_header = div({class: 'header'}, m_menu, m_breadcrumbs);
+		var m_menuBar = div({class: 'menubar'});
+		var m_breadcrumbs = div({class: 'breadcrumbs'});
+		var m_header = div({class: 'header'}, m_menuBar, m_breadcrumbs);
 		var m_nodesCont = div({class: 'nodes'});
 		var m_nodes = {};
 		var m_path = [];
 		
 		foreach(p_args.rpc_menu, function(menu) {
-			m_menu.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd) }, class: 'miniButton3D'}), ' ');
+			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd) }, class: 'miniButton3D'}), ' ');
 		});
 
 		//$(m_cont).draggable({handle: m_header});
@@ -572,7 +573,7 @@ var MusicTree = {
 					m_cont.switchPrevNode(part.id);
 				}}));
 			});
-			m_breadcrumbs.set(parts.quilt(' > '));
+			$(m_breadcrumbs.set(parts.quilt(' > '))).autoScroll();
 			g_env.eventMgr.notify('onListItemUpdated');
 		}
 

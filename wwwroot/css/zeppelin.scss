@@ -108,9 +108,18 @@ html, body {
 	overflow: hidden;
 	.header {
 		padding: 2px;
-		height: 30px;
-		overflow: hidden;
-		white-space: nowrap;
+		min-height: 30px;
+		.menubar {
+		
+		}
+		.breadcrumbs {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			&:hover {
+				white-space: normal;
+			}
+		}
 	}
 	.music_list {
 

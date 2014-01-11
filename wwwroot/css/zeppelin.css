@@ -81,11 +81,15 @@
   overflow: hidden; }
   .music_container .header {
     padding: 2px;
-    height: 30px;
-    overflow: hidden;
-    white-space: nowrap; }
-    .music_container .music_list {
-      display: inline-block; }
+    min-height: 30px; }
+    .music_container .header .breadcrumbs {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis; }
+      .music_container .header .breadcrumbs:hover {
+        white-space: normal; }
+  .music_container .music_list {
+    display: inline-block; }
 
 .current_num {
   font-family: Digital7;
