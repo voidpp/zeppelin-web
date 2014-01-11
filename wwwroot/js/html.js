@@ -63,7 +63,8 @@ var html = {
 		pre: {},
 		script: {},
 		link: {},
-		iframe: {}
+		iframe: {},
+		canvas: {},
 	}, 
 	externals: {}
 }
@@ -324,6 +325,11 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		
 		element.innerHTML = p_html;
 		return element;
+	}
+	
+	element.getSize = function()
+	{
+		return {w: $(element).width(), h: $(element).height()};
 	}
 	
 	for(var name in html.externals) {

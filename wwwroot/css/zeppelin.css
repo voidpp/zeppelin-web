@@ -70,10 +70,12 @@
                       -webkit-transition: background-color 0.5s; }
 
 .player_status .indicator {
-  font-size: 10px;
-  line-height: 11px;
-  text-align: center;
-  letter-spacing: -6px; }
+  width: 9px;
+  height: 9px; }
+  .player_status table {
+    margin-bottom: -1px; }
+    .player_status table td {
+      line-height: 10px; }
 
 .music_container {
   overflow: hidden; }

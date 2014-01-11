@@ -34,30 +34,103 @@ function currentSongInfoWidget(p_args)
 	));
 }
 
+function indicator()
+{
+	var m_cont = canvas({class: 'indicator'});
+
+	m_cont.getIconRect = function()
+	{
+		var s = this.getSize();
+		var padding = 1;
+		return {x: padding, y: padding, w: s.w-padding*2, h: s.h-padding*2};
+	}
+	
+	m_cont.initDrawer = function()
+	{
+		var size = this.getSize();
+		this.width = size.w; //canvas needs this property...
+		this.height = size.h;
+		var ctx = this.getContext("2d");
+		ctx.fillStyle = $(this).css('color');
+		this.setBlur(ctx);
+		return ctx;
+	}
+	
+	m_cont.setBlur = function(p_ctx)
+	{
+		var blur = $(this).css('text-shadow');
+		if(blur == 'none') 
+			return;
+		var blurProps = blur.split(' '); //ECMA is a bitch...
+		var distance = parseInt(blurProps.last());
+		var color = blurProps.slice(0,blurProps.length-3).join(' ');
+		p_ctx.shadowColor = color;
+		p_ctx.shadowBlur = distance;
+		return this;
+	}
+
+	return m_cont;
+}
+
 function playerStatusWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('player_status');
 	var m_state = 0;
-	var m_play = div({class: 'indicator'});
-	var m_pause = div({class: 'indicator'});
-	var m_stop = div({class: 'indicator active'});
+	var m_play = indicator();
+	var m_pause = indicator();
+	var m_stop = indicator().addClass('active');
 	var m_states = [m_stop, m_play, m_pause];
+
+	m_play.drawIndicator = function()
+	{
+		var rect = this.getIconRect();
+		var ctx = this.initDrawer();
+		ctx.beginPath();
+		ctx.moveTo(rect.x+rect.w*0.15, rect.y);
+		ctx.lineTo(rect.x+rect.w*0.85, rect.y+rect.h/2);
+		ctx.lineTo(rect.x+rect.w*0.15, rect.y+rect.h);
+		ctx.closePath();
+		ctx.fill();
+		return this;
+	}
+
+	m_stop.drawIndicator = function()
+	{
+		var rect = this.getIconRect();
+		var ctx = this.initDrawer();
+		ctx.fillRect(rect.x+rect.w*0.1,rect.y+rect.h*0.1,rect.w*0.8,rect.h*0.8);
+		return this;
+	}
 	
-	m_play.innerHTML = '&#x25b6;';
-	m_pause.innerHTML = '&#x2759;&#x2759;';
-	m_stop.innerHTML = '&#x25fc;';
+	m_pause.drawIndicator = function()
+	{
+		var rect = this.getIconRect();
+		var ctx = this.initDrawer();
+		ctx.fillRect(rect.x+rect.w*0.15,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
+		ctx.fillRect(rect.x+rect.w*0.60,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
+		return this;
+	}	
+	
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {	
+		m_play.drawIndicator();
+		m_stop.drawIndicator();
+		m_pause.drawIndicator();
+	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(m_state == p_data.state)
 			return;
-		
+
 		m_states[m_state].removeClass('active');
 		m_states[p_data.state].addClass('active');
-		
+
+		m_states[m_state].drawIndicator();
+		m_states[p_data.state].drawIndicator();
+
 		m_state = p_data.state;
-	});	
-	
-	return m_cont.add(m_play, m_pause, m_stop);
+	});
+
+	return m_cont.add(table({cellpadding:0, cellspacing:0}, tr(td(m_play)), tr(td(m_pause)), tr(td(m_stop))));
 }
 
 function currentPositionNumWidget(p_args)
@@ -210,7 +283,7 @@ function volumeWidget(p_args)
 		}
 	});
 	
-	g_env.eventMgr.subscribe('onload', function() {
+	g_env.eventMgr.subscribe('onListItemUpdated', function() {
 		if(m_orientation == 'vertical')
 			$(m_slider).height($(m_cont).height() - $(m_icon).outerHeight());
 		else
@@ -500,7 +573,7 @@ var MusicTree = {
 				}}));
 			});
 			m_breadcrumbs.set(parts.quilt(' > '));
-			g_env.eventMgr.notify('onload');
+			g_env.eventMgr.notify('onListItemUpdated');
 		}
 
 		m_cont.back = function() 
@@ -527,7 +600,7 @@ var MusicTree = {
 			}
 			
 			if(h < 10) { //the element is not the part of the DOM
-				g_env.eventMgr.subscribe('onload', function() {
+				g_env.eventMgr.subscribe(['onZeppelinBuilt', 'onListItemUpdated'], function() {
 					updateLayout();
 				});
 			}
@@ -637,7 +710,7 @@ function queueWidget(p_args)
 		m_cont.addNode({title: 'Queue', id: -1, container: list});
 		m_cont.switchNextNode(-1);
 
-		g_env.eventMgr.notify('onload');
+		g_env.eventMgr.notify('onListItemUpdated');
 	});
 	
 	return m_cont;
@@ -732,7 +805,7 @@ function libraryWidget(p_args)
 		var list = MusicTree.listItem({list: p_data}, m_renderers.artist, 'name', ['name', 'albums']);
 		m_cont.addNode({title: 'Artists', id: -1, container: list});
 		m_cont.switchNextNode(-1);
-		g_env.eventMgr.notify('onload');
+		g_env.eventMgr.notify('onListItemUpdated');
 	});
 
 	g_env.eventMgr.subscribe('send_library_get_artists', function() {

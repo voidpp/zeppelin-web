@@ -93,10 +93,14 @@ html, body {
 
 .player_status {
 	.indicator {
-		font-size: 10px;
-		line-height: 11px;
-		text-align: center;
-		letter-spacing: -6px;
+		width: 9px;
+		height: 9px;
+	}
+	table {
+		margin-bottom: -1px;
+		td { 
+			line-height: 10px;
+		}
 	}
 }
 

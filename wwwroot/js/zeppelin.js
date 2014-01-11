@@ -2,7 +2,7 @@
 function ZeppelinClient()
 {
 	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
-				playerStatusWidget({css: {marginRight: 10}}),
+				playerStatusWidget({css: {marginRight: 5}}),
 				currentPositionNumWidget({css: {marginRight: 10}}), 
 				currentSongInfoWidget(), br(),
 				currentSongWidget({css: {width: 680}}), br(),
@@ -21,7 +21,7 @@ function ZeppelinClient()
 			
 	body().add(player);
 
-	g_env.eventMgr.notify('onload');
+	g_env.eventMgr.notify('onZeppelinBuilt');
 	
 	$('.ui-slider-range-min').addClass('custom-slider-value');
 

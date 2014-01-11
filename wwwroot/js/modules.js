@@ -5,8 +5,12 @@ function EventManager()
 	
 	this.subscribe = function(p_name, p_callback, p_obj)
 	{
-		Map.init_arr(m_subscribers, [p_name], []);
-		m_subscribers[p_name].push({func: p_callback, object: def(p_obj, null)});
+		var names = p_name instanceof Array ? p_name : [p_name];
+	
+		foreach(names, function(name) {
+			Map.init_arr(m_subscribers, [name], []);
+			m_subscribers[name].push({func: p_callback, object: def(p_obj, null)});
+		});
 	}
 	
 	this.notify = function(p_name, p_data)
