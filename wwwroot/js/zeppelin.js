@@ -1,7 +1,7 @@
 
 function ZeppelinClient()
 {
-	var main = div({class: 'panel', style:'padding: 10px; width: 700px'},
+	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
 				playerStatusWidget({css: {marginRight: 10}}),
 				currentPositionNumWidget({css: {marginRight: 10}}), 
 				currentSongInfoWidget(), br(),
@@ -57,6 +57,8 @@ function ZeppelinClient()
 			clearTimeout(m_statusTimerId);
 		m_statusTimerId = setInterval(getStatus, 500);
 	}
+	
+	window.onfocus(); //because the wonderful chrome not send an onfocus event after onload...
 }
 
 function MetaDataEditor(p_fileId, p_onSuccess)

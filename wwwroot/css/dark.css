@@ -21,8 +21,6 @@ body {
   box-shadow: 0 0 4px black;
   margin: 10px;
   display: inline-block;
-  box-sizing: padding-box;
-  -moz-box-sizing: padding-box;
   position: relative; }
 
   .current_song_info tr td:first-child {
