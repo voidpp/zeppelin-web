@@ -545,11 +545,7 @@ var MusicTree = {
 		var m_quickSearch = null;
 
 		foreach(p_args.rpc_menu, function(menu) {
-			m_menuBar.add(clButton({label: menu.title, callback: function() { 
-				g_env.data.request(menu.cmd);
-				if(menu.callback)
-					menu.callback();
-			}, class: 'miniButton3D'}), ' ');
+			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd); }, class: 'miniButton3D'}), ' ');
 		});
 		
 		if(Map.def(p_args, 'quick_search', false)) 
@@ -717,7 +713,7 @@ function queueWidget(p_args)
 {
 	var m_args = def(p_args, {});
 	m_args.rpc_menu = [
-		{title: 'clear', cmd: 'player_queue_remove_all', callback: function() { g_env.data.request('player_queue_get'); }},
+		{title: 'clear', cmd: 'player_queue_remove_all'},
 	];	
 	var m_cont = MusicTree.container(m_args).addClass('queue panel');
 
@@ -800,6 +796,10 @@ function queueWidget(p_args)
 		});
 	}
 
+	g_env.data.mgr.subscribe('player_queue_remove_all', function() {
+		g_env.data.request('player_queue_get');
+	});
+	
 	g_env.data.mgr.subscribe('player_queue_get', function(p_data) {
 		m_cont.reset();
 
