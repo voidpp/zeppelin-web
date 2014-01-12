@@ -1,6 +1,11 @@
 var g_config = {
 	rpc: {
 		host: window.location.hostname,
-		port: window.location.port
-	}
+		port: window.location.port,
+		path: '/',
+	},
+	music_lists: {
+		//if the size of the list is over this value the list is groupped by the first letter of the items
+		letter_tags_display_limit: 50,
+	},	
 };

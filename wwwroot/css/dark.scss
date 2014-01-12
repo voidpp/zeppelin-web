@@ -55,8 +55,10 @@ a {
 	}
 }
 
+$blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
+
 .panel {
-	background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
+	background: $blured_background;
 	box-shadow: 0 0 4px black;
 	margin: 10px;
 	display: inline-block;
@@ -88,11 +90,33 @@ a {
 	}
 }
 
+$letter_box_shadow: rgba(0,0,0,0.8);
+
 .music_container{
 	.header {
-		//background-color: #777;
 		.clTextButton {
 			color: white;
+		}
+	}
+	.music_list {
+		.tags {
+			box-shadow: -2px 0 3px $letter_box_shadow inset;
+			background-color: rgba(255,255,255,0.05);
+			.letter {
+				color: #666;
+				text-shadow: 1px 1px 2px #000000;
+				&:hover {
+					color: $base_color;
+				}
+			}
+			.active {
+				background: $blured_background;
+				color: white;
+				box-shadow: -1px 2px 2px -1px $letter_box_shadow, -1px -2px 2px -1px $letter_box_shadow;
+				&:hover {
+					color: white;
+				}
+			}			
 		}
 	}
 }

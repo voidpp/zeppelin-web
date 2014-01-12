@@ -353,7 +353,9 @@ var MusicTree = {
 			});
 		}
 
-		return p_data.list.length > 100 ? this.listItemBoxed(p_data, p_itemProcess, p_boxingName) : this.listItemMixed(p_data, p_itemProcess);
+		var limit = g_config.music_lists.letter_tags_display_limit;
+		
+		return p_data.list.length > limit ? this.listItemBoxed(p_data, p_itemProcess, p_boxingName) : this.listItemMixed(p_data, p_itemProcess);
 	},
 	listItemBase: function()
 	{
@@ -382,9 +384,10 @@ var MusicTree = {
 	},
 	listItemBoxed: function(p_data, p_itemProcess, p_boxingName)
 	{
-		var m_head = div();
-		var m_list = div();
-		var m_cont = this.listItemBase().add(m_head, m_list);
+		var m_tagCont = div({class: 'tags'});
+		var m_list = div({class: 'list'});
+		var m_cont = this.listItemBase().add(m_tagCont, m_list);
+		var m_tags = {};
 		var m_letters = {};
 		var m_currBoxLetter = -1;
 		var m_css = {};
@@ -395,6 +398,9 @@ var MusicTree = {
 				return;
 				
 			letter = letter.toUpperCase();
+			
+			if(letter == ' ')
+				return;
 			
 			if(!m_letters.hasOwnProperty(letter)) {
 				m_letters[letter] = {
@@ -432,11 +438,21 @@ var MusicTree = {
 		lettersArr.sort();
 		
 		foreach(lettersArr, function(letter) {
-			m_head.add(clTextButton({label: letter, onclick: function() {
-				m_letters[m_currBoxLetter].cont.hide();
+			var tagCont = div(letter, {class: 'letter', onclick: function() {
+				hideBox(m_currBoxLetter);
 				showBox(letter);
-			}}), ' ');
+			}});
+		
+			m_tags[letter] = tagCont;
+		
+			m_tagCont.add(tagCont);
 		});
+		
+		var hideBox = function(p_letter)
+		{
+			m_letters[p_letter].cont.hide();
+			m_tags[p_letter].removeClass('active');
+		}
 		
 		var showBox = function(p_letter) 
 		{
@@ -445,8 +461,9 @@ var MusicTree = {
 			if(!desc.cont)
 				generateBox(desc);
 			
-			desc.cont.show();
-			m_currBoxLetter = p_letter;			
+			desc.cont.show();	
+			m_tags[p_letter].addClass('active');
+			m_currBoxLetter = p_letter;
 		}
 		
 		if(lettersArr.length)
@@ -455,12 +472,13 @@ var MusicTree = {
 		m_cont.updateLayout = function() 
 		{
 			m_css = {
-				width: $(m_cont).width(),
-				height: $(m_cont).height() - $(m_head).height(),
+				width: $(m_cont).width() - $(m_tagCont).width(),
+				height: $(m_cont).height(),
 				overflow: 'hidden'
 			};
 
 			$(m_list).css(m_css);
+			$(m_tagCont).height($(m_cont).height());
 			
 			for(var l in m_letters) {
 				if(m_letters[l].cont)
@@ -468,6 +486,12 @@ var MusicTree = {
 			}
 		}
 
+		$(m_tagCont).bind("mousewheel",function(ev, delta) {
+			var scrollTop = $(this).scrollTop();
+			console.log('mousewheel', scrollTop, delta);
+			$(this).scrollTop(scrollTop-Math.round(delta*50));
+		});
+		
 		return m_cont;
 	},
 	container: function(p_args) 
@@ -479,7 +503,7 @@ var MusicTree = {
 		var m_nodesCont = div({class: 'nodes'});
 		var m_nodes = {};
 		var m_path = [];
-		
+
 		foreach(p_args.rpc_menu, function(menu) {
 			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd) }, class: 'miniButton3D'}), ' ');
 		});

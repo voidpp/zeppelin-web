@@ -37,6 +37,21 @@ body {
 
 .music_container .header .clTextButton {
   color: white; }
+.music_container .music_list .tags {
+  box-shadow: -2px 0 3px rgba(0, 0, 0, 0.8) inset;
+  background-color: rgba(255, 255, 255, 0.05); }
+  .music_container .music_list .tags .letter {
+    color: #666;
+    text-shadow: 1px 1px 2px #000000; }
+    .music_container .music_list .tags .letter:hover {
+      color: #0099CC; }
+  .music_container .music_list .tags .active {
+    background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
+    color: white;
+    box-shadow: -1px 2px 2px -1px rgba(0, 0, 0, 0.8), -1px -2px 2px -1px rgba(0, 0, 0,
+        0.8); }
+    .music_container .music_list .tags .active:hover {
+      color: white; }
 
 .current_num .display {
   color: #0099CC; }

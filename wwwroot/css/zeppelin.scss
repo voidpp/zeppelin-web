@@ -110,7 +110,7 @@ html, body {
 		padding: 2px;
 		min-height: 30px;
 		.menubar {
-		
+			text-align: right;
 		}
 		.breadcrumbs {
 			overflow: hidden;
@@ -122,8 +122,29 @@ html, body {
 		}
 	}
 	.music_list {
-
 		display: inline-block;
+		.tags {
+			vertical-align: top;
+			display: inline-block;
+			font-size: 10px;
+			width: 17px;
+			text-align: center;
+			cursor: pointer;
+			user-select: none;
+			overflow: hidden;
+			.letter {
+				line-height: 13px;
+				font-weight: bold;
+				margin-left: -3px;
+			}
+			.active {
+			
+			}
+		}
+		.list {
+			vertical-align: top;
+			display: inline-block;
+		}
 		.nodes {
 		}	
 	}

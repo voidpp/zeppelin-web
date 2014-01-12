@@ -82,14 +82,32 @@
   .music_container .header {
     padding: 2px;
     min-height: 30px; }
-    .music_container .header .breadcrumbs {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis; }
-      .music_container .header .breadcrumbs:hover {
-        white-space: normal; }
+    .music_container .header .menubar {
+      text-align: right; }
+      .music_container .header .breadcrumbs {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis; }
+        .music_container .header .breadcrumbs:hover {
+          white-space: normal; }
   .music_container .music_list {
     display: inline-block; }
+    .music_container .music_list .tags {
+      vertical-align: top;
+      display: inline-block;
+      font-size: 10px;
+      width: 17px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden; }
+      .music_container .music_list .tags .letter {
+        line-height: 13px;
+        font-weight: bold;
+        margin-left: -3px; }
+    .music_container .music_list .list {
+      vertical-align: top;
+      display: inline-block; }
 
 .current_num {
   font-family: Digital7;

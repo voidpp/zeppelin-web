@@ -3,7 +3,10 @@ function parseConfig(p_data)
 	Map.init(p_data, {
 		rpc: {
 			host: window.location.hostname
-		}
+		},
+		music_lists: {
+			letter_tags_display_limit: 50,
+		},
 	});
 
 	var parseURL = function(p_parts) 
