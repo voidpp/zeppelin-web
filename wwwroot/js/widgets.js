@@ -386,6 +386,7 @@ var MusicTree = {
 	{
 		var m_cont = this.listItemBase();
 		var m_items = [];
+		var m_currHighLightedItem = -1;
 
 		foreach(p_data.list, function(item) {
 			var cont = p_itemProcess(item);
@@ -396,17 +397,55 @@ var MusicTree = {
 		$(m_cont).mCustomScrollbar({
 			contentTouchScroll: true,
 			autoHideScrollbar: true,
-			mouseWheelPixels: 200,
-			advanced: {
-				updateOnContentResize: true
-			}
+			mouseWheelPixels: 200
+		});
+		
+		g_env.eventMgr.subscribe('onListItemUpdated', function() {
+			$(m_cont).mCustomScrollbar("update");
 		});
 		
 		m_cont.onQuickSearch = function(p_val)
 		{
 			this.search(m_items, p_val);
 		}
-		
+
+		m_cont.getItem = function(p_idx)
+		{
+			if(p_idx >= 0 && p_idx < m_items.length)
+				return m_items[p_idx];
+			return false;
+		}
+
+		m_cont.onShow = function()
+		{
+			m_currHighLightedItem = -1;
+		}
+
+		m_cont.highlightItem = function(p_idx)
+		{
+			var item = this.getItem(p_idx);
+			if(item === false)
+				return;
+
+			if(m_currHighLightedItem == p_idx)
+				return;
+			
+			if(m_currHighLightedItem >= 0)
+				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');
+			var cont = $(item.container);
+			cont.addClass('highlighted');
+
+			var scrollContTop = $(m_cont).find('.mCSB_container').position().top;
+			var to = cont.position().top - $(m_cont).height() + cont.outerHeight();
+
+			if(cont.position().top + scrollContTop < 0)
+				$(m_cont).mCustomScrollbar('scrollTo', cont.position().top); //items at the top
+			else if(to + scrollContTop > 0)
+				$(m_cont).mCustomScrollbar('scrollTo',  to); //items at the bottom
+
+			m_currHighLightedItem = p_idx;
+		}
+
 		m_cont.updateLayout = function() {};
 		
 		return m_cont;
@@ -456,11 +495,12 @@ var MusicTree = {
 			$(p_desc.cont).css(m_css).mCustomScrollbar({
 				contentTouchScroll: true,
 				autoHideScrollbar: true,
-				mouseWheelPixels: 200,
-				advanced: {
-					updateOnContentResize: true
-				}
+				mouseWheelPixels: 200
 			});
+			
+			g_env.eventMgr.subscribe('onListItemUpdated', function() {
+				$(p_desc.cont).mCustomScrollbar("update");
+			});	
 		}
 		
 		var lettersArr = Map.keys(m_letters);
@@ -491,7 +531,7 @@ var MusicTree = {
 			if(!desc.cont)
 				generateBox(desc);
 			
-			desc.cont.show();	
+			desc.cont.show();
 			m_tags[p_letter].addClass('active');
 			m_currBoxLetter = p_letter;
 
@@ -531,6 +571,11 @@ var MusicTree = {
 		if(lettersArr.length)
 			showBox(lettersArr[0]);		
 
+		m_cont.getItem = function(p_idx)
+		{
+			throw 'Not implemented.';
+		}
+			
 		return m_cont;
 	},
 	container: function(p_args) 
@@ -589,7 +634,9 @@ var MusicTree = {
 			var cont = $(node.container);
 			cont.show();
 			cont.css('marginLeft', 0);
-			
+			if(node.container.onShow)
+				node.container.onShow();
+		
 			if(m_path.length)
 				this.hideNode(m_path.last().id);
 			
@@ -597,12 +644,27 @@ var MusicTree = {
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
 		}
+		
+		m_cont.getPathOfNodes = function()
+		{
+			if(!m_path.length)
+				return false;
 
-		m_cont.switchPrevNode = function(p_id)
+			var path = [];
+			foreach(m_path, function(part) {
+				path.push(part.id);
+			});
+			
+			return path;
+		}
+
+		m_cont.switchPrevNode = function(p_id, p_animLen)
 		{
 			if(!m_path.length)
 				return;
 
+			var animLen = def(p_animLen, 200);
+				
 			var idx = -1;
 			foreach(m_path, function(part, i) {
 				if(part.id == p_id) {
@@ -620,10 +682,12 @@ var MusicTree = {
 			
 			var cont = $(m_nodes[p_id].container);
 			cont.show();
-			
+			if(m_nodes[p_id].container.onShow)
+				m_nodes[p_id].container.onShow();
+
 			cont.animate({
 					marginLeft: 0
-				}, 200, 'swing', function() {
+				}, animLen, 'swing', function() {
 					m_nodes[curr.id].container.hide();
 				});	
 
@@ -639,7 +703,7 @@ var MusicTree = {
 				return;
 			
 			var cont = $(m_nodes[p_id].container);
-				
+
 			cont.animate({
 					marginLeft: -1 * cont.outerWidth()
 				}, 200, 'swing', function() {
@@ -687,7 +751,7 @@ var MusicTree = {
 				p_desc.container.updateLayout();
 			}
 			
-			if(h < 10) { //the element is not the part of the DOM
+			if(h < 10) { //the element is not the part of the DOM yet
 				g_env.eventMgr.subscribe(['onZeppelinBuilt', 'onListItemUpdated'], function() {
 					updateLayout();
 				});
@@ -702,7 +766,17 @@ var MusicTree = {
 				m_quickSearch.setValue(p_val);
 			}
 
+			p_desc.container.hide();
+			
 			m_nodes[p_desc.id] = p_desc;
+		}
+		
+		m_cont.getNode = function(p_id)
+		{
+			if(this.hasNode(p_id))
+				return m_nodes[p_id];
+			else
+				return false;
 		}
 		
 		return m_cont.add(m_header, m_nodesCont);
@@ -716,6 +790,7 @@ function queueWidget(p_args)
 		{title: 'clear', cmd: 'player_queue_remove_all'},
 	];	
 	var m_cont = MusicTree.container(m_args).addClass('queue panel');
+	var m_currentIndex = [];
 
 	var m_renderers = {	
 		playlist: function(p_data)
@@ -732,14 +807,22 @@ function queueWidget(p_args)
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
 			}).addClass('album');
 			
-			item.onclick = function() {
+			item.generateList = function() 
+			{
 				var aid = 'album_'+p_data.id;
 			
 				if(!m_cont.hasNode(aid)) {
 					var list = MusicTree.listItem({list: p_data.files}, m_renderers.file, 'name');
+					list.p('id', aid);
 					m_cont.addNode({title: p_data.name, id: aid, container: list});
 				}
-				m_cont.switchNextNode(aid);
+
+				return aid;
+			}
+			
+			item.onclick = function() 
+			{
+				m_cont.switchNextNode(this.generateList());
 			}
 			
 			return item;
@@ -776,14 +859,53 @@ function queueWidget(p_args)
 		}
 	};
 
-	var m_lastfid = 0;
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(p_data.current == m_lastfid)
+	var updateCurrent = function()
+	{
+		if(!m_currentIndex.length)
 			return;
-		m_lastfid = p_data.current;
-		// öööö
-	});
 	
+		var nodeIdList = [-1]; //root node
+		foreach(m_currentIndex, function(index) {
+			var node = m_cont.getNode(nodeIdList.last());
+			if(node === false)
+				return false;
+			var item = node.container.getItem(index);
+			if(item === false)
+				return false;
+
+			if(!item.container.generateList)
+				return false;
+			
+			nodeIdList.push(item.container.generateList());
+		});
+
+		var pathOfNodes = m_cont.getPathOfNodes();
+		
+		if(pathOfNodes === false)
+			return;
+
+		try {
+			foreach(nodeIdList, function(nodeId, i) {
+				if(pathOfNodes.length <= i)
+					throw {show: nodeIdList.last()};
+
+				if(pathOfNodes[i] != nodeId)
+					throw {show: nodeIdList.last(), hide: pathOfNodes[i-1]};
+			});
+		} catch (nodeIdObj) {
+			if(nodeIdObj.hide) {
+				m_cont.switchPrevNode(nodeIdObj.hide, 0);
+			}
+
+			m_cont.switchNextNode(nodeIdObj.show);
+		}
+		
+		var node = m_cont.getNode(nodeIdList.last());
+		if(node === false)
+			return;
+		node.container.highlightItem(m_currentIndex.last());
+	}
+
 	var cache = function(p_data, p_index) {
 		var idx = 0;
 		foreach(p_data, function(item) {
@@ -803,17 +925,26 @@ function queueWidget(p_args)
 	g_env.data.mgr.subscribe('player_queue_get', function(p_data) {
 		m_cont.reset();
 
-		cache(p_data, []);	
-		
+		cache(p_data, []);
+
 		var list = MusicTree.listItem({list: p_data}, function(item) {
 			return m_renderers[m_types[item.type].name](item);
 		}, 'name').addClass('playlist');
 		
-		m_cont.addNode({title: 'Queue', id: -1, container: list});
+		m_cont.addNode({title: 'Queue', id: -1, container: list}); //root
 		m_cont.switchNextNode(-1);
 
 		g_env.eventMgr.notify('onListItemUpdated');
 	});
+	
+	g_env.data.mgr.subscribe(['player_status', 'player_queue_get'], function(p_data) {
+		if(p_data.index) {
+			if(equal(p_data.index, m_currentIndex))
+				return;
+			m_currentIndex = p_data.index;
+		}
+		updateCurrent();
+	});	
 	
 	return m_cont;
 }
@@ -866,7 +997,7 @@ function libraryWidget(p_args)
 				image: '/pic/default_album.png',
 				menu: [{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: p_data.id}}}]
 			}).addClass('album');
-			
+
 			item.onclick = function() {
 				var aid = 'album_'+p_data.id;
 			

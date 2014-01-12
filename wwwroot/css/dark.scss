@@ -104,6 +104,10 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 $letter_box_shadow: rgba(0,0,0,0.8);
 
 .music_container{
+	.highlighted {
+		@include transition(background-color 0.5s);
+		background-color: rgba($base_color, 0.5);
+	}
 	.header {
 		.clTextButton {
 			color: white;

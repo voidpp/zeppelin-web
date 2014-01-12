@@ -920,7 +920,7 @@ var Geometry = {
 function foreach(p_obj, p_callback) {
 	for(var i in p_obj) {
 		if(p_obj.hasOwnProperty(i)) {
-			if(p_callback(p_obj[i], i) === false)
+			if(p_callback(p_obj[i], p_obj instanceof Array ? parseInt(i) : i) === false)
 				return false;
 		}
 	}
@@ -977,4 +977,155 @@ $.fn.autoScroll = function(p_args)
 	});
 
 	return this;
+};
+function getAttributeNames(node) {
+  var index, rv, attrs;
+
+  rv = [];
+  attrs = node.attributes;
+  for (index = 0; index < attrs.length; ++index) {
+    rv.push(attrs[index].nodeName);
+  }
+  rv.sort();
+  return rv;
+}
+function equivElms(elm1, elm2) {
+  var attrs1, attrs2, name, node1, node2;
+
+  // Compare attributes without order sensitivity
+  attrs1 = getAttributeNames(elm1);
+  attrs2 = getAttributeNames(elm2);
+  if (attrs1.join(",") !== attrs2.join(",")) {
+    console.log("Found nodes with different sets of attributes; not equiv");
+    return false;
+  }
+
+  // ...and values
+  // unless you want to compare DOM0 event handlers
+  // (onclick="...")
+  for (index = 0; index < attrs1.length; ++index) {
+    name = attrs1[index];
+    if (elm1.getAttribute(name) !== elm2.getAttribute(name)) {
+      console.log("Found nodes with mis-matched values for attribute '" + name + "'; not equiv");
+      return false;
+    }
+  }
+
+  // Walk the children
+  for (node1 = elm1.firstChild, node2 = elm2.firstChild;
+       node1 && node2;
+       node1 = node1.nextSibling, node2 = node2.nextSibling) {
+     if (node1.nodeType !== node2.nodeType) {
+       console.log("Found nodes of different types; not equiv");
+       return false;
+     }
+     if (node1.nodeType === 1) { // Element
+       if (!equivElms(node1, node2)) {
+         return false;
+       }
+     }
+     else if (node1.nodeValue !== node2.nodeValue) {
+       console.log("Found nodes with mis-matched nodeValues; not equiv");
+       return false;
+     }
+  }
+  if (node1 || node2) {
+    // One of the elements had more nodes than the other
+    console.log("Found more children of one element than the other; not equivalent");
+    return false;
+  }
+
+  // Seem the same
+  return true;
+}
+
+//Returns the object's class, Array, Date, RegExp, Object are of interest to us
+var getClass = function(val) 
+{
+	return Object.prototype.toString.call(val).match(/^\[object\s(.*)\]$/)[1];
+};
+//Defines the type of the value, extended typeof
+var whatis = function(val) 
+{
+	if (val === undefined)
+		return 'undefined';
+	if (val === null)
+		return 'null';
+
+	if(isElement(val))
+		return 'html';
+		
+	var type = typeof val;
+
+	if (type === 'object')
+		type = getClass(val).toLowerCase();
+
+	if (type === 'number') {
+		if (val.toString().indexOf('.') > 0)
+			return 'float';
+		else
+			return 'integer';
+	}
+
+	return type;
+};
+
+var _equal = {
+	html: equivElms,
+	array: function(a, b) {
+		if (a === b)
+			return true;
+		if (a.length !== b.length)
+			return false;
+		for (var i = 0; i < a.length; i++){
+			if(!equal(a[i], b[i])) {
+				return false;
+			}
+		};
+		return true;
+	},
+	object: function(a, b) {
+		if (a === b)
+			return true;
+		for (var i in a) {
+			if (b.hasOwnProperty(i)) {
+				if (!equal(a[i],b[i])) return false;
+			} else {
+				return false;
+			}
+		}
+
+		for (var i in b) {
+			if (!a.hasOwnProperty(i)) {
+				return false;
+			}
+		}
+		return true;
+	},
+	date: function(a, b) {
+		return a.getTime() === b.getTime();
+	},
+	regexp: function(a, b) {
+		return a.toString() === b.toString();
+	},
+	'function': this.regexp
+}
+/*
+ * Are two values equal, deep compare for objects and arrays.
+ * @param a {any}
+ * @param b {any}
+ * @return {boolean} Are equal?
+ */
+var equal = function(a, b) {
+	if (a !== b) {
+		var atype = whatis(a), btype = whatis(b);
+		
+		if (atype === btype) {
+			return _equal.hasOwnProperty(atype) ? _equal[atype](a, b) : a==b;
+		}
+
+		return false;
+	}
+
+	return true;
 };

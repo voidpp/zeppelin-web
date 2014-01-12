@@ -51,8 +51,12 @@ body {
     color: #0099CC;
     text-shadow: 0 0 2px #0099CC; }
 
-.music_container .header .clTextButton {
-  color: white; }
+.music_container .highlighted {
+  transition: background-color 0.5s;
+  -webkit-transition: background-color 0.5s;
+  background-color: rgba(0, 153, 204, 0.5); }
+  .music_container .header .clTextButton {
+    color: white; }
 .music_container .music_list .tags {
   box-shadow: -2px 0 3px rgba(0, 0, 0, 0.8) inset;
   background-color: rgba(255, 255, 255, 0.05); }

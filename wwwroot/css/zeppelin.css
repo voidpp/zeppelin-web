@@ -42,7 +42,9 @@
                   display: inline-block;
                   position: relative; }
                   .widget .music_item {
-                    cursor: pointer; }
+                    cursor: pointer;
+                    transition: background-color 1s;
+                    -webkit-transition: background-color 1s; }
                     .widget .music_item .face {
                       transition: background-color 1.5s;
                       -webkit-transition: background-color 1.5s;
@@ -89,7 +91,7 @@
   overflow: hidden; }
   .music_container .header {
     padding: 2px;
-    min-height: 30px; }
+    min-height: 35px; }
     .music_container .header .menubar {
       text-align: right; }
       .music_container .header .breadcrumbs {
