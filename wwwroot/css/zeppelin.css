@@ -22,52 +22,58 @@
           height: 100%;
           width: 100%; }
 
-          .player {
-            display: table-cell;
-            vertical-align: middle; }
+          input.tiny {
+            padding: 0px 1px;
+            border: 1px solid;
+            border-radius: 2px;
+            font-size: 9px; }
 
-            .panel {
-              text-align: left; }
+            .player {
+              display: table-cell;
+              vertical-align: middle; }
 
-              .widget {
-                text-align: left;
-                display: inline-block;
-                position: relative; }
-                .widget .music_item {
-                  cursor: pointer; }
-                  .widget .music_item .face {
-                    transition: background-color 1.5s;
-                    -webkit-transition: background-color 1.5s;
-                    width: 100%; }
-                    .widget .music_item .face .image {
-                      padding: 2px;
-                      padding-left: 6px; }
-                      .widget .music_item .face .image .label {
-                        border-radius: 2px;
-                        padding: 1px 2px;
-                        font-size: 8px;
-                        display: inline-block;
-                        position: absolute;
-                        bottom: 0;
-                        right: -5px;
-                        line-height: 8px; }
-                        .widget .music_item .face .image img {
-                          vertical-align: middle;
-                          max-height: 32px; }
-                    .widget .music_item .face .content {
-                      padding: 2px;
-                      text-align: right;
-                      width: 100%;
-                      padding-right: 8px; }
-                      .widget .music_item .face .content .name {
-                        display: inline-block;
-                        margin-bottom: 5px;
-                        font-weight: bold; }
-                        .widget .music_item .face .content .desc {
-                          display: inline-block; }
-                    .widget .music_item .face:hover {
-                      transition: background-color 0.5s;
-                      -webkit-transition: background-color 0.5s; }
+              .panel {
+                text-align: left; }
+
+                .widget {
+                  text-align: left;
+                  display: inline-block;
+                  position: relative; }
+                  .widget .music_item {
+                    cursor: pointer; }
+                    .widget .music_item .face {
+                      transition: background-color 1.5s;
+                      -webkit-transition: background-color 1.5s;
+                      width: 100%; }
+                      .widget .music_item .face .image {
+                        padding: 2px;
+                        padding-left: 6px; }
+                        .widget .music_item .face .image .label {
+                          border-radius: 2px;
+                          padding: 1px 2px;
+                          font-size: 8px;
+                          display: inline-block;
+                          position: absolute;
+                          bottom: 0;
+                          right: -5px;
+                          line-height: 8px; }
+                          .widget .music_item .face .image img {
+                            vertical-align: middle;
+                            max-height: 32px; }
+                      .widget .music_item .face .content {
+                        padding: 2px;
+                        text-align: right;
+                        width: 100%;
+                        padding-right: 8px; }
+                        .widget .music_item .face .content .name {
+                          display: inline-block;
+                          margin-bottom: 5px;
+                          font-weight: bold; }
+                          .widget .music_item .face .content .desc {
+                            display: inline-block; }
+                      .widget .music_item .face:hover {
+                        transition: background-color 0.5s;
+                        -webkit-transition: background-color 0.5s; }
 
 .player_status .indicator {
   width: 9px;
@@ -214,3 +220,8 @@
 
       .preloader {
         margin: auto auto; }
+
+        .quicksearch input {
+          width: 100px; }
+          .quicksearch .wait {
+            width: 100px; }

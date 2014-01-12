@@ -5,16 +5,30 @@ body {
   a {
     color: #0099CC; }
 
-    .widget .music_item {
-      border-top: 1px solid #333; }
-      .widget .music_item .face .image .label {
-        text-shadow: 0 0 2px black;
-        color: white;
-        font-weight: bold; }
-      .widget .music_item .face .content .desc {
-        color: #aaa; }
-      .widget .music_item .face:hover {
-        background-color: rgba(255, 255, 255, 0.1); }
+    input.tiny {
+      box-shadow: 1px 1px 2px #444 inset;
+      border-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.4);
+      color: white;
+      transition: border-color 1s, box-shadow 1s;
+      -webkit-transition: border-color 1s, box-shadow 1s; }
+
+      input.tiny:focus {
+        box-shadow: 1px 1px 2px #444 inset, 0 0 2px #0099CC;
+        border-color: #0099CC;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        -webkit-transition: border-color 0.3s, box-shadow 0.3s; }
+
+        .widget .music_item {
+          border-top: 1px solid #333; }
+          .widget .music_item .face .image .label {
+            text-shadow: 0 0 2px black;
+            color: white;
+            font-weight: bold; }
+          .widget .music_item .face .content .desc {
+            color: #aaa; }
+          .widget .music_item .face:hover {
+            background-color: rgba(255, 255, 255, 0.1); }
 
 .panel {
   background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
@@ -75,3 +89,6 @@ body {
     .miniButton3D:hover {
       color: #0099CC;
       box-shadow: 0 0 2px #0099CC; }
+
+      .quicksearch .wait .value {
+        background-color: #0099CC; }

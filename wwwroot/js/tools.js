@@ -459,7 +459,7 @@ String.prototype.padR = function(width,pad)
     var length = width - this.length
     if (length < 1) this.substr(0,width);
     return (this + String.repeat(pad,length)).substr(0,width);
-} 
+}
 Date.prototype.format = function(p_format) 
 {
     var date = this;
@@ -921,9 +921,10 @@ function foreach(p_obj, p_callback) {
 	for(var i in p_obj) {
 		if(p_obj.hasOwnProperty(i)) {
 			if(p_callback(p_obj[i], i) === false)
-				return;
+				return false;
 		}
 	}
+	return true;
 }
 $.fn.serializeObject = function()
 {

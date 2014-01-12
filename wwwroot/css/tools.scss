@@ -1,0 +1,19 @@
+.quicksearch {
+	display: inline-block;
+	text-align: center;
+	input {
+		width: 200px;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+	}
+	.wait{
+		width: 200px;
+		height: 1px;
+		.value {
+			height: 1px;
+			background-color: #006699;
+			width: 0;
+		}
+	}
+}

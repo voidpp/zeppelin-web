@@ -891,7 +891,7 @@ function clBox(p_args)
 function quickSearchField(p_args)
 {
 	var tid = 0;
-	var wait = 400;
+	var wait = Map.def(p_args, 'wait', 400);
 	var waitValue = div({class:'value'});
 	var minLimit = Map.def(p_args, 'minLimit', 3);
 	var value = decodeURIComponent(Map.def(p_args, 'value', ''));
@@ -900,7 +900,7 @@ function quickSearchField(p_args)
 		type: 'text', 
 		placeholder: (p_args.placeholder || 'Search'), 
 		name: (p_args.name || 'search'), 
-		class: (p_args.class|| ''),
+		class: (p_args.class || ''),
 		style: (p_args.style || ''), 
 		value: value,
 		onkeyup: function(e){
@@ -916,7 +916,7 @@ function quickSearchField(p_args)
 			$(waitValue).stop();
 			if(inp.value.length < minLimit)
 				return;
-			if(key == 13) {
+			if(key == 13 || wait == 0) {
 				p_args.callback(inp.value);
 			} else {
 				$(waitValue).animate({width: '99%'}, wait, 'linear');
@@ -928,5 +928,11 @@ function quickSearchField(p_args)
 	});
 	if(value)
 		g_env.afterLoad(function() { inp.focus(); inp.setSelectionRange(value.length, value.length); });
-	return div({class:'quicksearch'}, inp,br(), div({class: 'wait'}, waitValue));
+		
+	var cont = div({class:'quicksearch'}, inp, br(), div({class: 'wait'}, waitValue));
+	cont.setValue = function(p_val)
+	{
+		inp.value = p_val;
+	}
+	return cont;
 }

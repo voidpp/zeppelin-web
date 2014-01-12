@@ -16,6 +16,20 @@ a {
 	color: $base_color;
 }
 
+input.tiny {
+	box-shadow: 1px 1px 2px #444 inset;
+	border-color: $unfilled_bg_color;
+	background-color: rgba(255, 255, 255, 0.4);
+	color: white;
+	@include transition(border-color 1s, box-shadow 1s);
+}
+
+input.tiny:focus {
+	box-shadow: 1px 1px 2px #444 inset, 0 0 2px $base_color;
+	border-color: $base_color;
+	@include transition(border-color 0.3s, box-shadow 0.3s);
+}
+
 .widget {
 	.music_item {
 		.face {			
@@ -65,9 +79,6 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 	position: relative;
 }
 
-.queue, .library {
-
-}
 .current_song_info { 
 	tr {
 		td:first-child {
@@ -130,7 +141,6 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 	}
 }
 
-
 .current_song {
 	.display {
 		color: $base_color;
@@ -140,7 +150,6 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 		color: $unfilled_bg_color;
 	}
 }
-
 
 .custom-slider-value {
 	background: $base_color;
@@ -155,4 +164,12 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 .miniButton3D:hover {
 	color: $base_color;
 	box-shadow: 0 0 2px $base_color;
+}
+
+.quicksearch {
+	.wait{
+		.value {
+			background-color: $base_color;
+		}
+	}
 }

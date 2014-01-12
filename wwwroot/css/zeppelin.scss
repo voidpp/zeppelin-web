@@ -31,6 +31,13 @@ html, body {
 	width: 100%;
 }
 
+input.tiny {
+	padding: 0px 1px;
+	border: 1px solid;
+	border-radius: 2px;
+	font-size: 9px;
+}
+
 .player {
 	display: table-cell;
 	vertical-align: middle;
@@ -284,4 +291,13 @@ miniButton3D:hover {
 
 .preloader {
 	margin: auto auto;
+}
+
+.quicksearch {
+	input {
+		width: 100px;
+	}
+	.wait{
+		width: 100px;
+	}
 }
