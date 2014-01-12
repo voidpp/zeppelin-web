@@ -712,6 +712,9 @@ var MusicTree = {
 function queueWidget(p_args)
 {
 	var m_args = def(p_args, {});
+	m_args.rpc_menu = [
+		{title: 'clear', cmd: 'player_queue_remove_all'},
+	];	
 	var m_cont = MusicTree.container(m_args).addClass('queue panel');
 
 	var m_renderers = {	
