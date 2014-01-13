@@ -5,7 +5,14 @@ var g_config = {
 		path: '/',
 	},
 	music_lists: {
-		//if the size of the list is over this value the list is groupped by the first letter of the items
-		letter_tags_display_limit: 50,
+		/*
+			If the size of the list is over this value the list is groupped by the first letter of the items
+			false means disable grouping
+		*/
+        letter_grouping: {
+			artists: 50,
+			albums: false,
+			songs: false,
+		}
 	},	
 };

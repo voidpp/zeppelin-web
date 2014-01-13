@@ -338,8 +338,10 @@ var MusicTree = {
 
 		return cont;
 	},
-	listItem: function(p_data, p_itemProcess, p_boxingName, p_sortName)
+	listItem: function(p_data, p_itemProcess, p_grouping, p_sortName)
 	{
+		var grouping = def(p_grouping, {});
+	
 		if(p_sortName) {
 			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
 			p_data.list.sort(function(a, b){
@@ -353,9 +355,10 @@ var MusicTree = {
 			});
 		}
 
-		var limit = g_config.music_lists.letter_tags_display_limit;
-		
-		return p_data.list.length > limit ? this.listItemBoxed(p_data, p_itemProcess, p_boxingName) : this.listItemMixed(p_data, p_itemProcess);
+		if(grouping.hasOwnProperty('name') && grouping.limit !== false && p_data.list.length > grouping.limit)
+			return this.listItemGrouped(p_data, p_itemProcess, grouping.name);
+		else
+			return this.listItemMixed(p_data, p_itemProcess);
 	},
 	listItemBase: function()
 	{
@@ -450,18 +453,20 @@ var MusicTree = {
 		
 		return m_cont;
 	},
-	listItemBoxed: function(p_data, p_itemProcess, p_boxingName)
+	listItemGrouped: function(p_data, p_itemProcess, p_groupingName)
 	{
+		console.log(p_groupingName);
+	
 		var m_tagCont = div({class: 'tags'});
 		var m_list = div({class: 'list'});
 		var m_cont = this.listItemBase().add(m_tagCont, m_list);
 		var m_tags = {};
 		var m_letters = {};
-		var m_currBoxLetter = -1;
+		var m_currGroupLetter = -1;
 		var m_css = {};
 
 		foreach(p_data.list, function(item) {
-			var letter = item[p_boxingName][0];
+			var letter = item[p_groupingName][0];
 			if(!letter)
 				return;
 				
@@ -481,7 +486,7 @@ var MusicTree = {
 			m_letters[letter].items.push({data: item});
 		});
 
-		var generateBox = function(p_desc) 
+		var generateGroup = function(p_desc) 
 		{
 			p_desc.cont = div().hide();
 			
@@ -509,8 +514,8 @@ var MusicTree = {
 		
 		foreach(lettersArr, function(letter) {
 			var tagCont = div(letter, {class: 'letter', onclick: function() {
-				hideBox(m_currBoxLetter);
-				showBox(letter);
+				hideGroup(m_currGroupLetter);
+				showGroup(letter);
 			}});
 		
 			m_tags[letter] = tagCont;
@@ -518,22 +523,22 @@ var MusicTree = {
 			m_tagCont.add(tagCont);
 		});
 		
-		var hideBox = function(p_letter)
+		var hideGroup = function(p_letter)
 		{
 			m_letters[p_letter].cont.hide();
 			m_tags[p_letter].removeClass('active');
 		}
 		
-		var showBox = function(p_letter) 
+		var showGroup = function(p_letter) 
 		{
 			var desc = m_letters[p_letter];
 
 			if(!desc.cont)
-				generateBox(desc);
+				generateGroup(desc);
 			
 			desc.cont.show();
 			m_tags[p_letter].addClass('active');
-			m_currBoxLetter = p_letter;
+			m_currGroupLetter = p_letter;
 
 			m_cont.onQuickSearch('');
 			if(m_cont.setQuickSearchValue)
@@ -542,7 +547,7 @@ var MusicTree = {
 
 		m_cont.onQuickSearch = function(p_val)
 		{		
-			var desc = m_letters[m_currBoxLetter];
+			var desc = m_letters[m_currGroupLetter];
 			this.search(desc.items, p_val);
 		}
 
@@ -569,7 +574,7 @@ var MusicTree = {
 		});
 
 		if(lettersArr.length)
-			showBox(lettersArr[0]);		
+			showGroup(lettersArr[0]);		
 
 		m_cont.getItem = function(p_idx)
 		{
@@ -812,7 +817,7 @@ function queueWidget(p_args)
 				var aid = 'album_'+p_data.id;
 			
 				if(!m_cont.hasNode(aid)) {
-					var list = MusicTree.listItem({list: p_data.files}, m_renderers.file, 'name');
+					var list = MusicTree.listItem({list: p_data.files}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'});
 					list.p('id', aid);
 					m_cont.addNode({title: p_data.name, id: aid, container: list});
 				}
@@ -929,7 +934,7 @@ function queueWidget(p_args)
 
 		var list = MusicTree.listItem({list: p_data}, function(item) {
 			return m_renderers[m_types[item.type].name](item);
-		}, 'name').addClass('playlist');
+		}).addClass('playlist');
 		
 		m_cont.addNode({title: 'Queue', id: -1, container: list}); //root
 		m_cont.switchNextNode(-1);
@@ -978,7 +983,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_albums_by_artist', {artist_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data}, m_renderers.album, 'name', ['name', 'songs']);
+						var list = MusicTree.listItem({list: data}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1005,7 +1010,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data}, m_renderers.file, 'name', ['track_index', 'name']);
+						var list = MusicTree.listItem({list: data}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1031,12 +1036,12 @@ function libraryWidget(p_args)
 			return item;
 		}
 	}
-	
+
 	g_env.data.request('library_get_artists');
-	
+
 	g_env.data.mgr.subscribe('library_get_artists', function(p_data) {
 		m_cont.reset();
-		var list = MusicTree.listItem({list: p_data}, m_renderers.artist, 'name', ['name', 'albums']);
+		var list = MusicTree.listItem({list: p_data}, m_renderers.artist, {limit: g_config.music_lists.letter_grouping.artists, name: 'name'}, ['name', 'albums']);
 		m_cont.addNode({title: 'Artists', id: -1, container: list});
 		m_cont.switchNextNode(-1);
 		g_env.eventMgr.notify('onListItemUpdated');
