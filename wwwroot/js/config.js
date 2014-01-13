@@ -11,8 +11,9 @@ function parseConfig(p_data)
 				songs: false,
 			},
 			queue: {
-				auto_jump: false
-			},	
+				auto_jump: false,
+			},
+			auto_scroll: false,
 		},
 	});
 

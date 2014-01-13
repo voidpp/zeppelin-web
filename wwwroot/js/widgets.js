@@ -440,14 +440,17 @@ var MusicTree = {
 			var cont = $(item.container);
 			cont.addClass('highlighted');
 
-			var scrollContTop = $(m_cont).find('.mCSB_container').position().top;
-			var to = cont.position().top - $(m_cont).height() + cont.outerHeight();
+			if(g_config.music_lists.auto_scroll)
+			{
+				var scrollContTop = $(m_cont).find('.mCSB_container').position().top;
+				var to = cont.position().top - $(m_cont).height() + cont.outerHeight();
 
-			if(cont.position().top + scrollContTop < 0)
-				$(m_cont).mCustomScrollbar('scrollTo', cont.position().top); //items at the top
-			else if(to + scrollContTop > 0)
-				$(m_cont).mCustomScrollbar('scrollTo',  to); //items at the bottom
-
+				if(cont.position().top + scrollContTop < 0)
+					$(m_cont).mCustomScrollbar('scrollTo', cont.position().top); //items at the top
+				else if(to + scrollContTop > 0)
+					$(m_cont).mCustomScrollbar('scrollTo',  to); //items at the bottom
+			}
+			
 			m_currHighLightedItem = p_idx;
 		}
 

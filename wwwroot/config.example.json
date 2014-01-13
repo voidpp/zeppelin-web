@@ -16,7 +16,9 @@ var g_config = {
 		},
 		queue: {
 			//auto jumps the highlight to the currently played item
-			auto_jump: false
+			auto_jump: false,
 		},
+		//auto scrolls the highlight to the currently played item
+		auto_scroll: false,
 	},	
 };
