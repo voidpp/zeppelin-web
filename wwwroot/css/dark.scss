@@ -108,6 +108,13 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 	.header {
 		.clTextButton {
 			color: white;
+			@include transition(color 1s, text-shadow 1s);
+			&:hover {
+				@include transition(color 0.3s, text-shadow 0.3s);
+				text-decoration: underline;
+				color: $base_color;
+				text-shadow: 0 0 2px $base_color;
+			}
 		}
 	}
 	.music_list {
