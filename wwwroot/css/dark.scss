@@ -49,9 +49,6 @@ input.tiny:focus {
 					color: #aaa;
 				}
 			}
-			.subitem {
-			
-			}
 			&:hover {
 				background-color: $unfilled_bg_color;
 			}
@@ -131,6 +128,13 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 				&:hover {
 					color: white;
 				}
+			}			
+		}
+		.dir_item {
+			@include transition(background-color 1s);
+			&:hover {
+				@include transition(background-color 0.2s);
+				background-color: $unfilled_bg_color;
 			}			
 		}
 	}

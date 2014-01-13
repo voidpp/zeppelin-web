@@ -154,7 +154,13 @@ input.tiny {
 			display: inline-block;
 		}
 		.nodes {
-		}	
+		}
+		.dir_item {
+			.content {
+				text-align: left;
+				vertical-align: bottom;
+			}
+		}
 	}
 }
 

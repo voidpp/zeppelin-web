@@ -9,6 +9,7 @@ function parseConfig(p_data)
 				artists: 42,
 				albums: false,
 				songs: false,
+				directories: 42,
 			},
 			queue: {
 				auto_jump: false,

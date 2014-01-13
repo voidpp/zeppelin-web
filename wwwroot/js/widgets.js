@@ -153,7 +153,7 @@ function currentSongWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song');
 	var m_text = div({class: 'display'});
-	var m_back = div({class: 'background'}).html(Array(60).join('&#x2589;'));
+	var m_back = div({class: 'background'}).html(Array(100).join('&#x2589;'));
 	
 	var m_fid = 0;
 	
@@ -315,7 +315,7 @@ var MusicTree = {
 		if(p_data.image && p_data.name) {
 			cont.add(table({cellspacing: 0, cellpadding: 0, class: 'face'}, tr(
 					td({class: 'image'}, div({style: 'position: relative'},img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null)),
-					td({class: 'content'}, div({class: 'name'}, p_data.name), br(), div({class: 'desc'}, p_data.desc))
+					td({class: 'content'}, div({class: 'name'}, p_data.name), (p_data.desc ? [br(), div({class: 'desc'}, p_data.desc)] : null))
 				))
 			);
 			
@@ -1015,7 +1015,7 @@ function libraryWidget(p_args)
 	m_args.quick_search = true;
 	var m_cont = MusicTree.container(m_args).addClass('library panel');
 	
-	var m_renderers = {	
+	var m_renderers = {
 		artist: function(p_data)
 		{
 			g_env.storage.library.artist[p_data.id] = p_data;
@@ -1104,3 +1104,49 @@ function libraryWidget(p_args)
 	return m_cont;
 }
 
+function directoryBrowserWidget(p_args)
+{
+	var m_args = def(p_args, {});
+	m_args.quick_search = true;
+	var m_cont = MusicTree.container(m_args).addClass('directory panel');
+
+	var m_renderers = {
+		dir: function(p_data) {
+			var item = MusicTree.item({
+				id: p_data.id,
+				name: p_data.name,
+				image: '/pic/folder-24.png',
+			}).addClass('dir_item');
+			item.onclick = function() {
+				loadDir(p_data.id, p_data.name);
+			};			
+			return item;
+		},
+		file: function(p_data) {
+			var item = MusicTree.item({
+				id: p_data.id,
+				name: p_data.name,
+				image: '/pic/default_song-24.png',
+				menu: [
+					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}}
+				]				
+			}).addClass('dir_item');
+			return item;
+		}
+	};
+
+	var loadDir = function(p_dirId, p_name)
+	{
+		g_env.rpc.request.send('library_list_directory', {directory_id: p_dirId}, function(p_data) {
+			var list = MusicTree.listItem({list: p_data}, function(item) {
+				return m_renderers[item.type](item);
+			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, 'name');
+			m_cont.addNode({title: p_name, id: p_dirId, container: list});
+			m_cont.switchNextNode(p_dirId);
+		});
+	}
+
+	loadDir(-1, 'Folders');
+	
+	return m_cont;
+}

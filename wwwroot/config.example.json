@@ -13,6 +13,7 @@ var g_config = {
 			artists: 42,
 			albums: false,
 			songs: false,
+			directories: 42,
 		},
 		queue: {
 			//auto jumps the highlight to the currently played item
