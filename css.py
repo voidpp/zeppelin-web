@@ -6,7 +6,7 @@ from scss import Scss
 compiler = Scss()
 
 parser = argparse.ArgumentParser(description='Compile all the scss files to css!')
-parser.add_argument('-f', '--folder', default='.', help='The source and the destination folder of the scss files')
+parser.add_argument('-f', '--folder', default='wwwroot/css', help='The source and the destination folder of the scss files')
 parser.add_argument('-w', '--watch', action='store_true', help='Watch continously the folder for updates. Blocks the console.')
 
 args = parser.parse_args()
