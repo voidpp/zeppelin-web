@@ -869,6 +869,7 @@ function queueWidget(p_args)
 		if(!m_currentIndex.length)
 			return;
 	
+		//calc new path
 		var nodeIdList = [-1]; //root node
 		foreach(m_currentIndex, function(index) {
 			var node = m_cont.getNode(nodeIdList.last());
@@ -884,6 +885,7 @@ function queueWidget(p_args)
 			nodeIdList.push(item.container.generateList());
 		});
 
+		//curr path
 		var pathOfNodes = m_cont.getPathOfNodes();
 		
 		if(pathOfNodes === false)
@@ -891,18 +893,23 @@ function queueWidget(p_args)
 
 		try {
 			foreach(nodeIdList, function(nodeId, i) {
+				if(nodeIdList.length-1 == i && nodeIdList.length < pathOfNodes.length) { //last && the new list is smaller than the current
+					throw {prev: nodeId};
+				}
+
 				if(pathOfNodes.length <= i)
-					throw {show: nodeIdList.last()};
+					throw {next: nodeIdList.last()};
 
 				if(pathOfNodes[i] != nodeId)
-					throw {show: nodeIdList.last(), hide: pathOfNodes[i-1]};
+					throw {next: nodeIdList.last(), prev: pathOfNodes[i-1]};
 			});
 		} catch (nodeIdObj) {
-			if(nodeIdObj.hide) {
-				m_cont.switchPrevNode(nodeIdObj.hide, 0);
-			}
 
-			m_cont.switchNextNode(nodeIdObj.show);
+			if(nodeIdObj.prev)
+				m_cont.switchPrevNode(nodeIdObj.prev);
+
+			if(nodeIdObj.next)
+				m_cont.switchNextNode(nodeIdObj.next);
 		}
 		
 		var node = m_cont.getNode(nodeIdList.last());
