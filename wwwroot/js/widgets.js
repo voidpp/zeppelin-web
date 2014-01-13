@@ -1129,7 +1129,7 @@ function directoryBrowserWidget(p_args)
 				image: '/pic/default_song-24.png',
 				menu: [
 					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}}
-				]				
+				]
 			}).addClass('dir_item');
 			return item;
 		}
@@ -1140,7 +1140,7 @@ function directoryBrowserWidget(p_args)
 		g_env.rpc.request.send('library_list_directory', {directory_id: p_dirId}, function(p_data) {
 			var list = MusicTree.listItem({list: p_data}, function(item) {
 				return m_renderers[item.type](item);
-			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, 'name');
+			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, ['type','name']);
 			m_cont.addNode({title: p_name, id: p_dirId, container: list});
 			m_cont.switchNextNode(p_dirId);
 		});

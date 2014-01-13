@@ -1,11 +1,11 @@
 
 function ZeppelinClient()
 {
-	var main = div({class: 'panel', style:'padding: 10px; width: 1040px'},
+	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
 				playerStatusWidget({css: {marginRight: 5}}),
 				currentPositionNumWidget({css: {marginRight: 10}}), 
 				currentSongInfoWidget(), br(),
-				currentSongWidget({css: {width: 1040}}), br(),
+				currentSongWidget({css: {width: 680}}), br(),
 				currentPositionBarWidget({css: {width: '100%', paddingTop: 5, paddingBottom: 5}}), br(),	
 				controlWidget(),
 				volumeWidget({orientation: 'horizontal', css: {width: 150, padding: 5}})
@@ -16,8 +16,7 @@ function ZeppelinClient()
 	var player = div({class: 'player'},
 			main, br(),
 			queueWidget({css: {width: 340, height: 500}}),
-			libraryWidget({css: {width: 340, height: 500}}),
-			directoryBrowserWidget({css: {width: 340, height: 500}})
+			libraryWidget({css: {width: 340, height: 500}})
 		);
 			
 	body().add(player);
