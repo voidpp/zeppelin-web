@@ -419,11 +419,13 @@ var MusicTree = {
 			return false;
 		}
 
-		m_cont.onShow = function()
+		m_cont.resetHighlight = function()
 		{
+			if(m_currHighLightedItem >= 0)
+				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');			
 			m_currHighLightedItem = -1;
 		}
-
+		
 		m_cont.highlightItem = function(p_idx)
 		{
 			var item = this.getItem(p_idx);
@@ -455,8 +457,6 @@ var MusicTree = {
 	},
 	listItemGrouped: function(p_data, p_itemProcess, p_groupingName)
 	{
-		console.log(p_groupingName);
-	
 		var m_tagCont = div({class: 'tags'});
 		var m_list = div({class: 'list'});
 		var m_cont = this.listItemBase().add(m_tagCont, m_list);
@@ -864,14 +864,13 @@ function queueWidget(p_args)
 		}
 	};
 
-	var updateCurrent = function()
+	var calcNodePathForIndex = function(p_index)
 	{
-		if(!m_currentIndex.length)
-			return;
+		if(!p_index.length)
+			return [];
 	
-		//calc new path
 		var nodeIdList = [-1]; //root node
-		foreach(m_currentIndex, function(index) {
+		foreach(p_index, function(index) {
 			var node = m_cont.getNode(nodeIdList.last());
 			if(node === false)
 				return false;
@@ -884,6 +883,16 @@ function queueWidget(p_args)
 			
 			nodeIdList.push(item.container.generateList());
 		});
+
+		return nodeIdList;
+	}
+	
+	var jumpToNode = function()
+	{
+		var nodeIdList = calcNodePathForIndex(m_currentIndex);
+
+		if(!nodeIdList.length)
+			return;
 
 		//curr path
 		var pathOfNodes = m_cont.getPathOfNodes();
@@ -916,6 +925,33 @@ function queueWidget(p_args)
 		if(node === false)
 			return;
 		node.container.highlightItem(m_currentIndex.last());
+	}
+
+	var highlightCurrentItem = function()
+	{
+		var newNodePath = calcNodePathForIndex(m_currentIndex);
+
+		if(!newNodePath.length) 
+			return;
+		
+		var currNodePath = m_cont.getPathOfNodes();
+		
+		if(currNodePath === false)
+			return;
+		
+		foreach(currNodePath, function(nodeId) {
+			var node = m_cont.getNode(nodeId);
+			if(node !== false)
+				node.container.resetHighlight();
+		});
+		
+		foreach(newNodePath, function(nodeId, i) {
+			var node = m_cont.getNode(nodeId);
+			if(node === false)
+				return;
+
+			node.container.highlightItem(m_currentIndex[i]);
+		});
 	}
 
 	var cache = function(p_data, p_index) {
@@ -955,7 +991,11 @@ function queueWidget(p_args)
 				return;
 			m_currentIndex = p_data.index;
 		}
-		updateCurrent();
+
+		if(g_config.music_lists.queue.auto_jump)
+			jumpToNode();
+
+		highlightCurrentItem();
 	});	
 	
 	return m_cont;

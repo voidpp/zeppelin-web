@@ -11,7 +11,7 @@ function ZeppelinClient()
 				volumeWidget({orientation: 'horizontal', css: {width: 150, padding: 5}})
 			);
 
-	$(main).draggable()/*.resizable()*/;
+	//$(main).draggable()/*.resizable()*/;
 			
 	var player = div({class: 'player'},
 			main, br(),

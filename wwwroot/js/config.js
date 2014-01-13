@@ -5,7 +5,14 @@ function parseConfig(p_data)
 			host: window.location.hostname
 		},
 		music_lists: {
-			letter_tags_display_limit: 50,
+			letter_grouping: {
+				artists: 42,
+				albums: false,
+				songs: false,
+			},
+			queue: {
+				auto_jump: false
+			},	
 		},
 	});
 

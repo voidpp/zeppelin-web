@@ -10,9 +10,13 @@ var g_config = {
 			false means disable grouping
 		*/
         letter_grouping: {
-			artists: 50,
+			artists: 42,
 			albums: false,
 			songs: false,
-		}
+		},
+		queue: {
+			//auto jumps the highlight to the currently played item
+			auto_jump: false
+		},
 	},	
 };

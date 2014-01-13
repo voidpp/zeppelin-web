@@ -652,12 +652,13 @@ var Map = {
 
 		if(!Map.size(p_struct))
 			return;
-			
+
 		var obj = p_obj;
 		for(var key in p_struct) {
-			if(!obj.hasOwnProperty(key))
+			if(obj.hasOwnProperty(key))
+				Map.init(obj[key], p_struct[key]);
+			else
 				obj[key] = p_struct[key];
-			Map.init(obj);
 		}
 	},
 	empty: function(p_obj)
