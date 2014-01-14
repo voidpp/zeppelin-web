@@ -120,17 +120,13 @@ input.tiny {
 	overflow: hidden;
 	.header {
 		padding: 2px;
-		min-height: 30px;
+		min-height: 32px;
 		.menubar {
 			text-align: right;
 		}
 		.breadcrumbs {
 			overflow: hidden;
 			white-space: nowrap;
-			text-overflow: ellipsis;
-			&:hover {
-				white-space: normal;
-			}
 		}
 	}
 	.music_list {
@@ -308,5 +304,12 @@ miniButton3D:hover {
 	}
 	.wait{
 		width: 100px;
+	}
+}
+
+.tipsy {
+	font-size: 12px;
+	.tipsy-inner {
+		box-shadow: 0 0 3px black;
 	}
 }

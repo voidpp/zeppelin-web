@@ -576,6 +576,11 @@ var MusicTree = {
 		if(lettersArr.length)
 			showGroup(lettersArr[0]);		
 
+		m_cont.highlightItem = function(p_idx)
+		{
+			throw 'Not implemented.';
+		}
+			
 		m_cont.getItem = function(p_idx)
 		{
 			throw 'Not implemented.';
@@ -593,7 +598,7 @@ var MusicTree = {
 		var m_nodes = {};
 		var m_path = [];
 		var m_quickSearch = null;
-
+		
 		foreach(p_args.rpc_menu, function(menu) {
 			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd); }, class: 'miniButton3D'}), ' ');
 		});
@@ -622,6 +627,7 @@ var MusicTree = {
 			m_path = [];
 			m_nodesCont.clear();
 			this.updateBreadcrumbs();
+			g_env.eventMgr.notify('onListItemUpdated');
 		}
 		
 		m_cont.updateQuickSearchField = function(p_id)
@@ -648,6 +654,7 @@ var MusicTree = {
 			m_path.push({id: p_id, title: node.title});
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
+			g_env.eventMgr.notify('onListItemUpdated');
 		}
 		
 		m_cont.getPathOfNodes = function()
@@ -700,6 +707,7 @@ var MusicTree = {
 			
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
+			g_env.eventMgr.notify('onListItemUpdated');
 		}
 
 		m_cont.hideNode = function(p_id) 
@@ -724,13 +732,22 @@ var MusicTree = {
 		m_cont.updateBreadcrumbs = function() 
 		{
 			var parts = [];
+			var title = [];
 			foreach(m_path, function(part) {
 				parts.push(clTextButton({label: part.title, onclick: function() {
 					m_cont.switchPrevNode(part.id);
 				}}));
+				title.push(part.title);
 			});
-			$(m_breadcrumbs.set(parts.quilt(' > '))).autoScroll();
-			g_env.eventMgr.notify('onListItemUpdated');
+			m_breadcrumbs.set(parts.quilt(' > '));
+			
+			//only show the tooltip when it overflowed the breadcrumbs container
+			if($(m_breadcrumbs).width() < m_breadcrumbs.scrollWidth)
+				m_breadcrumbs.p('title', title.join(' > '));
+			else {
+				$(m_breadcrumbs).tipsy("hide");
+				m_breadcrumbs.p('original-title', '');
+			}
 		}
 
 		m_cont.back = function() 
@@ -784,6 +801,21 @@ var MusicTree = {
 				return false;
 		}
 		
+		g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+			m_breadcrumbs.css({width: $(m_header).width()});
+			
+			$(m_breadcrumbs).tipsy({
+				gravity: 's',
+				fade: true,
+				opacity: 0.9,
+			});
+		});
+		
+		$(m_breadcrumbs).bind('mousewheel',function(ev, delta) {
+			var scrollLeft = $(this).scrollLeft();
+			$(this).scrollLeft(scrollLeft-Math.round(delta*50));
+		});
+
 		return m_cont.add(m_header, m_nodesCont);
 	}
 }
