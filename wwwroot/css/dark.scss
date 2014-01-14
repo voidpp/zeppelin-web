@@ -192,6 +192,7 @@ $letter_box_shadow: rgba(black,0.8);
 		color: #666;
 		box-shadow: 0 2px 2px black inset;
 		background-color: rgba(white,0.05);
+		border-radius: 0 0 5px 5px;
 		>.title {
 			text-shadow: 1px 1px 2px black;
 			&:hover {
@@ -201,8 +202,14 @@ $letter_box_shadow: rgba(black,0.8);
 		>.active{
 			color: $base_color;
 			text-shadow: 0 0 2px rgba($base_color,0.5);
-			box-shadow: none;
+			box-shadow: 4px 1px 2px -2px black, -4px 1px 2px -2px black;
 			background: $blured_background;
+			&:last-child {
+				box-shadow: -4px 1px 2px -2px black;
+			}
+			&:first-child {
+				box-shadow: 4px 1px 2px -2px black;
+			}
 		}
 	}
 }
