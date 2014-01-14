@@ -836,7 +836,7 @@ function queueWidget(p_args)
 		{
 			var item = MusicTree.item({
 				id: p_data.id,
-				name: p_data.title,
+				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
 				image: '/pic/default_song.png',
 				label: g_descriptors.codecs[p_data.codec].title,
