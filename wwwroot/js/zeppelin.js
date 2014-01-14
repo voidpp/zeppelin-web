@@ -7,7 +7,7 @@ function ZeppelinClient()
 			cmd: 'library_get_albums',
 			root_renderer: 'album',
 			lists: {
-				groupping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
+				grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
 				sorting: ['name', 'songs']
 			}		
 		},
@@ -16,7 +16,7 @@ function ZeppelinClient()
 			cmd: 'library_get_artists',
 			root_renderer: 'artist',
 			lists: {
-				groupping: {limit: g_config.music_lists.letter_grouping.artists, name: 'title'},
+				grouping: {limit: g_config.music_lists.letter_grouping.artists, name: 'name'},
 				sorting: ['name', 'albums']
 			}
 		}
