@@ -1,0 +1,36 @@
+@import 'wwwroot/css/functions';
+
+.clTabulable {
+	.container {
+		.page {
+			position: absolute;
+			top: 0;
+			left: 0;
+			opacity: 0;
+			@include transition(opacity 0.2s);
+			z-index: 4;
+		}
+		>.active {
+			@include transition(opacity 0.2s);
+			opacity: 1;
+			z-index: 5;
+		}
+	}
+	.pager {
+		display: table;
+		width: 100%;
+		height: 30px;
+		>.title {
+			display: table-cell;
+			vertical-align: middle;	
+			text-align: center;
+			padding: 3px;
+			cursor: pointer;
+			@include box-sizing(border-box);			
+			@include user-select(none);
+			>.active{
+				
+			}
+		}
+	}
+}

@@ -1,0 +1,16 @@
+@mixin transition($p) {
+	transition: $p;
+	-webkit-transition: $p;
+}
+
+@mixin user-select($p) {
+	user-select: $p;
+	-moz-user-select: $p;
+	-khtml-user-select: $p;	
+}
+
+@mixin box-sizing($p) {
+	box-sizing: $p;
+	-moz-box-sizing: $p;
+	-webkit-box-sizing: $p;
+}

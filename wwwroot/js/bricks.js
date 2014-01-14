@@ -624,15 +624,82 @@ function clLongTextContainer(p_text, p_showLen)
 	return cont;
 }
 
-function tab(p_pages)
+/*
+	TODO: configurable the pager position such as top, left, bottom, right.
+*/
+function clTabulable(p_desc)
 {
-	var cont = div({'class':'tab_container'});
+	var m_pageContainer = div({class: 'container'});
+	var m_pager = div({class: 'pager'});
+	var m_cont = div({class: 'clTabulable'}, m_pageContainer, m_pager);
+	var m_currPage = -1;
+	var m_pages = [];
 
-	for(var title in p_pages)
+	m_cont.getPage = function(p_idx)
 	{
-		var page = p_pages[title];
-		var item = div(page, {'class':'tab_item'});	
+		if(p_idx < 0 || p_idx >= m_pages.length)
+			return false;
+		return m_pages[p_idx];
 	}
+
+	m_cont.hidePage = function(p_idx)
+	{
+		var page = this.getPage(p_idx);
+		if(page === false)
+			return;
+
+		page.title.removeClass('active');
+		page.cont.removeClass('active');
+	}
+
+	m_cont.showPage = function(p_idx)
+	{
+		var page = this.getPage(p_idx);
+		if(page === false)
+			return;
+		page.title.addClass('active');
+		page.cont.addClass('active');
+		m_currPage = p_idx;			
+	}
+
+	var firstPage = false;
+
+	foreach(p_desc.pages, function(desc, i) {
+		var page = div({class: 'page'}, desc.container);
+		var title = div({class: 'title'}, desc.title);
+
+		if(Map.def(desc, 'default', false) && firstPage == -1)
+			firstPage = i;
+
+		m_pages.push({title: title, cont: page});
+
+		m_pageContainer.add(page);
+		m_pager.add(title);
+
+		title.onclick = function() {
+			m_cont.hidePage(m_currPage);
+			m_cont.showPage(i);
+		}
+	});
+	
+	m_cont.updateLayout = function() 
+	{
+		var size = {
+				width: $(m_cont).width(),
+				height: $(m_cont).outerHeight() - $(m_pager).outerHeight()
+			};
+	
+		m_pageContainer.css(size);
+	
+		foreach(p_desc.pages, function(desc, i) {
+			desc.container.css(size);
+		});
+	}
+
+	if(m_pages.length)
+		m_cont.showPage(firstPage === false ? 0 : firstPage);
+
+	return m_cont;
 }
 function clMultiButtonBar(p_args)
 {

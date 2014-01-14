@@ -1,11 +1,8 @@
-@mixin transition($p) {
-	transition: $p;
-	-webkit-transition: $p;
-}
+@import 'wwwroot/css/functions';
 
 $base_color: #0099CC;
-$unfilled_bg_color: rgba(255,255,255,0.1);
-$gray: rgba(255,255,255,0.5);
+$unfilled_bg_color: rgba(white,0.1);
+$gray: rgba(white,0.5);
 
 body {
 	background: url(/pic/bg-wood-logo.jpg) center center fixed #111;
@@ -19,7 +16,7 @@ a {
 input.tiny {
 	box-shadow: 1px 1px 2px #444 inset;
 	border-color: $unfilled_bg_color;
-	background-color: rgba(255, 255, 255, 0.4);
+	background-color: rgba(white, 0.4);
 	color: white;
 	@include transition(border-color 1s, box-shadow 1s);
 }
@@ -98,7 +95,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 	}
 }
 
-$letter_box_shadow: rgba(0,0,0,0.8);
+$letter_box_shadow: rgba(black,0.8);
 
 .music_container{
 	.highlighted {
@@ -120,7 +117,7 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 	.music_list {
 		.tags {
 			box-shadow: -2px 0 3px $letter_box_shadow inset;
-			background-color: rgba(255,255,255,0.05);
+			background-color: rgba(white,0.05);
 			.letter {
 				color: #666;
 				text-shadow: 1px 1px 2px #000000;
@@ -130,11 +127,9 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 			}
 			.active {
 				background: $blured_background;
-				color: white;
+				color: $base_color;
+				text-shadow: 0 0  2px rgba($base_color,0.5);
 				box-shadow: -1px 2px 2px -1px $letter_box_shadow, -1px -2px 2px -1px $letter_box_shadow;
-				&:hover {
-					color: white;
-				}
 			}			
 		}
 		.dir_item {
@@ -185,6 +180,29 @@ $letter_box_shadow: rgba(0,0,0,0.8);
 	.wait{
 		.value {
 			background-color: $base_color;
+		}
+	}
+}
+
+.clTabulable {
+	.container {
+	}
+	.pager {
+		font-weight: bold;
+		color: #666;
+		box-shadow: 0 2px 2px black inset;
+		background-color: rgba(white,0.05);
+		>.title {
+			text-shadow: 1px 1px 2px black;
+			&:hover {
+				color: $base_color;
+			}
+		}
+		>.active{
+			color: $base_color;
+			text-shadow: 0 0 2px rgba($base_color,0.5);
+			box-shadow: none;
+			background: $blured_background;
 		}
 	}
 }

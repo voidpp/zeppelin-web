@@ -1,11 +1,11 @@
+@import 'wwwroot/css/functions';
+
 .quicksearch {
 	display: inline-block;
 	text-align: center;
 	input {
 		width: 200px;
-		box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		-webkit-box-sizing: border-box;
+		@include box-sizing(border-box);
 	}
 	.wait{
 		width: 200px;

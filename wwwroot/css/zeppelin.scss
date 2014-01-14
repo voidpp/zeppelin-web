@@ -1,7 +1,4 @@
-@mixin transition($p) {
-	transition: $p;
-	-webkit-transition: $p;
-}
+@import 'wwwroot/css/functions';
 
 @font-face {
 	font-family: Digital7;
@@ -41,6 +38,13 @@ input.tiny {
 .player {
 	display: table-cell;
 	vertical-align: middle;
+	> table {
+		margin: 0 auto;
+		td {
+			vertical-align: top;
+		}
+	
+	}
 }
 
 .panel {
@@ -116,7 +120,7 @@ input.tiny {
 	overflow: hidden;
 	.header {
 		padding: 2px;
-		min-height: 35px;
+		min-height: 30px;
 		.menubar {
 			text-align: right;
 		}
@@ -138,7 +142,7 @@ input.tiny {
 			width: 17px;
 			text-align: center;
 			cursor: pointer;
-			user-select: none;
+			@include user-select(none);
 			overflow: hidden;
 			.letter {
 				line-height: 13px;
@@ -278,9 +282,7 @@ $default_radius: 1px;
 	cursor: pointer;
 	cursor: hand;
 	outline: none;
-	user-select: none;
-	-moz-user-select: none;
-	-khtml-user-select: none;	
+	@include user-select(none);
 	background-image: linear-gradient(to bottom, #eee, #aaa);
 	border-radius: 2px;	
 	color: #222;

@@ -2,24 +2,38 @@
 function ZeppelinClient()
 {
 	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
-				playerStatusWidget({css: {marginRight: 5}}),
-				currentPositionNumWidget({css: {marginRight: 10}}), 
+				playerStatusWidget().css({marginRight: 5}),
+				currentPositionNumWidget().css({marginRight: 10}), 
 				currentSongInfoWidget(), br(),
-				currentSongWidget({css: {width: 680}}), br(),
-				currentPositionBarWidget({css: {width: '100%', paddingTop: 5, paddingBottom: 5}}), br(),	
+				currentSongWidget().css({width: 680}), br(),
+				currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),	
 				controlWidget(),
-				volumeWidget({orientation: 'horizontal', css: {width: 150, padding: 5}})
+				volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
 			);
 
 	//$(main).draggable()/*.resizable()*/;
 			
+	var tabbedWidgets = clTabulable({
+		pos: 'top',
+		pages: [
+			{title: 'Artists', container: libraryWidget(), default: true},
+			{title: 'Folders', container: directoryBrowserWidget()},
+		]
+	}).addClass('panel').css({width: 340, height: 500});
+			
 	var player = div({class: 'player'},
-			main, br(),
-			queueWidget({css: {width: 340, height: 500}}),
-			libraryWidget({css: {width: 340, height: 500}})
+			table({cellpadding:0, cellspacing: 0},
+				tr(td({colspan: 2}, main)),
+				tr(
+					td(queueWidget().css({width: 340, height: 500}).addClass('panel')),
+					td(tabbedWidgets)
+				)
+			)
 		);
 			
 	body().add(player);
+	
+	tabbedWidgets.updateLayout();
 
 	g_env.eventMgr.notify('onZeppelinBuilt');
 	

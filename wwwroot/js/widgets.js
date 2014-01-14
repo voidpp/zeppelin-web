@@ -2,9 +2,6 @@
 function widget(p_args)
 {
 	var m_cont = div({class: 'widget'});
-	m_cont.args = def(p_args, {});
-	if(m_cont.args.css)
-		$(m_cont).css(m_cont.args.css);
 
 	return m_cont;
 }
@@ -751,8 +748,8 @@ var MusicTree = {
 			
 			var updateLayout = function() {
 				$(p_desc.container).css({
-					width: p_args.css.width,
-					height: p_args.css.height - $(m_header).outerHeight(true),
+					width: $(m_cont).width(),
+					height: $(m_cont).height() - $(m_header).outerHeight(true),
 					overflow: 'hidden'
 				});
 				
@@ -797,7 +794,7 @@ function queueWidget(p_args)
 	m_args.rpc_menu = [
 		{title: 'clear', cmd: 'player_queue_remove_all'},
 	];	
-	var m_cont = MusicTree.container(m_args).addClass('queue panel');
+	var m_cont = MusicTree.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
 	var m_renderers = {	
@@ -1013,7 +1010,7 @@ function libraryWidget(p_args)
 		{title: 'Refresh', cmd: 'library_get_artists'}
 	];
 	m_args.quick_search = true;
-	var m_cont = MusicTree.container(m_args).addClass('library panel');
+	var m_cont = MusicTree.container(m_args).addClass('library');
 	
 	var m_renderers = {
 		artist: function(p_data)
@@ -1108,7 +1105,7 @@ function directoryBrowserWidget(p_args)
 {
 	var m_args = def(p_args, {});
 	m_args.quick_search = true;
-	var m_cont = MusicTree.container(m_args).addClass('directory panel');
+	var m_cont = MusicTree.container(m_args).addClass('directory');
 
 	var m_renderers = {
 		dir: function(p_data) {

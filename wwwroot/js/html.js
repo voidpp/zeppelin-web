@@ -332,6 +332,15 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		return {w: $(element).width(), h: $(element).height()};
 	}
 	
+	element.css = function(p_params)
+	{
+		if(typeof p_params == 'string')
+			return $(element).css(p_params);
+
+		$(element).css(p_params);
+		return element;
+	}
+	
 	for(var name in html.externals) {
 		element[name] = html.externals[name];
 	}
