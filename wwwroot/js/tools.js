@@ -900,8 +900,8 @@ function intcmp(i1,i2)
     return 0;
 }
 function strcmp(s1, s2) {
-    if (s1 < s2) return -1;
-    if (s1 > s2) return 1;
+    if (s1.toLowerCase() < s2.toLowerCase()) return -1;
+    if (s1.toLowerCase() > s2.toLowerCase()) return 1;
     return 0;
 }
 var Geometry = {
