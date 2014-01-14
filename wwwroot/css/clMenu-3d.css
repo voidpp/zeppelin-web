@@ -10,6 +10,7 @@
 	user-select: none;	
 	color: black;
 	text-align: left;
+	z-index: 100;
 }
 
 .clMenu_container_column{
