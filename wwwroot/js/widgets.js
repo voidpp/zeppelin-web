@@ -167,7 +167,7 @@ function currentSongWidget(p_args)
 		
 		var t = m_text;
 		
-		m_text.set(file.title + ' (' + formatTime(file.length) + ')');
+		m_text.set(file.title || file.name + ' (' + formatTime(file.length) + ')');
 		
 		$(t).autoScroll({
 			duration: 5000, 
@@ -1057,7 +1057,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title']);
+						var list = MusicTree.listItem({list: data}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1071,7 +1071,7 @@ function libraryWidget(p_args)
 			g_env.storage.library.file[p_data.id] = p_data;
 			var item = MusicTree.item({
 				id: p_data.id,
-				name: p_data.title,
+				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
 				image: '/pic/default_song.png',
 				label: g_descriptors.codecs[p_data.codec].title,
