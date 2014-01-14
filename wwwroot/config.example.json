@@ -11,7 +11,7 @@ var g_config = {
 		*/
         letter_grouping: {
 			artists: 42,
-			albums: false,
+			albums: 42,
 			songs: false,
 			directories: 42,
 		},

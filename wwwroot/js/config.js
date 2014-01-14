@@ -7,7 +7,7 @@ function parseConfig(p_data)
 		music_lists: {
 			letter_grouping: {
 				artists: 42,
-				albums: false,
+				albums: 42,
 				songs: false,
 				directories: 42,
 			},

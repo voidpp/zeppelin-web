@@ -1,6 +1,27 @@
 
 function ZeppelinClient()
 {
+	var libraryTypes = {
+		albums: {
+			title: 'Albums',
+			cmd: 'library_get_albums',
+			root_renderer: 'album',
+			lists: {
+				groupping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
+				sorting: ['name', 'songs']
+			}		
+		},
+		artists: {
+			title: 'Artists',
+			cmd: 'library_get_artists',
+			root_renderer: 'artist',
+			lists: {
+				groupping: {limit: g_config.music_lists.letter_grouping.artists, name: 'title'},
+				sorting: ['name', 'albums']
+			}
+		}
+	}
+
 	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
 				playerStatusWidget().css({marginRight: 5}),
 				currentPositionNumWidget().css({marginRight: 10}), 
@@ -16,7 +37,8 @@ function ZeppelinClient()
 	var tabbedWidgets = clTabulable({
 		pos: 'top',
 		pages: [
-			{title: 'Artists', container: libraryWidget(), default: true},
+			{title: libraryTypes.artists.title, container: libraryWidget({desc: libraryTypes.artists}), default: true},
+			{title: libraryTypes.albums.title, container: libraryWidget({desc: libraryTypes.albums})},
 			{title: 'Folders', container: directoryBrowserWidget()},
 		]
 	}).addClass('panel').css({width: 340, height: 500});
