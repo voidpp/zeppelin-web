@@ -280,7 +280,7 @@ function volumeWidget(p_args)
 		}
 	});
 	
-	g_env.eventMgr.subscribe('onListItemUpdated', function() {
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		if(m_orientation == 'vertical')
 			$(m_slider).height($(m_cont).height() - $(m_icon).outerHeight());
 		else
@@ -400,7 +400,7 @@ var MusicTree = {
 			mouseWheelPixels: 200
 		});
 		
-		g_env.eventMgr.subscribe('onListItemUpdated', function() {
+		p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
 			$(m_cont).mCustomScrollbar("update");
 		});
 		
@@ -503,7 +503,7 @@ var MusicTree = {
 				mouseWheelPixels: 200
 			});
 			
-			g_env.eventMgr.subscribe('onListItemUpdated', function() {
+			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
 				$(p_desc.cont).mCustomScrollbar("update");
 			});	
 		}
@@ -599,6 +599,8 @@ var MusicTree = {
 		var m_path = [];
 		var m_quickSearch = null;
 		
+		m_cont.eventMgr = new EventManager();
+		
 		foreach(p_args.rpc_menu, function(menu) {
 			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd); }, class: 'miniButton3D'}), ' ');
 		});
@@ -627,7 +629,7 @@ var MusicTree = {
 			m_path = [];
 			m_nodesCont.clear();
 			this.updateBreadcrumbs();
-			g_env.eventMgr.notify('onListItemUpdated');
+			m_cont.eventMgr.notify('onListItemUpdated');
 		}
 		
 		m_cont.updateQuickSearchField = function(p_id)
@@ -654,7 +656,7 @@ var MusicTree = {
 			m_path.push({id: p_id, title: node.title});
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
-			g_env.eventMgr.notify('onListItemUpdated');
+			m_cont.eventMgr.notify('onListItemUpdated');
 		}
 		
 		m_cont.getPathOfNodes = function()
@@ -707,7 +709,7 @@ var MusicTree = {
 			
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
-			g_env.eventMgr.notify('onListItemUpdated');
+			m_cont.eventMgr.notify('onListItemUpdated');
 		}
 
 		m_cont.hideNode = function(p_id) 
@@ -774,7 +776,7 @@ var MusicTree = {
 			}
 			
 			if(h < 10) { //the element is not the part of the DOM yet
-				g_env.eventMgr.subscribe(['onZeppelinBuilt', 'onListItemUpdated'], function() {
+				g_env.eventMgr.subscribe(['onZeppelinBuilt'], function() {
 					updateLayout();
 				});
 			}
@@ -849,7 +851,7 @@ function queueWidget(p_args)
 				var aid = 'album_'+p_data.id;
 			
 				if(!m_cont.hasNode(aid)) {
-					var list = MusicTree.listItem({list: p_data.files}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'});
+					var list = MusicTree.listItem({list: p_data.files, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'});
 					list.p('id', aid);
 					m_cont.addNode({title: p_data.name, id: aid, container: list});
 				}
@@ -1007,14 +1009,14 @@ function queueWidget(p_args)
 
 		cache(p_data, []);
 
-		var list = MusicTree.listItem({list: p_data}, function(item) {
+		var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
 			return m_renderers[m_types[item.type].name](item);
 		}).addClass('playlist');
 		
 		m_cont.addNode({title: 'Queue', id: -1, container: list}); //root
 		m_cont.switchNextNode(-1);
 
-		g_env.eventMgr.notify('onListItemUpdated');
+		m_cont.eventMgr.notify('onListItemUpdated');
 	});
 	
 	g_env.data.mgr.subscribe(['player_status', 'player_queue_get'], function(p_data) {
@@ -1062,7 +1064,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_albums_by_artist', {artist_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
+						var list = MusicTree.listItem({list: data, parent: m_cont}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1089,7 +1091,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
+						var list = MusicTree.listItem({list: data, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1120,13 +1122,13 @@ function libraryWidget(p_args)
 
 	g_env.data.mgr.subscribe(p_args.desc.cmd, function(p_data) {
 		m_cont.reset();
-		var list = MusicTree.listItem({list: p_data}, m_renderers[p_args.desc.root_renderer], p_args.desc.lists.grouping, p_args.desc.lists.sorting);
+		var list = MusicTree.listItem({list: p_data, parent: m_cont}, m_renderers[p_args.desc.root_renderer], p_args.desc.lists.grouping, p_args.desc.lists.sorting);
 		m_cont.addNode({title: p_args.desc.title, id: -1, container: list});
 		m_cont.switchNextNode(-1);
-		g_env.eventMgr.notify('onListItemUpdated');
+		m_cont.eventMgr.notify('onListItemUpdated');
 	});
 
-	g_env.eventMgr.subscribe('send_'+p_args.desc.cmd, function() {
+	m_cont.eventMgr.subscribe('send_'+p_args.desc.cmd, function() {
 		m_cont.reset();
 	});
 	
@@ -1167,7 +1169,7 @@ function directoryBrowserWidget(p_args)
 	var loadDir = function(p_dirId, p_name)
 	{
 		g_env.rpc.request.send('library_list_directory', {directory_id: p_dirId}, function(p_data) {
-			var list = MusicTree.listItem({list: p_data}, function(item) {
+			var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
 				return m_renderers[item.type](item);
 			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, ['type','name']);
 			m_cont.addNode({title: p_name, id: p_dirId, container: list});

@@ -26,7 +26,7 @@ function ZeppelinClient()
 				playerStatusWidget().css({marginRight: 5}),
 				currentPositionNumWidget().css({marginRight: 10}), 
 				currentSongInfoWidget(), br(),
-				currentSongWidget().css({width: 680}), br(),
+				currentSongWidget().css({width: '100%'}), br(),
 				currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),	
 				controlWidget(),
 				volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
@@ -94,7 +94,7 @@ function ZeppelinClient()
 		m_statusTimerId = setInterval(getStatus, 500);
 	}
 	
-	window.onfocus(); //because the wonderful chrome not send an onfocus event after onload...
+	window.onfocus(); //because the wonderful chrome does not send an onfocus event after onload...
 }
 
 function MetaDataEditor(p_fileId, p_onSuccess)
