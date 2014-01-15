@@ -42,18 +42,23 @@ function ZeppelinClient()
 			{title: 'Folders', container: directoryBrowserWidget()},
 		]
 	}).addClass('panel').css({width: 340, height: 500});
-			
-	var player = div({class: 'player'},
-			table({cellpadding:0, cellspacing: 0},
+
+	var queue = queueWidget().css({width: 340, height: 500}).addClass('panel');
+
+	var player = table({cellpadding:0, cellspacing: 0},
 				tr(td({colspan: 2}, main)),
-				tr(
-					td(queueWidget().css({width: 340, height: 500}).addClass('panel')),
-					td(tabbedWidgets)
-				)
-			)
-		);
-			
-	body().add(player);
+				tr(td(queue), td(tabbedWidgets)));
+
+	body().add(div({class: 'player'}, player));
+
+	var windowSize = getClientSize();
+	
+	var diff = $(player).outerHeight() - windowSize.h;
+	
+	if(diff > 0) {
+		queue.css({height: $(queue).height() - diff});
+		tabbedWidgets.css({height: $(tabbedWidgets).height() - diff});
+	}
 	
 	tabbedWidgets.updateLayout();
 
