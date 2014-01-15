@@ -69,13 +69,7 @@ function ZeppelinClient()
 	g_env.data.request('player_queue_get');
 	g_env.data.request('player_get_volume');
 
-	g_env.data.mgr.subscribe('player_queue_album', function() {
-		g_env.data.request('player_queue_get');
-	});
-	g_env.data.mgr.subscribe('player_queue_file', function() {
-		g_env.data.request('player_queue_get');
-	});
-	g_env.data.mgr.subscribe('player_queue_remove', function() {
+	g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory'], function() {
 		g_env.data.request('player_queue_get');
 	});
 
