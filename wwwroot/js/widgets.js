@@ -302,6 +302,23 @@ function volumeWidget(p_args)
 }
 
 var MusicTree = {
+	types: {
+		playlist: {
+			cache_key: '',
+		},
+		album: {
+			sub_renderer: 'file',
+			cache_key: 'files',
+			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
+		},
+		file: {
+		},
+		dir: {
+			sub_renderer: 'file',
+			cache_key: 'files',
+			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
+		}
+	},
 	item: function(p_data)
 	{
 		var cont = div({class: 'music_item'});
@@ -334,6 +351,31 @@ var MusicTree = {
 		}
 
 		return cont;
+	},
+	openableItem: function(p_data)
+	{
+		var m_cont = this.item(p_data);
+			
+		m_cont.generateList = function() 
+		{
+			var aid = p_data.type+'_'+p_data.id;
+		
+			if(!p_data.parent.hasNode(aid)) {
+				var typeDesc = MusicTree.types[p_data.type];
+				var list = MusicTree.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers[typeDesc.sub_renderer], typeDesc.getGrouping());
+				list.p('id', aid);
+				p_data.parent.addNode({title: p_data.name, id: aid, container: list});
+			}
+
+			return aid;
+		}
+		
+		m_cont.onclick = function() 
+		{
+			p_data.parent.switchNextNode(this.generateList());
+		}
+		
+		return m_cont;
 	},
 	listItem: function(p_data, p_itemProcess, p_grouping, p_sortName)
 	{
@@ -831,44 +873,30 @@ function queueWidget(p_args)
 	var m_cont = MusicTree.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
-	var m_renderers = {	
+	m_cont.renderers = {	
 		playlist: function(p_data)
 		{
 			return div();
 		},	
 		album: function(p_data) 
 		{
-			var item = MusicTree.item({
+			var item = MusicTree.openableItem({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
+				type: p_data.type,
 				desc: p_data.files.length + " songs",
+				items: p_data.files,
 				image: '/pic/default_album.png',
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
 			}).addClass('album');
-			
-			item.generateList = function() 
-			{
-				var aid = 'album_'+p_data.id;
-			
-				if(!m_cont.hasNode(aid)) {
-					var list = MusicTree.listItem({list: p_data.files, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'});
-					list.p('id', aid);
-					m_cont.addNode({title: p_data.name, id: aid, container: list});
-				}
-
-				return aid;
-			}
-			
-			item.onclick = function() 
-			{
-				m_cont.switchNextNode(this.generateList());
-			}
 			
 			return item;
 		},	
 		file: function(p_data)
 		{
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
@@ -881,22 +909,23 @@ function queueWidget(p_args)
 				g_env.rpc.request.send('player_goto', {index: p_data.index});
 			}
 			return item;
-		}
-	}
+		},
+		dir: function(p_data)
+		{
+			var item = MusicTree.openableItem({
+				parent: m_cont,
+				id: p_data.id,
+				name: p_data.name,
+				type: p_data.type,
+				desc: p_data.files.length + " songs",
+				items: p_data.files,
+				image: '/pic/default_folder.png',
+				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
+			}).addClass('dir');
 
-	var m_types = {
-		0: {
-			name: 'playlist',
-			sub: '',
+			return item;
 		},
-		1: {
-			name: 'album',
-			sub: 'files'
-		},
-		2: {
-			name: 'file'
-		}
-	};
+	}
 
 	var calcNodePathForIndex = function(p_index)
 	{
@@ -993,10 +1022,10 @@ function queueWidget(p_args)
 		foreach(p_data, function(item) {
 			item.index = clone(p_index);
 			item.index.push(idx++);
-			var type = m_types[item.type];
-			g_env.storage.queue[type.name][item.id] = item;
-			if(type.sub)
-				cache(item[type.sub], item.index);
+			var type = MusicTree.types[item.type];
+			g_env.storage.queue[item.type][item.id] = item;
+			if(type.cache_key)
+				cache(item[type.cache_key], item.index);
 		});
 	}
 
@@ -1010,7 +1039,7 @@ function queueWidget(p_args)
 		cache(p_data, []);
 
 		var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
-			return m_renderers[m_types[item.type].name](item);
+			return m_cont.renderers[item.type](item);
 		}).addClass('playlist');
 		
 		m_cont.addNode({title: 'Queue', id: -1, container: list}); //root
@@ -1051,6 +1080,7 @@ function libraryWidget(p_args)
 		{
 			g_env.storage.library.artist[p_data.id] = p_data;
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.id == -1 ? 'unknown' : p_data.name,
 				desc: p_data.albums + ' albums',
@@ -1077,6 +1107,7 @@ function libraryWidget(p_args)
 		{
 			g_env.storage.library.album[p_data.id] = p_data;
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name || 'unknown',
 				desc: p_data.songs + ' songs',
@@ -1104,6 +1135,7 @@ function libraryWidget(p_args)
 		{
 			g_env.storage.library.file[p_data.id] = p_data;
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
@@ -1144,9 +1176,13 @@ function directoryBrowserWidget(p_args)
 	var m_renderers = {
 		dir: function(p_data) {
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
-				image: '/pic/folder-24.png',
+				image: '/pic/default_folder.png',
+				menu: [
+					{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {directory_id: p_data.id}}},
+				]
 			}).addClass('dir_item');
 			item.onclick = function() {
 				loadDir(p_data.id, p_data.name);
@@ -1155,9 +1191,10 @@ function directoryBrowserWidget(p_args)
 		},
 		file: function(p_data) {
 			var item = MusicTree.item({
+				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
-				image: '/pic/default_song-24.png',
+				image: '/pic/default_song.png',
 				menu: [
 					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}}
 				]
