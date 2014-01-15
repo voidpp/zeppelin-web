@@ -164,10 +164,10 @@ function currentSongWidget(p_args)
 		m_fid = p_data.current;
 			
 		var file = g_env.storage.queue.file[p_data.current];
-		
+
 		var t = m_text;
-		
-		m_text.set(file.title || file.name + ' (' + formatTime(file.length) + ')');
+
+		m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
 		
 		$(t).autoScroll({
 			duration: 5000, 
