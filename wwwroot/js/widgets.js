@@ -600,6 +600,8 @@ var MusicTree = {
 			m_cont.onQuickSearch('');
 			if(m_cont.setQuickSearchValue)
 				m_cont.setQuickSearchValue('');
+
+			p_data.parent.eventMgr.notify('onListItemUpdated');
 		}
 
 		m_cont.onQuickSearch = function(p_val)
