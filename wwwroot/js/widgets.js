@@ -184,6 +184,7 @@ function currentPositionBarWidget(p_args)
 	var m_slider = div({class: 'slider'});
 	var m_max = 1000;
 	var m_file = {};
+	var m_isDragging = false;
 	
 	$(m_slider).slider({
 		orientation: "horizontal",
@@ -191,8 +192,13 @@ function currentPositionBarWidget(p_args)
 		min: 0,
 		max: m_max,
 		value: 0,
+		start: function(event, ui) {
+			m_isDragging = true;
+		},
 		stop: function(event, ui) {
-			//g_env.rpc.request.send('player_set_position', {position: (ui.value/m_max) * m_file.length});
+			g_env.rpc.request.send('player_seek', {seconds: (ui.value/m_max) * m_file.length}, function() {
+				m_isDragging = false;
+			});
 		}
 	});
 
@@ -201,7 +207,8 @@ function currentPositionBarWidget(p_args)
 			return;
 
 		m_file = g_env.storage.queue.file[p_data.current];
-		$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
+		if(!m_isDragging)
+			$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
 	});
 	
 	return m_cont.add(m_slider);
