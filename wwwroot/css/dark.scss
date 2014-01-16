@@ -29,38 +29,23 @@ input.tiny:focus {
 
 .widget {
 	.music_item {
-		.face {			
-			.image {
-				.label {
-					text-shadow: 0 0 2px black;
-					color: white;
-					font-weight: bold;
-				}
-				img {
-				}
-			}
-			.content {
-				.name {
-				}
-				.desc {
-					color: #aaa;
-				}
-			}
-			&:hover {
-				background-color: $unfilled_bg_color;
-			}
-		}
 		border-top: 1px solid #333;
 	}
-	.playlist {
-	
-	}
-	.album {
-	
-	}
-	.file {
-	
-	}
+	.face {
+		.image {
+			.label {
+				text-shadow: 0 0 2px black;
+				color: white;
+				font-weight: bold;
+			}
+		}
+		.desc {
+			color: #aaa;
+		}
+		&:hover {
+			background-color: $unfilled_bg_color;
+		}
+	}	
 }
 
 $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;

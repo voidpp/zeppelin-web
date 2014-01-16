@@ -44,7 +44,6 @@ function ZeppelinClient()
 	}).addClass('panel').css({width: 340, height: 500});
 
 	var queue = queueWidget().css({width: 340, height: 500}).addClass('panel');
-
 	var player = table({cellpadding:0, cellspacing: 0},
 				tr(td({colspan: 2}, main)),
 				tr(td(queue), td(tabbedWidgets)));

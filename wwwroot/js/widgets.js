@@ -328,20 +328,28 @@ var MusicTree = {
 	},
 	item: function(p_data)
 	{
-		var cont = div({class: 'music_item'});
+		var cont = div({class: 'music_item face'});
 
 		if(p_data.hasOwnProperty('id'))
 			cont.p('dbId', p_data.id);
 
 		if(p_data.image && p_data.name) {
-			cont.add(table({cellspacing: 0, cellpadding: 0, class: 'face'}, tr(
-					td({class: 'image'}, div({style: 'position: relative'},img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null)),
-					td({class: 'content'}, div({class: 'name'}, p_data.name), (p_data.desc ? [br(), div({class: 'desc'}, p_data.desc)] : null))
-				))
-			);
+			var nameCont = div({class: 'name'}, p_data.name);
 			
+			var iconCont = div({class: 'image'}, img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null);
+			
+			cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
+
+			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
+				nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
+				if(nameCont.scrollWidth > $(nameCont).width())
+					$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
+			});
+
 			if(p_data.menu && p_data.menu.length) {
 				cont.oncontextmenu = function() {
+					if(window.location.search == '?nocontextmenu')
+						return true;
 					var contextMenu = new clMenu({
 						destroyAfterHide: true, 
 						link_handler: function(p_href) {

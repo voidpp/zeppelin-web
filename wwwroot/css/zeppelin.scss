@@ -51,6 +51,8 @@ input.tiny {
 	text-align: left;
 }
 
+$place_for_list_item_scrollbar: 9px;
+
 .widget {
 	text-align: left;
 	display: inline-block;
@@ -58,52 +60,67 @@ input.tiny {
 	.music_item {
 		cursor: pointer;
 		@include transition(background-color 1s);
-		.face {
-			@include transition(background-color 1.5s);
-			width: 100%;
-			.image {
-				padding: 2px;
-				padding-left: 6px;
-				.label{
-					border-radius: 2px;
-					padding: 1px 2px;
-					font-size: 8px;
-					display: inline-block;
-					position: absolute;
-					bottom: 0;
-					right: -5px;
-					line-height: 8px;
-				}
-				img {
-					vertical-align: middle;
-					max-height: 32px;
-				}
-			}			
-			.content {
-				padding: 2px;
-				text-align: right;
-				width: 100%;	
-				.name {
-					display: inline-block;
-					margin-bottom: 5px;
-					font-weight: bold;
-				}
-				.desc {
-					display: inline-block;
-				}
-				padding-right: 8px;
+	}
+	.face {
+		@include transition(background-color 1.5s);
+		width: 100%;
+		position: relative;
+		.image {
+			padding: 2px;
+			padding-left: 6px;
+			padding-right: 5px;
+			display: inline-block;
+			position: relative;
+			.label{
+				border-radius: 2px;
+				padding: 1px 2px;
+				font-size: 8px;
+				display: inline-block;
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				line-height: 8px;
 			}
-			&:hover{
-				@include transition(background-color 0.5s);
+			img {
+				vertical-align: middle;
+				max-height: 32px;
 			}
+		}			
+		.name {
+			display: inline-block;
+			font-weight: bold;
+			position: absolute;
+			top: 2px;
+			white-space: nowrap;
+			overflow: hidden;
+			right: 0;
+			margin-right: $place_for_list_item_scrollbar;
+			text-overflow: ellipsis;
+		}
+		.desc {
+			display: inline-block;
+			position: absolute;
+			bottom: 2px;
+			white-space: nowrap;
+			right: 0;
+			margin-right: $place_for_list_item_scrollbar;
+		}
+		&:hover{
+			@include transition(background-color 0.5s);
 		}
 	}
 	.playlist {
 
 	}
 }
-.directory .music_item .face .image img {
-	max-height: 24px;
+.directory .face {
+	.name {
+		right: auto;
+		top: 7px;
+	}
+	.image img {
+		max-height: 24px;
+	}
 }
 
 .player_status {
