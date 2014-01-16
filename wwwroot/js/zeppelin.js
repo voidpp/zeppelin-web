@@ -97,40 +97,53 @@ function ZeppelinClient()
 
 function MetaDataEditor(p_fileId, p_onSuccess)
 {
-	var data = g_env.storage.library.file[p_fileId];
+	var openEditor = function(p_data, p_onSuccess)
+	{
+		//library_get_metadata
+		var form = {
+			params: {
+				class: 'sForm'
+			},
+			fields: {
+				id: {name: 'id', type: 'hidden', value: p_data.id},
+				artist: {name: "artist", type: "text", label: "Artist", value: p_data.artist},
+				album: {name: "album", type: "text", label: "Album", value: p_data.album},
+				title: {name: "title", type: "text", label: "Title", value: p_data.title},
+				year: {name: "year", type: "number", label: "Year", value: p_data.year},
+				track_index: {name: "track_index", type: "number", label: "Track", value: p_data.track_index},
+			},
+			submit: {
+				type: "submit",
+				value: "Submit"
+			},
+			errors:[]
+		}
 
-	var form = {
-		params: {
-			class: 'sForm'
-		},
-		fields: {
-			id: {name: 'id', type: 'hidden', value: p_fileId},
-			artist: {name: "artist", type: "text", label: "Artist", value: Map.get(g_env.storage.library, ['artist', data.artist_id, 'name'], '')},
-			album: {name: "album", type: "text", label: "Album", value: Map.get(g_env.storage.library, ['album', data.album_id, 'name'], '')},
-			title: {name: "title", type: "text", label: "Title", value: data.title},
-			year: {name: "year", type: "number", label: "Year", value: data.year},
-			track_index: {name: "track_index", type: "number", label: "Track", value: data.track_index},
-		},
-		submit: {
-			type: "submit",
-			value: "Submit"
-		},
-		errors:[]
+		formDialog({
+			title: 'Edit metadata for file ' + p_data.name,
+			skeleton: form,
+			onsubmit: function(formData, dlg) {
+				formData.id = parseInt(formData.id);
+				formData.year = parseInt(formData.year);
+				formData.track_index = parseInt(formData.track_index);
+
+				g_env.rpc.request.send('library_update_metadata', formData, function() {
+					if(p_onSuccess)
+						p_onSuccess(formData);
+				});
+				dlg.close();
+			}
+		});
 	}
 
-	formDialog({
-		title: 'Edit metadata for file ' + data.name,
-		skeleton: form,
-		onsubmit: function(formData, dlg) {
-			formData.id = parseInt(formData.id);
-			formData.year = parseInt(formData.year);
-			formData.track_index = parseInt(formData.track_index);
-
-			g_env.rpc.request.send('library_update_metadata', formData, function() {
-				if(p_onSuccess)
-					p_onSuccess(formData);
-			});
-			dlg.close();
-		}
-	});
+	if(g_env.storage.library.file.hasOwnProperty(p_fileId)) {
+		var data = g_env.storage.library.file[p_fileId];
+		data.artist = Map.get(g_env.storage.library, ['artist', data.artist_id, 'name'], '');
+		data.album = Map.get(g_env.storage.library, ['album', data.album_id, 'name'], '');
+		openEditor(data, p_onSuccess);
+	} else {
+		g_env.rpc.request.send('library_get_metadata', {id: p_fileId}, function(p_data) {
+			openEditor(p_data, p_onSuccess);
+		});
+	}
 }

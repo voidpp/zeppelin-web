@@ -1210,9 +1210,10 @@ function directoryBrowserWidget(p_args)
 				id: p_data.id,
 				name: p_data.name,
 				image: '/pic/default_song.png',
-				label: g_descriptors.codecs[p_data.codec].title,
+				label: p_data.codec ? g_descriptors.codecs[p_data.codec].title : '',
 				menu: [
-					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}}
+					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}},
+					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
 				]
 			}).addClass('dir_item');
 			return item;

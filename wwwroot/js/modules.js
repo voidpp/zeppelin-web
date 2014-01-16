@@ -53,6 +53,7 @@ function RPC(p_args)
 			type: 'POST',
 			data: JSON.stringify(data),
 			success: function(res) {
+				//console.debug('RPC returned. Command: '+p_command,', params:', p_params, ', result:', res.result);
 				if(p_success)
 					p_success(res.result);
 			}

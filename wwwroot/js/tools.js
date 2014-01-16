@@ -540,7 +540,7 @@ var Map = {
 			});
 			return obj;
 		} catch(ex) {
-			return p_dafault;
+			return p_default;
 		}
 	},
 	insertBefore: function(p_obj, p_key, p_new)
