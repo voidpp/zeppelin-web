@@ -21,5 +21,5 @@ var g_config = {
 		},
 		//auto scrolls the highlight to the currently played item
 		auto_scroll: false,
-	},	
+	},
 };

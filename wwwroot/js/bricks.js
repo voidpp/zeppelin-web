@@ -13,31 +13,31 @@ function formDialog(p_args)
 	var submit = input(p_args.skeleton.submit, {style:'display: none;'}); //fostalicska html+js #1
 	var params = {};
 	var form = sForm({
-		skeleton: p_args.skeleton, 
-		params: params, 
-		submit: submit, 
-		selections: p_args.selections, 
+		skeleton: p_args.skeleton,
+		params: params,
+		submit: submit,
+		selections: p_args.selections,
 		fieldsVisibility: p_args.fieldsVisibility
 	});
 	var dlg;
-	
+
 	//handle file type input with progress bar
 	for(var name in p_args.skeleton.fields)
 	{
 		if(p_args.skeleton.fields[name].type != 'file')
 			continue;
-			
+
 		p_args.skeleton.fields[name].onsize = function() {
 			dlg.alignCenter();
 		}
-			
+
 		//hellyeah, this is handles only one file field! (TODO...)
-		
+
 		var pb = progress({style:'width: 100%;', value:0, max:100});
 		form.rows[name].form_field.parentNode.add(br(), pb);
 		pb.hide();
-		
-		form.data_renderer = function(data) { return new FormData(form); };	
+
+		form.data_renderer = function(data) { return new FormData(form); };
 		form.ajax_options = {
 			xhr: function() {  // custom xhr
 				myXhr = $.ajaxSettings.xhr();
@@ -54,14 +54,14 @@ function formDialog(p_args)
 		};
 		break;
 	}
-	
+
 	params.error_callback = function()
 	{
 		console.log('error');
-		form.enable(); 
+		form.enable();
 		dlg.enableButtons();
 	}
-	
+
 	dlg = new clDialog({
 		caption: p_args.title,
 		content: form,
@@ -70,15 +70,15 @@ function formDialog(p_args)
 		buttons: {
 			ok: {
 				label: (p_args.okButton || 'OK'),
-				callback: function() { 
-					
+				callback: function() {
+
 					if(p_args.onsubmit)
 						p_args.onsubmit($(form).serializeObject(), dlg);
-					
+
 					//only valid html forms will be submitted
 					if(p_args.skeleton.params.method && p_args.skeleton.params.action)
 						$(submit).trigger('click');  //fostalicska html+js #2
-				} 
+				}
 			},
 			cancel: {
 				label: 'Cancel',
@@ -98,7 +98,7 @@ function formDialog(p_args)
 		}
 	}
 	dlg.build();
-	
+
 	return form;
 }
 
@@ -110,7 +110,7 @@ function formDialog(p_args)
 			- params: for <form>
 			- [groups]: key of group-title and value of array of field-names hash descriptor
 		- params: extra parameters for form
-		- [submit]: external submit field 
+		- [submit]: external submit field
 		- [selections]: key-value pairs to select or set value to fields (key: field name)
 		- [fieldsVisibility]: struct of field names to hide/show field rows {black:[], white:[]}
 */
@@ -157,7 +157,7 @@ function sForm(p_args)
 
 	sform.add(formCont);
 	sform.rows = {};
-	
+
 	sform.disable = function()
 	{
 		sform.enable(false);
@@ -166,12 +166,12 @@ function sForm(p_args)
 	sform.enable = function(p_enable)
 	{
 		var enable = typeof p_enable == 'undefined' ? true : p_enable;
-	
+
 		for(var name in this.rows)
 		{
 			this.rows[name].form_field.disabled = !enable;
 		}
-	}	
+	}
 
     for(var name in p_args.skeleton.fields)
 	{
@@ -180,14 +180,14 @@ function sForm(p_args)
 			if(p_args.selections && p_args.selections.hasOwnProperty(name))
 				input_desc.value = p_args.selections[name];
 			var inp = input(input_desc);
-				
+
 			sform.add(inp);
 			if(input_desc.name == 'form_token') {
 				sform.setFormToken = function(p_val) {
 					inp.value = p_val;
 				}
-			}			
-			
+			}
+
 			continue;
 		}
         var row = tr();
@@ -214,7 +214,7 @@ function sForm(p_args)
 				field.title = 'Characters left: ' + (field.p('maxlength') - field.value.length);
 				$(field).tipsy({trigger: 'focus', gravity: 'w'});
 				var charlefthandler = function(e) {
-					this.title = 'Characters left: ' + (this.p('maxlength') - this.value.length);					
+					this.title = 'Characters left: ' + (this.p('maxlength') - this.value.length);
 					$(this).tipsy('show');
 				}
 				$(field).keyup(charlefthandler).keydown(charlefthandler).change(charlefthandler);
@@ -241,19 +241,19 @@ function sForm(p_args)
 						row.hide();
 				}
 			}
-			
 
-			
+
+
 			//well...
 			field.form = sform;
 			row.form_field = field;
-			sform.rows[name] = row;				
+			sform.rows[name] = row;
 		}
         tbl.add(row);
     }
 
 	p_args.submit = (p_args.submit || clButton({win: input(p_args.skeleton.submit)}));
-	
+
 	tbl.add(tr(td(p_args.submit, {colspan:2})));
 
 	if(p_args.params) {
@@ -266,21 +266,21 @@ function sForm(p_args)
 		if(!this.rows.hasOwnProperty(p_field))
 			return;
 		var field = this.rows[p_field].form_field;
-	
+
 		field.title = (p_msg || '');
 		$(field).tipsy({trigger: 'manual', gravity:'w'});
 		$(field).tipsy(p_isError ? 'show' : 'hide');
 		if(p_isError)
 			field.addClass('bad_field');
 		else
-			field.removeClass('bad_field');			
-	}	
-	
+			field.removeClass('bad_field');
+	}
+
 	sform.onSubmitCallback = function() {
 		if(p_args.submit.hasOwnProperty('disable'))
 			p_args.submit.disable();
 	}
-	
+
 	sform.callback = function(content) {
 		var code = (content.code || 200);
 
@@ -292,19 +292,19 @@ function sForm(p_args)
 			{
 				if(!content.form.fields[field_name])
 					continue;
-				
+
 				var htmlFieldName = field_name;
 
 				if(content.form.fields[field_name].multiple)
 					htmlFieldName += '[]';
 
 				var has_error = content.form.fields[field_name].hasOwnProperty('error');
-				if(has_error) 
+				if(has_error)
 					has_any_error = true;
-				
+
 				sform.setError(field_name, has_any_error, content.form.fields[field_name].error);
 			}
-			
+
 			if(!Map.empty(content.form.errors)) {
 				has_any_error = true;
 				for(var name in content.form.errors) {
@@ -312,12 +312,12 @@ function sForm(p_args)
 						g_form_error_renderers[name](sform, content.form.errors[name]);
 				}
 			}
-			
+
 			console.log('Error is occured:', has_any_error);
-			
-			if(has_any_error && p_args.submit.hasOwnProperty('enable'))			
+
+			if(has_any_error && p_args.submit.hasOwnProperty('enable'))
 				p_args.submit.enable();
-			
+
 			if(has_any_error && p_args.params.error_callback) {
 				p_args.params.error_callback(content);
 			}
@@ -325,15 +325,15 @@ function sForm(p_args)
 		if(p_args.params.callback)
 			p_args.params.callback(content);
 	}
-	
+
 	if(p_args.params.method && p_args.params.action)
 		setAjaxSubmit(sform);
-	
+
 	if(m_groups)
 		m_groups[m_currShowedGroup].show(true);
-		
+
 	sform._args = p_args;
-		
+
     return sform;
 }
 
@@ -411,7 +411,7 @@ function sField(p_desc)
 					}
 					tbl.show(inp.theFiles.length);
 					if(p_desc.onBrowse)
-						p_desc.onBrowse();				
+						p_desc.onBrowse();
 				}
 				inp.onchange = function(e)
 				{
@@ -419,7 +419,7 @@ function sField(p_desc)
 				}
 				p_desc.rows = list;
 				p_desc.input = inp;
-				
+
 				return div(clButton({label:'Browse', callback: function() { $(inp).trigger('click'); }}), tbl, inp);
 			} else {
 				var inp = input(p_desc);
@@ -491,7 +491,7 @@ function sField(p_desc)
 
 			if(typeof val != 'object' || val == null)
 				val = [val];
-			
+
 			var sortable = [];
 
 			if((ops instanceof Array))
@@ -502,7 +502,7 @@ function sField(p_desc)
 						sortable.push([key, ops[key]]);
 				}
 			}
-			
+
 			switch(p_desc.sort) {
 				case 'val':
 					sortable.sort(function(a,b) { return strcmp(a[1], b[1]); });
@@ -532,15 +532,15 @@ function sField(p_desc)
 			}
 			if(p_desc.multiple) {
 				if(hasEnv())
-					g_env.afterLoad(function() { 
+					g_env.afterLoad(function() {
 						if(!p_desc.allow_append) {
-							$(element).chosen({display_selected_options: false}); 
+							$(element).chosen({display_selected_options: false});
 							return;
 						}
 						//create chosen stuff, which is the next of this select, and we get the next element for store the chosen container
 						var chosen_cont = $(element).chosen({no_results_text: 'Press enter to add:', display_selected_options: false}).next();
 						var chosen_input = chosen_cont.find('input');
-		
+
 						chosen_input.keyup(function(e){
 							var key;
 							if(!e) e = window.event;
@@ -551,16 +551,16 @@ function sField(p_desc)
 							//the not found any result text is in a no-result classed element. if it present the user pressed an enter and not found any result
 							if(!chosen_cont.find('.no-results').length)
 								return true;
-							
+
 							var val = chosen_input.val();
 							var option_val = 'new:'+val;
 							if(p_desc.append_callback) {
 								option_val = p_desc.append_callback(val);
 							}
-							if(option_val === false) 
+							if(option_val === false)
 								return true;
 							//add the new option to the select
-							var op = option({value: option_val, selected: ''}, val);							
+							var op = option({value: option_val, selected: ''}, val);
 							element.add(op);
 							$(element).trigger("chosen:updated");
 							stopEvent(e);
@@ -618,9 +618,9 @@ function clLongTextContainer(p_text, p_showLen)
 		dot3.toggle();
 		post.toggle();
 	}});
-	
+
 	$(pre).tipsy();
-	
+
 	return cont;
 }
 
@@ -659,7 +659,7 @@ function clTabulable(p_desc)
 			return;
 		page.title.addClass('active');
 		page.cont.addClass('active');
-		m_currPage = p_idx;			
+		m_currPage = p_idx;
 	}
 
 	var firstPage = false;
@@ -681,16 +681,16 @@ function clTabulable(p_desc)
 			m_cont.showPage(i);
 		}
 	});
-	
-	m_cont.updateLayout = function() 
+
+	m_cont.updateLayout = function()
 	{
 		var size = {
 				width: $(m_cont).width(),
 				height: $(m_cont).outerHeight() - $(m_pager).outerHeight()
 			};
-	
+
 		m_pageContainer.css(size);
-	
+
 		foreach(p_desc.pages, function(desc, i) {
 			desc.container.css(size);
 		});
@@ -710,11 +710,11 @@ function clMultiButtonBar(p_args)
 	{
 		var item = p_args.items[i];
 		var toggled = item.grpid == p_args.curr;
-		
+
 		var button = clButton({label: item.title, groupId: (p_args.groupped?item.grpid:false), groupHandler: m_groupHandler, toggled: toggled, togglable: true, class: 'button3D button', callback: function(btn){
 			btn.desc.callback(btn);
 		}});
-		
+
 		button.desc = item;
 		m_win.add(button);
 	}
@@ -733,7 +733,7 @@ function clSubPageBar(p_args)
 		item.grpid = item.href.split('?')[0];
 	}
 	p_args.curr = g_env.getPath();
-	
+
 	return clMultiButtonBar(p_args);
 }
 
@@ -742,47 +742,47 @@ function clFlexPane(p_desc, p_paneManager)
 	var m_cont = div({class:'content'}, p_desc.content);
 	var m_icon = img({src: p_desc.icon ?  p_desc.icon : '/favico.png', class:'icon'});
 	var m_slideButton = clImageButton({img:'/pic/Collapse-black-32.png', onclick:function(){ p_desc.slideContent(p_desc.layout.opened?0:1, false, true); }});
-	var m_title = div({class:'caption'}, m_icon, typeof p_desc.title == 'function' ? p_desc.title(p_desc) : p_desc.title, 
+	var m_title = div({class:'caption'}, m_icon, typeof p_desc.title == 'function' ? p_desc.title(p_desc) : p_desc.title,
 		div({class:'control'}, m_slideButton, ' ', clImageButton({img:'/pic/close.png', onclick:function(){ p_desc.show(0, true); }})));
 	var m_boxIn = div({class:'box'}, m_title, m_cont);
 	var m_box = div({class:'clFlexPane'}, m_boxIn);
-	
+
 	$(p_desc.content).addClass('clFlexPane_content');
-	
+
 	$(m_slideButton).attr('title', 'Collapse/expand this box').tipsy({gravity:'s'});
-	
+
 	var panes = {};
-	
+
 	p_desc.padding = {
 		top: parseInt($(m_boxIn).css('marginTop')),
 		left: parseInt($(m_boxIn).css('marginLeft')),
 		bottom: parseInt($(m_boxIn).css('marginBottom')),
 		right: parseInt($(m_boxIn).css('marginRight'))
 	};
-	
+
 	p_desc.slideContent = function(p_open, p_quick, p_save)
 	{
 		this.layout.opened = p_open;
 		$(m_boxIn).resizable('option', 'disabled', !this.layout.opened);
 		if(p_save)
 			p_paneManager.savePane(this);
-			
+
 		var h = p_open ? (this.layout ? this.layout.h : this.oriLayout.h) : ($(m_title).height()+p_desc.padding.top+p_desc.padding.bottom);
-			
+
 		if(p_quick)
 			$(m_boxIn).height(h);
 		else
 			$(m_boxIn).animate({ height: h }, 400, 'easeOutExpo');
-		
+
 		m_slideButton.src = !p_open ? '/pic/Expand-black-32.png' : '/pic/Collapse-black-32.png';
 	}
-	
+
 	p_desc.show = function(p_show, p_save)
 	{
 		this.layout.showed = p_show;
-		m_box.show(p_show); 
+		m_box.show(p_show);
 		if(p_save)
-			p_paneManager.savePane(this);	
+			p_paneManager.savePane(this);
 	}
 
 	p_desc.getRect = function()
@@ -799,7 +799,7 @@ function clFlexPane(p_desc, p_paneManager)
 			}
 		};
 	}
-	
+
 	p_desc.defaultLayout = function()
 	{
 		var pos = $(m_box).position();
@@ -810,9 +810,9 @@ function clFlexPane(p_desc, p_paneManager)
 			h: $(m_boxIn).outerHeight(),
 			opened: 1,
 			showed: 1
-		};	
+		};
 	}
-	
+
 	p_desc.update = function()
 	{
 		var boxin = $(m_boxIn);
@@ -829,7 +829,7 @@ function clFlexPane(p_desc, p_paneManager)
 		this.slideContent(this.layout.opened, true, false);
 	}
 	var grid = 10;
-	
+
 	$(m_boxIn).resizable({
 		alsoResize: m_cont,
 		resize: function(ev, ui) {
@@ -844,7 +844,7 @@ function clFlexPane(p_desc, p_paneManager)
 		}
 	});
 	var help = 'Double click: stretch this box to the closest one!';
-	
+
 	$(m_boxIn).find('.ui-resizable-s').dblclick(function() {
 		p_paneManager.stretchToNext(p_desc, 'vertical');
 	}).attr('title', help);
@@ -855,7 +855,7 @@ function clFlexPane(p_desc, p_paneManager)
 		p_paneManager.stretchToNext(p_desc, 'vertical');
 		p_paneManager.stretchToNext(p_desc, 'horizontal');
 	}).attr('title', help);
-	
+
 	$(m_box).draggable({
 		snap: true,
 		containment: "parent",
@@ -875,7 +875,7 @@ function clFlexPane(p_desc, p_paneManager)
 			p_paneManager.savePane(p_desc);
 		}
 	});
-	
+
 	return m_box;
 }
 
@@ -892,7 +892,7 @@ function clBox(p_args)
 	var m_addToNavi = p_args.hasOwnProperty('navi') ? p_args.navi : true;
 	p_args.class = p_args.class || {};
 	var m_win = div(m_caption, m_cont, {class: p_args.class.carrier ? p_args.class.carrier : 'box_carrier'});
-	
+
 	for(var i=0;i<p_args.children.length;i++)
 	{
 		m_cont.add(p_args.children[i]);
@@ -906,7 +906,7 @@ function clBox(p_args)
 	m_caption.onclick = function()
 	{
 		var state = $.cookie(m_win.getCookieKey());
-	
+
 		$(m_cont).slideToggle('fast', function() {
 			if(m_win.onSlideDown && state == '0')
 				m_win.onSlideDown();
@@ -920,7 +920,7 @@ function clBox(p_args)
 	{
 		return 'box_' + title + '_' + g_env.getFullPath();
 	}
-	
+
 	m_win.add = function()
 	{
 		for(var idx = 0; idx < arguments.length; idx++)
@@ -933,18 +933,18 @@ function clBox(p_args)
 			m_cont.appendChild(window[p_preferredChild](arg));
 		}
 	}
-	
+
 	if(typeof g_naviPanel != 'undefined' && m_addToNavi) {
 		g_naviPanel.addItem({label:title, element:m_win});
 	}
-	
+
 	if(p_args.close) {
 		$.cookie(m_win.getCookieKey(), '0');
 		m_cont.hide();
 	}
-	
+
 	if(hasEnv() && m_addToNavi)
-	{	
+	{
 		var opened = ($.cookie(m_win.getCookieKey()) || '1');
 		if(opened == '0') {
 			m_cont.hide();
@@ -964,11 +964,11 @@ function quickSearchField(p_args)
 	var value = decodeURIComponent(Map.def(p_args, 'value', ''));
 	var lastVal = value;
 	var inp = input({
-		type: 'text', 
-		placeholder: (p_args.placeholder || 'Search'), 
-		name: (p_args.name || 'search'), 
+		type: 'text',
+		placeholder: (p_args.placeholder || 'Search'),
+		name: (p_args.name || 'search'),
 		class: (p_args.class || ''),
-		style: (p_args.style || ''), 
+		style: (p_args.style || ''),
 		value: value,
 		onkeyup: function(e){
 			var key;
@@ -976,7 +976,7 @@ function quickSearchField(p_args)
 			if (e.keyCode) key = e.keyCode;
 			else if (e.which) key = e.which;
 			if(inp.value == lastVal && key != 13)
-				return;		
+				return;
 			lastVal = inp.value;
 			clearTimeout(tid);
 			waitValue.style.width = '0px';
@@ -989,13 +989,13 @@ function quickSearchField(p_args)
 				$(waitValue).animate({width: '99%'}, wait, 'linear');
 				tid = setTimeout(function(){
 					p_args.callback(inp.value);
-				}, wait);			
+				}, wait);
 			}
 		}
 	});
 	if(value)
 		g_env.afterLoad(function() { inp.focus(); inp.setSelectionRange(value.length, value.length); });
-		
+
 	var cont = div({class:'quicksearch'}, inp, br(), div({class: 'wait'}, waitValue));
 	cont.setValue = function(p_val)
 	{

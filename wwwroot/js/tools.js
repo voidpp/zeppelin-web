@@ -10,7 +10,7 @@ function iadd(win,itemname,html) {
 }
 function def(p_var, p_default)
 {
-	return (typeof p_var == 'undefined') ? p_default : p_var;	
+	return (typeof p_var == 'undefined') ? p_default : p_var;
 }
 function pathInfo(filename)
 {
@@ -138,7 +138,7 @@ var Base64 = {
 		}
 		return output;
 	},
-	
+
 	encode : function (input) {
 		var output = "";
 		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
@@ -410,7 +410,7 @@ String.prototype.ucfirst = function()
 { return this.charAt(0).toUpperCase() + this.substr(1); }
 
 String.prototype.removeLast = function(p_last)
-{ 
+{
 	var len = typeof p_last == 'undefined' ? 1 : p_last;
 	return this.substring(0, this.length - len);
 }
@@ -434,42 +434,42 @@ String.prototype.getLastWord = function()
 }
 
 String.repeat = function(chr,count)
-{    
-    var str = ""; 
-    for(var x=0;x<count;x++) {str += chr}; 
+{
+    var str = "";
+    for(var x=0;x<count;x++) {str += chr};
     return str;
 }
 String.prototype.padL = function(width,pad)
 {
     if (!width ||width<1)
-        return this;   
- 
-    if (!pad) pad=" ";        
+        return this;
+
+    if (!pad) pad=" ";
     var length = width - this.length
     if (length < 1) return this.substr(0,width);
- 
-    return (String.repeat(pad,length) + this).substr(0,width);    
-}    
+
+    return (String.repeat(pad,length) + this).substr(0,width);
+}
 String.prototype.padR = function(width,pad)
 {
     if (!width || width<1)
-        return this;        
+        return this;
 
 	if (!pad) pad=" ";
     var length = width - this.length
     if (length < 1) this.substr(0,width);
     return (this + String.repeat(pad,length)).substr(0,width);
 }
-Date.prototype.format = function(p_format) 
+Date.prototype.format = function(p_format)
 {
     var date = this;
     if (!p_format)
-      p_format="MM/dd/yyyy";               
+      p_format="MM/dd/yyyy";
 
     var month = date.getMonth() + 1;
-    var year = date.getFullYear();    
+    var year = date.getFullYear();
 
-    p_format = p_format.replace("MM",month.toString().padL(2,"0"));        
+    p_format = p_format.replace("MM",month.toString().padL(2,"0"));
 
     if (p_format.indexOf("yyyy") > -1)
         p_format = p_format.replace("yyyy",year.toString());
@@ -478,7 +478,7 @@ Date.prototype.format = function(p_format)
 
     p_format = p_format.replace("dd",date.getDate().toString().padL(2,"0"));
 
-    var hours = date.getHours();       
+    var hours = date.getHours();
     if (p_format.indexOf("t") > -1)
     {
        if (hours > 11)
@@ -491,14 +491,14 @@ Date.prototype.format = function(p_format)
     if (p_format.indexOf("hh") > -1) {
         if (hours > 12) hours - 12;
         if (hours == 0) hours = 12;
-        p_format = p_format.replace("hh",hours.toString().padL(2,"0"));        
+        p_format = p_format.replace("hh",hours.toString().padL(2,"0"));
     }
     if (p_format.indexOf("mm") > -1)
        p_format = p_format.replace("mm",date.getMinutes().toString().padL(2,"0"));
     if (p_format.indexOf("ss") > -1)
        p_format = p_format.replace("ss",date.getSeconds().toString().padL(2,"0"));
 
-    return p_format;	
+    return p_format;
 }
 function isElement(obj)
 {
@@ -558,7 +558,7 @@ var Map = {
 		for(var key in p_new) {
 			p_obj[key] = p_new[key];
 		}
-		
+
 		for(var key in tmp) {
 			p_obj[key] = tmp[key];
 		}
@@ -590,7 +590,7 @@ var Map = {
 	{
 		var idx = 0;
 		for(var key in p_obj) {
-			if(key == p_key) 
+			if(key == p_key)
 				return idx;
 			idx++;
 		}
@@ -627,16 +627,16 @@ var Map = {
 		} catch(ex) {
 			return false;
 		}
-		
+
 		return true;
 	},
 	init_arr: function(p_obj, p_args, p_value)
 	{
 		if(p_args.length < 1)
 			return;
-			
+
 		var obj = p_obj;
-		
+
 		for(var i = 0; i<p_args.length; i++)
 		{
 			var key = p_args[i];
@@ -680,7 +680,7 @@ var Map = {
 			else
 				p_target[key] = p_source[key];
 		}
-	},	
+	},
 	merge_options: function(obj1,obj2)
 	{
 		var obj3 = {};
@@ -698,7 +698,7 @@ var Map = {
 			res[''] = 'none';
 		for(var key in p_arr)  {
 			res[key] = p_arr[key][p_titleField];
-		}	
+		}
 		return res;
 	}
 }
@@ -706,7 +706,7 @@ var Map = {
 (function($) {
     $.fn.goTo = function(extra) {
 		extra = (extra || 0);
-        $('html, body').animate({		
+        $('html, body').animate({
             scrollTop: $(this).offset().top + extra + 'px'
         }, 'fast');
         return this; // for chaining...
@@ -740,7 +740,7 @@ function dateFromString(str) {
 function timeFromString(str) {
   var m = str.match(/(\d+)-(\d+)-(\d+)\s+(\d+):(\d+):(\d+)/);
   if(m == null)
-	return 0;  
+	return 0;
   var unix = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime()/1000;
   var midnight = new Date(+m[1], +m[2] - 1, +m[3]).getTime()/1000;
   return unix-midnight;
@@ -775,10 +775,10 @@ function cookieData(p_key, p_val, p_params)
 function inputTabAllower(e, element)
 {
 	var keynum = window.event ? e.keyCode : (e.which ? e.which : 0);
-	
+
 	if(keynum != 9)
 		return;
-		
+
 	var start = element.selectionStart;
 	var end = element.selectionEnd;
 
@@ -790,7 +790,7 @@ function inputTabAllower(e, element)
 
 	// put caret at right position again (add one for the tab)
 	element.selectionStart = element.selectionEnd = start + 1;
-		
+
 	e.preventDefault();
 }
 
@@ -801,20 +801,20 @@ function inputTabAllower(e, element)
 
 (function(){
   var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
- 
+
   // The base Class implementation (does nothing)
   this.Class = function(){};
- 
+
   // Create a new Class that inherits from this class
   Class.extend = function(prop) {
     var _super = this.prototype;
-   
+
     // Instantiate a base class (but only create the instance,
     // don't run the init constructor)
     initializing = true;
     var prototype = new this();
     initializing = false;
-   
+
     // Copy the properties over onto the new prototype
     for (var name in prop) {
       // Check if we're overwriting an existing function
@@ -823,38 +823,38 @@ function inputTabAllower(e, element)
         (function(name, fn){
           return function() {
             var tmp = this._super;
-           
+
             // Add a new ._super() method that is the same method
             // but on the super-class
             this._super = _super[name];
-           
+
             // The method only need to be bound temporarily, so we
             // remove it when we're done executing
-            var ret = fn.apply(this, arguments);        
+            var ret = fn.apply(this, arguments);
             this._super = tmp;
-           
+
             return ret;
           };
         })(name, prop[name]) :
         prop[name];
     }
-   
+
     // The dummy class constructor
     function Class() {
       // All construction is actually done in the init method
       if ( !initializing && this.init )
         this.init.apply(this, arguments);
     }
-   
+
     // Populate our constructed prototype object
     Class.prototype = prototype;
-   
+
     // Enforce the constructor to be what we expect
     Class.prototype.constructor = Class;
- 
+
     // And make this class extendable
     Class.extend = arguments.callee;
-   
+
     return Class;
   };
 })();
@@ -915,7 +915,7 @@ var Geometry = {
 			opposite: 'vertical',
 			dir: 'w',
 			borders: ['left','right']
-		}		
+		}
 	}
 }
 function foreach(p_obj, p_callback) {
@@ -957,7 +957,7 @@ $.fn.scrollBetween = function(p_range, p_duration, p_wait)
 {
 	this.stop();
 	var self = this; //scumbag ECMA
-	
+
 	setTimeout(function() {
 		self.animate({
 			scrollLeft: p_range[1]
@@ -973,7 +973,7 @@ $.fn.autoScroll = function(p_args)
 
 	this.each(function(id, el) {
 		el.scrollLeft = '0px';
-		if(el.scrollWidth > el.offsetWidth) 
+		if(el.scrollWidth > el.offsetWidth)
 			$(el).scrollBetween([0, el.scrollWidth - el.offsetWidth], Map.def(m_args, 'duration', 4200), Map.def(m_args, 'wait', 200));
 	});
 
@@ -1041,12 +1041,12 @@ function equivElms(elm1, elm2) {
 }
 
 //Returns the object's class, Array, Date, RegExp, Object are of interest to us
-var getClass = function(val) 
+var getClass = function(val)
 {
 	return Object.prototype.toString.call(val).match(/^\[object\s(.*)\]$/)[1];
 };
 //Defines the type of the value, extended typeof
-var whatis = function(val) 
+var whatis = function(val)
 {
 	if (val === undefined)
 		return 'undefined';
@@ -1055,7 +1055,7 @@ var whatis = function(val)
 
 	if(isElement(val))
 		return 'html';
-		
+
 	var type = typeof val;
 
 	if (type === 'object')
@@ -1120,7 +1120,7 @@ var _equal = {
 var equal = function(a, b) {
 	if (a !== b) {
 		var atype = whatis(a), btype = whatis(b);
-		
+
 		if (atype === btype) {
 			return _equal.hasOwnProperty(atype) ? _equal[atype](a, b) : a==b;
 		}

@@ -6,7 +6,7 @@
 @mixin user-select($p) {
 	user-select: $p;
 	-moz-user-select: $p;
-	-khtml-user-select: $p;	
+	-khtml-user-select: $p;
 }
 
 @mixin box-sizing($p) {

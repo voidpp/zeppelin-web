@@ -43,7 +43,7 @@ input.tiny {
 		td {
 			vertical-align: top;
 		}
-	
+
 	}
 }
 
@@ -85,7 +85,7 @@ $place_for_list_item_scrollbar: 9px;
 				vertical-align: middle;
 				max-height: 32px;
 			}
-		}			
+		}
 		.name {
 			display: inline-block;
 			font-weight: bold;
@@ -130,7 +130,7 @@ $place_for_list_item_scrollbar: 9px;
 	}
 	table {
 		margin-bottom: -2px;
-		td { 
+		td {
 			line-height: 10px;
 		}
 	}
@@ -166,7 +166,7 @@ $place_for_list_item_scrollbar: 9px;
 				margin-left: -3px;
 			}
 			.active {
-			
+
 			}
 		}
 		.list {
@@ -191,7 +191,7 @@ $place_for_list_item_scrollbar: 9px;
 		display: inline-block;
 		position: absolute;
 		top: 0;
-		right: 0;		
+		right: 0;
 	}
 	.background {
 		display: inline-block;
@@ -300,11 +300,11 @@ $default_radius: 1px;
 	outline: none;
 	@include user-select(none);
 	background-image: linear-gradient(to bottom, #eee, #aaa);
-	border-radius: 2px;	
+	border-radius: 2px;
 	color: #222;
 	text-shadow: 1px 1px 1px #eee;
 	@include transition(color 1s);
-} 
+}
 
 .miniButton3D:active {
 	background-image: linear-gradient(to top, #eee, #aaa);

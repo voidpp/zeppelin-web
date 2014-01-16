@@ -14,8 +14,8 @@ function registerHTML(p_name, p_preferredChild, p_customCreate, p_parent)
 var html = {
 	elements: {
 		text: {
-			custom: function(p_content) { 
-				return document.createTextNode(p_content); 
+			custom: function(p_content) {
+				return document.createTextNode(p_content);
 			}
 		},
 		div: {},
@@ -65,7 +65,7 @@ var html = {
 		link: {},
 		iframe: {},
 		canvas: {},
-	}, 
+	},
 	externals: {}
 }
 
@@ -77,13 +77,13 @@ for(var name in html.elements) {
 function head() { var h = document.getElementsByTagName("head")[0]; add_spec_ext_to_element(h); return h; }
 function body() { var b = document.getElementsByTagName("body")[0]; add_spec_ext_to_element(b); return b; }
 
-function dGE2(id) { 
+function dGE2(id) {
 	var el = document.getElementById(id)
-	if(!el)	
+	if(!el)
 		return el;
-	
+
 	add_spec_ext_to_element(el);
-	
+
 	return el;
 };
 
@@ -108,36 +108,36 @@ function add_spec_ext_to_element(element, p_preferredChild)
 	p_preferredChild = (p_preferredChild || 'text');
 
 	element.hasCL = true;
-	
+
 	element.clear = function()
 	{
 		element.innerHTML = '';
-		
+
 		return element;
 	}
-	
+
 	element.remove = function()
 	{
 		element.parentNode.removeChild(element);
-		
+
 		return element;
 	}
-	
+
 	element.set = function()
 	{
 		element.clear();
 		for(var idx = 0; idx < arguments.length; idx++)
 			element.insert(arguments[idx]);
-			
+
 		return element;
 	}
-	
+
 	element.toggle = function(p_fadeTime)
 	{
 		this.show(!this.isShown(), p_fadeTime);
 		return element;
 	}
-	
+
 	/**
 		- p_isShow: true|false, 0|1: show or not. >1: p_isShow = fadeTime
 		- [p_fadeTime]: animate hide/show in millisecs
@@ -146,7 +146,7 @@ function add_spec_ext_to_element(element, p_preferredChild)
 	{
 		var isShow = def(p_isShow, true);
 		var fadeTime = def(p_fadeTime, 0);
-		
+
 		if(typeof p_isShow == 'number' && p_isShow > 1) {
 			isShow = true;
 			fadeTime = p_isShow;
@@ -154,31 +154,31 @@ function add_spec_ext_to_element(element, p_preferredChild)
 
 		if(!element.hasOwnProperty('original_display'))
 			element.original_display = element.style.display == 'none' ? '' : element.style.display;
-	
+
 		var newDisp = isShow ? element.original_display : 'none';
-		
+
 		if(fadeTime) {
 			var op = isShow ? 1 : 0;
 			$(element).css({opacity: isShow?0:1, display: newDisp});
 			$(element).animate({opacity: op}, fadeTime);
 		} else
 			element.style.display = newDisp;
-			
+
 		return element;
 	}
-	
+
 	element.visible = function(p_isVisible)
 	{
 		var is = def(p_isVisible, true);
-		
+
 		if(!element.hasOwnProperty('original_visibility'))
 			element.original_visibility = element.style.visibility;
-	
-		element.style.visibility = is ? element.original_visibility : 'hidden';		
-		
+
+		element.style.visibility = is ? element.original_visibility : 'hidden';
+
 		return element;
 	}
-	
+
 	//parameter
 	element.p = function(p_field, p_value)
 	{
@@ -188,42 +188,42 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		} else
 			return element.getAttribute(p_field);
 	}
-	
+
 	//clear paramater
 	element.cp = function(p_field)
 	{
 		element.removeAttribute(p_field);
 		return element;
 	}
-	
+
 	//carefully...
 	element.isShown = function()
 	{
 		return element.style.display != 'none';
 	}
-	
+
 	element.hide = function(p_fadeTime)
 	{
 		this.show(false, p_fadeTime);
 		return element;
 	}
-	
+
 	element.add = function()
 	{
 		for(var idx = 0; idx < arguments.length; idx++)
 			this.insert(arguments[idx]);
-		
+
 		return element;
 	}
-	
+
 	element.pre = function()
 	{
 		for(var idx = 0; idx < arguments.length; idx++)
 			this.insert(arguments[idx], 0);
-			
+
 		return element;
 	}
-	
+
 	element.insert = function(p_item, p_pos)
 	{
 		if(isElement(p_item))
@@ -238,22 +238,22 @@ function add_spec_ext_to_element(element, p_preferredChild)
 				else
 					element.setAttribute(key, p_item[key]);
 			}
-		} else 
-			element.doInsert(window[p_preferredChild](p_item), p_pos);	
-			
+		} else
+			element.doInsert(window[p_preferredChild](p_item), p_pos);
+
 		return element;
 	}
-	
+
 	element.doInsert = function(p_item, p_pos)
 	{
 		if(typeof p_pos == 'undefined' || p_pos >= element.childNodes.length || element.childNodes.length == 0)
 			element.appendChild(p_item);
 		else
-			element.insertBefore(p_item, element.childNodes[p_pos]);	
-		
+			element.insertBefore(p_item, element.childNodes[p_pos]);
+
 		return element;
 	}
-	
+
 	element.alignCenter = function()
 	{
 		var ew = $(element).outerWidth();
@@ -267,7 +267,7 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		element.style.top = dtop+'px';
 		return element;
 	}
-	
+
 	element.addClass = function(p_className)
 	{
 		var classes = element.getClasses();
@@ -277,61 +277,61 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		}
 		return element;
 	}
-	
+
 	element.getClasses = function()
 	{
 		var classes = element.p('class') || '';
 		return classes.split(' ');
 	}
-	
+
 	element.removeClass = function(p_className)
 	{
 		var classes = element.getClasses();
 		var idx = classes.indexOf(p_className);
 		if(idx != -1) {
 			classes.splice(idx,1);
-			element.p('class', classes.join(' ')); 
+			element.p('class', classes.join(' '));
 		}
 		return element;
 	}
-	
+
 	element.onready = function(p_callback) { //this way is deprecated. TODO: find a replacement. and bad, this called every time when the dom change, eg mod a style
 		this.addEventListener("DOMSubtreeModified", function(e) { p_callback(e); }, false);
 		return element;
 	}
-	
+
 	element.trigger = function(p_type, p_data)
 	{
 		var ev = {srcElement: element, originalTarget: element};
 		Hash.merge(ev, def(p_data, {}));
 		element[p_type](ev);
 	}
-	
+
 	element.parent = function(p_step)
 	{
 		var step = def(p_step, 1);
-		var res = element;		
+		var res = element;
 		for(var i = 0; i < step; i++) {
 			res = res.parentNode;
 		}
 		add_spec_ext_to_element(res);
 		return res;
 	}
-	
+
 	element.html = function(p_html)
 	{
 		if(typeof p_html == 'undefined')
 			return element.innerHTML;
-		
+
 		element.innerHTML = p_html;
 		return element;
 	}
-	
+
 	element.getSize = function()
 	{
 		return {w: $(element).width(), h: $(element).height()};
 	}
-	
+
 	element.css = function(p_params)
 	{
 		if(typeof p_params == 'string')
@@ -340,7 +340,7 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		$(element).css(p_params);
 		return element;
 	}
-	
+
 	for(var name in html.externals) {
 		element[name] = html.externals[name];
 	}
@@ -349,9 +349,9 @@ function add_spec_ext_to_element(element, p_preferredChild)
 function create_html(p_type, p_args, p_preferredChild)
 {
 	var element = document.createElement(p_type);
-	
+
 	add_spec_ext_to_element(element, p_preferredChild);
 	element.set.apply(this, p_args);
-	
+
 	return element;
 }

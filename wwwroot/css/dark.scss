@@ -45,7 +45,7 @@ input.tiny:focus {
 		&:hover {
 			background-color: $unfilled_bg_color;
 		}
-	}	
+	}
 }
 
 $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
@@ -58,7 +58,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 	position: relative;
 }
 
-.current_song_info { 
+.current_song_info {
 	tr {
 		td:first-child {
 			color: $base_color;
@@ -67,7 +67,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 		td:last-child {
 			color: $gray;
 		}
-	}	
+	}
 }
 
 .player_status {
@@ -115,18 +115,18 @@ $letter_box_shadow: rgba(black,0.8);
 				color: $base_color;
 				text-shadow: 0 0  2px rgba($base_color,0.5);
 				box-shadow: -1px 2px 2px -1px $letter_box_shadow, -1px -2px 2px -1px $letter_box_shadow;
-			}			
+			}
 		}
 		.dir_item {
 			@include transition(background-color 1s);
 			&:hover {
 				@include transition(background-color 0.2s);
 				background-color: $unfilled_bg_color;
-			}			
+			}
 		}
 	}
 }
-	
+
 .current_num {
 	.display {
 		color: $base_color;

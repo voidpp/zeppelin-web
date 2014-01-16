@@ -9,7 +9,7 @@ function ZeppelinClient()
 			lists: {
 				grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
 				sorting: ['name', 'songs']
-			}		
+			}
 		},
 		artists: {
 			title: 'Artists',
@@ -24,16 +24,16 @@ function ZeppelinClient()
 
 	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
 				playerStatusWidget().css({marginRight: 5}),
-				currentPositionNumWidget().css({marginRight: 10}), 
+				currentPositionNumWidget().css({marginRight: 10}),
 				currentSongInfoWidget(), br(),
 				currentSongWidget().css({width: '100%'}), br(),
-				currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),	
+				currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),
 				controlWidget(),
 				volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
 			);
 
 	//$(main).draggable()/*.resizable()*/;
-			
+
 	var tabbedWidgets = clTabulable({
 		pos: 'top',
 		pages: [
@@ -51,18 +51,18 @@ function ZeppelinClient()
 	body().add(div({class: 'player'}, player));
 
 	var windowSize = getClientSize();
-	
+
 	var diff = $(player).outerHeight() - windowSize.h;
-	
+
 	if(diff > 0) {
 		queue.css({height: $(queue).height() - diff});
 		tabbedWidgets.css({height: $(tabbedWidgets).height() - diff});
 	}
-	
+
 	tabbedWidgets.updateLayout();
 
 	g_env.eventMgr.notify('onZeppelinBuilt');
-	
+
 	$('.ui-slider-range-min').addClass('custom-slider-value');
 
 	g_env.data.request('player_queue_get');
@@ -75,23 +75,23 @@ function ZeppelinClient()
 	var getStatus = function() {
 		g_env.data.request('player_status');
 	};
-	
+
 	var m_statusTimerId = 0;
 
-	window.onblur = function() 
+	window.onblur = function()
 	{
 		if(m_statusTimerId)
 			clearTimeout(m_statusTimerId);
 	}
 
-	window.onfocus = function() 
+	window.onfocus = function()
 	{
 		getStatus();
 		if(m_statusTimerId)
 			clearTimeout(m_statusTimerId);
 		m_statusTimerId = setInterval(getStatus, 500);
 	}
-	
+
 	window.onfocus(); //because the wonderful chrome does not send an onfocus event after onload...
 }
 
@@ -103,7 +103,7 @@ function MetaDataEditor(p_fileId, p_onSuccess)
 		params: {
 			class: 'sForm'
 		},
-		fields: { 
+		fields: {
 			id: {name: 'id', type: 'hidden', value: p_fileId},
 			artist: {name: "artist", type: "text", label: "Artist", value: Map.get(g_env.storage.library, ['artist', data.artist_id, 'name'], '')},
 			album: {name: "album", type: "text", label: "Album", value: Map.get(g_env.storage.library, ['album', data.album_id, 'name'], '')},
@@ -117,15 +117,15 @@ function MetaDataEditor(p_fileId, p_onSuccess)
 		},
 		errors:[]
 	}
-	
+
 	formDialog({
-		title: 'Edit metadata for file ' + data.name, 
+		title: 'Edit metadata for file ' + data.name,
 		skeleton: form,
 		onsubmit: function(formData, dlg) {
 			formData.id = parseInt(formData.id);
 			formData.year = parseInt(formData.year);
 			formData.track_index = parseInt(formData.track_index);
-			
+
 			g_env.rpc.request.send('library_update_metadata', formData, function() {
 				if(p_onSuccess)
 					p_onSuccess(formData);

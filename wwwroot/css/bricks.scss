@@ -22,14 +22,14 @@
 		height: 30px;
 		>.title {
 			display: table-cell;
-			vertical-align: middle;	
+			vertical-align: middle;
 			text-align: center;
 			padding: 3px;
 			cursor: pointer;
-			@include box-sizing(border-box);			
+			@include box-sizing(border-box);
 			@include user-select(none);
 			>.active{
-				
+
 			}
 		}
 	}

@@ -18,18 +18,18 @@ function parseConfig(p_data)
 		},
 	});
 
-	var parseURL = function(p_parts) 
+	var parseURL = function(p_parts)
 	{
 		var res = '';
 		res += Map.def(p_parts, 'protocol', 'http') + '://';
-		
+
 		res += p_parts.host;
-		
+
 		if(p_parts.port)
 			res += ':' + p_parts.port;
-			
+
 		res += Map.def(p_parts, 'path', '/');
-		
+
 		return res;
 	}
 

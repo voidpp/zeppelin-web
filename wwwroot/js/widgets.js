@@ -1,4 +1,4 @@
-	
+
 function widget(p_args)
 {
 	var m_cont = div({class: 'widget'});
@@ -13,7 +13,7 @@ function currentSongInfoWidget(p_args)
 	var m_sampleRate = td('42');
 	var m_compRate = td('na');
 	var m_codec = td('mp3');
-	
+
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
 			return;
@@ -23,7 +23,7 @@ function currentSongInfoWidget(p_args)
 		m_compRate.set('na');
 		m_codec.set(g_descriptors.codecs[file.codec].title);
 	});
-	
+
 	return m_cont.add(table({cellpadding: 0, cellspacing: 0},
 		tr(m_codec, td('codec')),
 		tr(m_compRate, td('kbps')),
@@ -41,7 +41,7 @@ function indicator()
 		var padding = 1;
 		return {x: padding, y: padding, w: s.w-padding*2, h: s.h-padding*2};
 	}
-	
+
 	m_cont.initDrawer = function()
 	{
 		var size = this.getSize();
@@ -52,11 +52,11 @@ function indicator()
 		this.setBlur(ctx);
 		return ctx;
 	}
-	
+
 	m_cont.setBlur = function(p_ctx)
 	{
 		var blur = $(this).css('text-shadow');
-		if(blur == 'none') 
+		if(blur == 'none')
 			return;
 		var blurProps = blur.split(' '); //ECMA is a bitch...
 		var distance = parseInt(blurProps.last());
@@ -98,7 +98,7 @@ function playerStatusWidget(p_args)
 		ctx.fillRect(rect.x+rect.w*0.1,rect.y+rect.h*0.1,rect.w*0.8,rect.h*0.8);
 		return this;
 	}
-	
+
 	m_pause.drawIndicator = function()
 	{
 		var rect = this.getIconRect();
@@ -106,9 +106,9 @@ function playerStatusWidget(p_args)
 		ctx.fillRect(rect.x+rect.w*0.15,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
 		ctx.fillRect(rect.x+rect.w*0.60,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
 		return this;
-	}	
-	
-	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {	
+	}
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		m_play.drawIndicator();
 		m_stop.drawIndicator();
 		m_pause.drawIndicator();
@@ -135,14 +135,14 @@ function currentPositionNumWidget(p_args)
 	var m_cont = widget(p_args).addClass('current_num');
 	var m_disp = div({class: 'display'});
 	var m_back = div({class: 'background'}, '88:88:88');
-	
+
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
 			return;
 
 		m_disp.set(formatTime(p_data.position));
 	});
-	
+
 	return m_cont.add(m_back, m_disp);
 }
 
@@ -151,30 +151,30 @@ function currentSongWidget(p_args)
 	var m_cont = widget(p_args).addClass('current_song');
 	var m_text = div({class: 'display'});
 	var m_back = div({class: 'background'}).html(Array(100).join('&#x2589;'));
-	
+
 	var m_fid = 0;
-	
+
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
 			return;
 
 		if(m_fid == p_data.current)
 			return;
-		
+
 		m_fid = p_data.current;
-			
+
 		var file = g_env.storage.queue.file[p_data.current];
 
 		var t = m_text;
 
 		m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
-		
+
 		$(t).autoScroll({
-			duration: 5000, 
+			duration: 5000,
 			wait: 500
 		});
 	});
-	
+
 	return m_cont.add(m_back, m_text);
 }
 
@@ -185,7 +185,7 @@ function currentPositionBarWidget(p_args)
 	var m_max = 1000;
 	var m_file = {};
 	var m_isDragging = false;
-	
+
 	$(m_slider).slider({
 		orientation: "horizontal",
 		range: "min",
@@ -210,7 +210,7 @@ function currentPositionBarWidget(p_args)
 		if(!m_isDragging)
 			$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
 	});
-	
+
 	return m_cont.add(m_slider);
 }
 
@@ -220,15 +220,15 @@ function controlWidget()
 	var m_play = rpcButton({img:'/pic/Play.png', command:'player_play'});
 	var m_pause = rpcButton({img:'/pic/Pause.png', command:'player_pause'}).hide();
 	var m_state = -1;
-	
+
 	m_cont.add(
 		rpcButton({img:'/pic/Start.png', command:'player_prev'}),
 		m_play,
 		m_pause,
 		rpcButton({img:'/pic/Stop.png', command:'player_stop'}),
-		rpcButton({img:'/pic/End.png', command:'player_next'}) 
+		rpcButton({img:'/pic/End.png', command:'player_next'})
 	);
-	
+
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(m_state == p_data.state)
 			return;
@@ -240,13 +240,13 @@ function controlWidget()
 			case 0:
 			case 2:
 				m_pause.hide();
-				m_play.show();				
+				m_play.show();
 				break;
 		}
-		
+
 		m_state = p_data.state;
-	});	
-	
+	});
+
 	return m_cont;
 }
 
@@ -263,18 +263,18 @@ function volumeWidget(p_args)
 		2: [51,101]
 	};
 	var m_orientation = Map.def(m_args, 'orientation', 'vertical');
-	
+
 	var updateIcon = function(p_vol)
 	{
 		var idx = searchInRange(parseInt(p_vol), m_ranges);
 		if(m_prevIcon == idx)
 			return;
-		
+
 		m_icon[m_prevIcon].hide();
 		m_icon[idx].show();
 		m_prevIcon = idx;
 	}
-	
+
 	$(m_slider).slider({
 		orientation: m_orientation,
 		range: "min",
@@ -286,7 +286,7 @@ function volumeWidget(p_args)
 			g_env.rpc.request.send('player_set_volume', {level: ui.value});
 		}
 	});
-	
+
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		if(m_orientation == 'vertical')
 			$(m_slider).height($(m_cont).height() - $(m_icon).outerHeight());
@@ -303,8 +303,8 @@ function volumeWidget(p_args)
 		//$(m_slider).slider('value', p_data.volume);
 		updateIcon(p_data.volume);
 	});
-	
-	
+
+
 	return m_cont.add(m_icon, m_slider);
 }
 
@@ -335,9 +335,9 @@ var MusicTree = {
 
 		if(p_data.image && p_data.name) {
 			var nameCont = div({class: 'name'}, p_data.name);
-			
+
 			var iconCont = div({class: 'image'}, img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null);
-			
+
 			cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
 
 			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
@@ -351,7 +351,7 @@ var MusicTree = {
 					if(window.location.search == '?nocontextmenu')
 						return true;
 					var contextMenu = new clMenu({
-						destroyAfterHide: true, 
+						destroyAfterHide: true,
 						link_handler: function(p_href) {
 							g_env.data.request(p_href.cmd, p_href.params);
 						}
@@ -370,11 +370,11 @@ var MusicTree = {
 	openableItem: function(p_data)
 	{
 		var m_cont = this.item(p_data);
-			
-		m_cont.generateList = function() 
+
+		m_cont.generateList = function()
 		{
 			var aid = p_data.type+'_'+p_data.id;
-		
+
 			if(!p_data.parent.hasNode(aid)) {
 				var typeDesc = MusicTree.types[p_data.type];
 				var list = MusicTree.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers[typeDesc.sub_renderer], typeDesc.getGrouping());
@@ -384,18 +384,18 @@ var MusicTree = {
 
 			return aid;
 		}
-		
-		m_cont.onclick = function() 
+
+		m_cont.onclick = function()
 		{
 			p_data.parent.switchNextNode(this.generateList());
 		}
-		
+
 		return m_cont;
 	},
 	listItem: function(p_data, p_itemProcess, p_grouping, p_sortName)
 	{
 		var grouping = def(p_grouping, {});
-	
+
 		if(p_sortName) {
 			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
 			p_data.list.sort(function(a, b){
@@ -417,7 +417,7 @@ var MusicTree = {
 	listItemBase: function()
 	{
 		var m_cont = div({class: 'music_list'});
-		
+
 		m_cont.search = function(p_items, p_val)
 		{
 			var val = p_val.toLowerCase();
@@ -434,11 +434,11 @@ var MusicTree = {
 						return false;
 				}) === false;
 				desc.container.show(found);
-			});		
+			});
 		}
-		
+
 		return m_cont;
-	},	
+	},
 	listItemMixed: function(p_data, p_itemProcess)
 	{
 		var m_cont = this.listItemBase();
@@ -450,17 +450,17 @@ var MusicTree = {
 			m_items.push({data: item, container: cont});
 			m_cont.add(cont);
 		});
-		
+
 		$(m_cont).mCustomScrollbar({
 			contentTouchScroll: true,
 			autoHideScrollbar: true,
 			mouseWheelPixels: 200
 		});
-		
+
 		p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
 			$(m_cont).mCustomScrollbar("update");
 		});
-		
+
 		m_cont.onQuickSearch = function(p_val)
 		{
 			this.search(m_items, p_val);
@@ -476,10 +476,10 @@ var MusicTree = {
 		m_cont.resetHighlight = function()
 		{
 			if(m_currHighLightedItem >= 0)
-				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');			
+				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');
 			m_currHighLightedItem = -1;
 		}
-		
+
 		m_cont.highlightItem = function(p_idx)
 		{
 			var item = this.getItem(p_idx);
@@ -488,7 +488,7 @@ var MusicTree = {
 
 			if(m_currHighLightedItem == p_idx)
 				return;
-			
+
 			if(m_currHighLightedItem >= 0)
 				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');
 			var cont = $(item.container);
@@ -504,12 +504,12 @@ var MusicTree = {
 				else if(to + scrollContTop > 0)
 					$(m_cont).mCustomScrollbar('scrollTo',  to); //items at the bottom
 			}
-			
+
 			m_currHighLightedItem = p_idx;
 		}
 
 		m_cont.updateLayout = function() {};
-		
+
 		return m_cont;
 	},
 	listItemGrouped: function(p_data, p_itemProcess, p_groupingName)
@@ -526,12 +526,12 @@ var MusicTree = {
 			var letter = item[p_groupingName][0];
 			if(!letter)
 				return;
-				
+
 			letter = letter.toUpperCase();
-			
+
 			if(letter == ' ')
 				return;
-			
+
 			if(!m_letters.hasOwnProperty(letter)) {
 				m_letters[letter] = {
 					count: 0,
@@ -543,56 +543,56 @@ var MusicTree = {
 			m_letters[letter].items.push({data: item});
 		});
 
-		var generateGroup = function(p_desc) 
+		var generateGroup = function(p_desc)
 		{
 			p_desc.cont = div().hide();
-			
+
 			m_list.add(p_desc.cont);
-		
+
 			foreach(p_desc.items, function(item) {
 				item.container = p_itemProcess(item.data);
 				p_desc.cont.add(item.container);
 			});
-			
+
 			$(p_desc.cont).css(m_css).mCustomScrollbar({
 				contentTouchScroll: true,
 				autoHideScrollbar: true,
 				mouseWheelPixels: 200
 			});
-			
+
 			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
 				$(p_desc.cont).mCustomScrollbar("update");
-			});	
+			});
 		}
-		
+
 		var lettersArr = Map.keys(m_letters);
-		
+
 		lettersArr.sort();
-		
+
 		foreach(lettersArr, function(letter) {
 			var tagCont = div(letter, {class: 'letter', onclick: function() {
 				hideGroup(m_currGroupLetter);
 				showGroup(letter);
 			}});
-		
+
 			m_tags[letter] = tagCont;
-		
+
 			m_tagCont.add(tagCont);
 		});
-		
+
 		var hideGroup = function(p_letter)
 		{
 			m_letters[p_letter].cont.hide();
 			m_tags[p_letter].removeClass('active');
 		}
-		
-		var showGroup = function(p_letter) 
+
+		var showGroup = function(p_letter)
 		{
 			var desc = m_letters[p_letter];
 
 			if(!desc.cont)
 				generateGroup(desc);
-			
+
 			desc.cont.show();
 			m_tags[p_letter].addClass('active');
 			m_currGroupLetter = p_letter;
@@ -603,12 +603,12 @@ var MusicTree = {
 		}
 
 		m_cont.onQuickSearch = function(p_val)
-		{		
+		{
 			var desc = m_letters[m_currGroupLetter];
 			this.search(desc.items, p_val);
 		}
 
-		m_cont.updateLayout = function() 
+		m_cont.updateLayout = function()
 		{
 			m_css = {
 				width: $(m_cont).width() - $(m_tagCont).width(),
@@ -618,7 +618,7 @@ var MusicTree = {
 
 			$(m_list).css(m_css);
 			$(m_tagCont).height($(m_cont).height());
-			
+
 			for(var l in m_letters) {
 				if(m_letters[l].cont)
 					$(m_letters[l].cont).css(m_css);
@@ -631,21 +631,21 @@ var MusicTree = {
 		});
 
 		if(lettersArr.length)
-			showGroup(lettersArr[0]);		
+			showGroup(lettersArr[0]);
 
 		m_cont.highlightItem = function(p_idx)
 		{
 			throw 'Not implemented.';
 		}
-			
+
 		m_cont.getItem = function(p_idx)
 		{
 			throw 'Not implemented.';
 		}
-			
+
 		return m_cont;
 	},
-	container: function(p_args) 
+	container: function(p_args)
 	{
 		var m_cont = widget(p_args).addClass('music_container');
 		var m_menuBar = div({class: 'menubar'});
@@ -655,14 +655,14 @@ var MusicTree = {
 		var m_nodes = {};
 		var m_path = [];
 		var m_quickSearch = null;
-		
+
 		m_cont.eventMgr = new EventManager();
-		
+
 		foreach(p_args.rpc_menu, function(menu) {
 			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd); }, class: 'miniButton3D'}), ' ');
 		});
-		
-		if(Map.def(p_args, 'quick_search', false)) 
+
+		if(Map.def(p_args, 'quick_search', false))
 		{
 			m_quickSearch = quickSearchField({minLimit: 0, placeholder: 'Filter', class: 'tiny', wait: 0, callback: function(val) {
 				if(!m_path.length)
@@ -670,13 +670,13 @@ var MusicTree = {
 				var id = m_path.last().id;
 				if(!m_nodes.hasOwnProperty(id))
 					return;
-			
+
 				m_nodes[id].quickSearchValue = val;
 				m_nodes[id].container.onQuickSearch(val);
 			}});
 			m_menuBar.add(m_quickSearch);
 		}
-		
+
 		//$(m_cont).draggable({handle: m_header});
 		//$(m_cont).resizable({alsoResize: '.music_list'});
 
@@ -688,34 +688,34 @@ var MusicTree = {
 			this.updateBreadcrumbs();
 			m_cont.eventMgr.notify('onListItemUpdated');
 		}
-		
+
 		m_cont.updateQuickSearchField = function(p_id)
 		{
 			if(m_quickSearch)
 				m_quickSearch.setValue(m_nodes[p_id].quickSearchValue);
 		}
 
-		m_cont.switchNextNode = function(p_id) 
+		m_cont.switchNextNode = function(p_id)
 		{
 			if(!m_nodes.hasOwnProperty(p_id))
-				return;		
-		
+				return;
+
 			var node = m_nodes[p_id];
 			var cont = $(node.container);
 			cont.show();
 			cont.css('marginLeft', 0);
 			if(node.container.onShow)
 				node.container.onShow();
-		
+
 			if(m_path.length)
 				this.hideNode(m_path.last().id);
-			
+
 			m_path.push({id: p_id, title: node.title});
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
 			m_cont.eventMgr.notify('onListItemUpdated');
 		}
-		
+
 		m_cont.getPathOfNodes = function()
 		{
 			if(!m_path.length)
@@ -725,7 +725,7 @@ var MusicTree = {
 			foreach(m_path, function(part) {
 				path.push(part.id);
 			});
-			
+
 			return path;
 		}
 
@@ -735,7 +735,7 @@ var MusicTree = {
 				return;
 
 			var animLen = def(p_animLen, 200);
-				
+
 			var idx = -1;
 			foreach(m_path, function(part, i) {
 				if(part.id == p_id) {
@@ -743,14 +743,14 @@ var MusicTree = {
 					return false;
 				}
 			});
-			
+
 			if(idx < 0)
 				return;
-			
+
 			var curr = m_path.last();
 			if(curr.id == p_id)
 				return;
-			
+
 			var cont = $(m_nodes[p_id].container);
 			cont.show();
 			if(m_nodes[p_id].container.onShow)
@@ -760,20 +760,20 @@ var MusicTree = {
 					marginLeft: 0
 				}, animLen, 'swing', function() {
 					m_nodes[curr.id].container.hide();
-				});	
+				});
 
 			m_path.splice(idx+1, m_path.length);
-			
+
 			this.updateBreadcrumbs();
 			this.updateQuickSearchField(p_id);
 			m_cont.eventMgr.notify('onListItemUpdated');
 		}
 
-		m_cont.hideNode = function(p_id) 
+		m_cont.hideNode = function(p_id)
 		{
 			if(!m_nodes.hasOwnProperty(p_id))
 				return;
-			
+
 			var cont = $(m_nodes[p_id].container);
 
 			cont.animate({
@@ -783,12 +783,12 @@ var MusicTree = {
 				});
 		}
 
-		m_cont.hasNode = function(p_id) 
+		m_cont.hasNode = function(p_id)
 		{
 			return m_nodes.hasOwnProperty(p_id);
 		}
 
-		m_cont.updateBreadcrumbs = function() 
+		m_cont.updateBreadcrumbs = function()
 		{
 			var parts = [];
 			var title = [];
@@ -799,7 +799,7 @@ var MusicTree = {
 				title.push(part.title);
 			});
 			m_breadcrumbs.set(parts.quilt(' > '));
-			
+
 			//only show the tooltip when it overflowed the breadcrumbs container
 			if($(m_breadcrumbs).width() < m_breadcrumbs.scrollWidth)
 				m_breadcrumbs.p('title', title.join(' > '));
@@ -809,29 +809,29 @@ var MusicTree = {
 			}
 		}
 
-		m_cont.back = function() 
+		m_cont.back = function()
 		{
 
 		}
 
-		m_cont.addNode = function(p_desc) 
+		m_cont.addNode = function(p_desc)
 		{
 			m_nodesCont.add(p_desc.container);
-			
+
 			$(m_nodesCont).width($(m_nodesCont).width() + $(p_desc.container).width());
 
 			var h = $(m_header).outerHeight(true);
-			
+
 			var updateLayout = function() {
 				$(p_desc.container).css({
 					width: $(m_cont).width(),
 					height: $(m_cont).height() - $(m_header).outerHeight(true),
 					overflow: 'hidden'
 				});
-				
+
 				p_desc.container.updateLayout();
 			}
-			
+
 			if(h < 10) { //the element is not the part of the DOM yet
 				g_env.eventMgr.subscribe(['onZeppelinBuilt'], function() {
 					updateLayout();
@@ -839,7 +839,7 @@ var MusicTree = {
 			}
 
 			updateLayout();
-			
+
 			p_desc.quickSearchValue = '';
 			p_desc.container.setQuickSearchValue = function(p_val)
 			{
@@ -848,10 +848,10 @@ var MusicTree = {
 			}
 
 			p_desc.container.hide();
-			
+
 			m_nodes[p_desc.id] = p_desc;
 		}
-		
+
 		m_cont.getNode = function(p_id)
 		{
 			if(this.hasNode(p_id))
@@ -859,17 +859,17 @@ var MusicTree = {
 			else
 				return false;
 		}
-		
+
 		g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 			m_breadcrumbs.css({width: $(m_header).width()});
-			
+
 			$(m_breadcrumbs).tipsy({
 				gravity: 's',
 				fade: true,
 				opacity: 0.9,
 			});
 		});
-		
+
 		$(m_breadcrumbs).bind('mousewheel',function(ev, delta) {
 			var scrollLeft = $(this).scrollLeft();
 			$(this).scrollLeft(scrollLeft-Math.round(delta*50));
@@ -884,16 +884,16 @@ function queueWidget(p_args)
 	var m_args = def(p_args, {});
 	m_args.rpc_menu = [
 		{title: 'clear', cmd: 'player_queue_remove_all'},
-	];	
+	];
 	var m_cont = MusicTree.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
-	m_cont.renderers = {	
+	m_cont.renderers = {
 		playlist: function(p_data)
 		{
 			return div();
-		},	
-		album: function(p_data) 
+		},
+		album: function(p_data)
 		{
 			var item = MusicTree.openableItem({
 				parent: m_cont,
@@ -905,9 +905,9 @@ function queueWidget(p_args)
 				image: '/pic/default_album.png',
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
 			}).addClass('album');
-			
+
 			return item;
-		},	
+		},
 		file: function(p_data)
 		{
 			var item = MusicTree.item({
@@ -919,7 +919,7 @@ function queueWidget(p_args)
 				label: g_descriptors.codecs[p_data.codec].title,
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
 			}).addClass('file');
-			
+
 			item.onclick = function() {
 				g_env.rpc.request.send('player_goto', {index: p_data.index});
 			}
@@ -946,7 +946,7 @@ function queueWidget(p_args)
 	{
 		if(!p_index.length)
 			return [];
-	
+
 		var nodeIdList = [-1]; //root node
 		foreach(p_index, function(index) {
 			var node = m_cont.getNode(nodeIdList.last());
@@ -958,13 +958,13 @@ function queueWidget(p_args)
 
 			if(!item.container.generateList)
 				return false;
-			
+
 			nodeIdList.push(item.container.generateList());
 		});
 
 		return nodeIdList;
 	}
-	
+
 	var jumpToNode = function()
 	{
 		var nodeIdList = calcNodePathForIndex(m_currentIndex);
@@ -974,7 +974,7 @@ function queueWidget(p_args)
 
 		//curr path
 		var pathOfNodes = m_cont.getPathOfNodes();
-		
+
 		if(pathOfNodes === false)
 			return;
 
@@ -998,7 +998,7 @@ function queueWidget(p_args)
 			if(nodeIdObj.next)
 				m_cont.switchNextNode(nodeIdObj.next);
 		}
-		
+
 		var node = m_cont.getNode(nodeIdList.last());
 		if(node === false)
 			return;
@@ -1009,20 +1009,20 @@ function queueWidget(p_args)
 	{
 		var newNodePath = calcNodePathForIndex(m_currentIndex);
 
-		if(!newNodePath.length) 
+		if(!newNodePath.length)
 			return;
-		
+
 		var currNodePath = m_cont.getPathOfNodes();
-		
+
 		if(currNodePath === false)
 			return;
-		
+
 		foreach(currNodePath, function(nodeId) {
 			var node = m_cont.getNode(nodeId);
 			if(node !== false)
 				node.container.resetHighlight();
 		});
-		
+
 		foreach(newNodePath, function(nodeId, i) {
 			var node = m_cont.getNode(nodeId);
 			if(node === false)
@@ -1047,7 +1047,7 @@ function queueWidget(p_args)
 	g_env.data.mgr.subscribe('player_queue_remove_all', function() {
 		g_env.data.request('player_queue_get');
 	});
-	
+
 	g_env.data.mgr.subscribe('player_queue_get', function(p_data) {
 		m_cont.reset();
 
@@ -1056,13 +1056,13 @@ function queueWidget(p_args)
 		var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
 			return m_cont.renderers[item.type](item);
 		}).addClass('playlist');
-		
+
 		m_cont.addNode({title: 'Queue', id: -1, container: list}); //root
 		m_cont.switchNextNode(-1);
 
 		m_cont.eventMgr.notify('onListItemUpdated');
 	});
-	
+
 	g_env.data.mgr.subscribe(['player_status', 'player_queue_get'], function(p_data) {
 		if(p_data.index) {
 			if(equal(p_data.index, m_currentIndex))
@@ -1074,22 +1074,22 @@ function queueWidget(p_args)
 			jumpToNode();
 
 		highlightCurrentItem();
-	});	
-	
+	});
+
 	return m_cont;
 }
 
 function libraryWidget(p_args)
 {
 	var m_args = def(p_args, {});
-	
+
 	m_args.rpc_menu = [
 		{title: 'Scan', cmd: 'library_scan'},
 		{title: 'Refresh', cmd: p_args.desc.cmd}
 	];
 	m_args.quick_search = true;
 	var m_cont = MusicTree.container(m_args).addClass('library');
-	
+
 	var m_renderers = {
 		artist: function(p_data)
 		{
@@ -1105,7 +1105,7 @@ function libraryWidget(p_args)
 			item.onclick = function() {
 				var aid = 'artist_'+p_data.id;
 
-				if(m_cont.hasNode(aid)) 
+				if(m_cont.hasNode(aid))
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_albums_by_artist', {artist_id: p_data.id}, function(data) {
@@ -1117,8 +1117,8 @@ function libraryWidget(p_args)
 			}
 
 			return item;
-		},	
-		album: function(p_data) 
+		},
+		album: function(p_data)
 		{
 			g_env.storage.library.album[p_data.id] = p_data;
 			var item = MusicTree.item({
@@ -1132,8 +1132,8 @@ function libraryWidget(p_args)
 
 			item.onclick = function() {
 				var aid = 'album_'+p_data.id;
-			
-				if(m_cont.hasNode(aid)) 
+
+				if(m_cont.hasNode(aid))
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
@@ -1145,7 +1145,7 @@ function libraryWidget(p_args)
 			}
 
 			return item;
-		},	
+		},
 		file: function(p_data)
 		{
 			g_env.storage.library.file[p_data.id] = p_data;
@@ -1178,7 +1178,7 @@ function libraryWidget(p_args)
 	m_cont.eventMgr.subscribe('send_'+p_args.desc.cmd, function() {
 		m_cont.reset();
 	});
-	
+
 	return m_cont;
 }
 
@@ -1201,7 +1201,7 @@ function directoryBrowserWidget(p_args)
 			}).addClass('dir_item');
 			item.onclick = function() {
 				loadDir(p_data.id, p_data.name);
-			};			
+			};
 			return item;
 		},
 		file: function(p_data) {
@@ -1230,6 +1230,6 @@ function directoryBrowserWidget(p_args)
 	}
 
 	loadDir(-1, 'Folders');
-	
+
 	return m_cont;
 }
