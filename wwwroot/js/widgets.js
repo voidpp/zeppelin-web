@@ -287,7 +287,7 @@ function volumeWidget(p_args)
 		}
 	});
 
-	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+	$(m_icon[0]).load(function() {
 		if(m_orientation == 'vertical')
 			$(m_slider).height($(m_cont).height() - $(m_icon).outerHeight());
 		else
@@ -303,7 +303,6 @@ function volumeWidget(p_args)
 		//$(m_slider).slider('value', p_data.volume);
 		updateIcon(p_data.volume);
 	});
-
 
 	return m_cont.add(m_icon, m_slider);
 }
