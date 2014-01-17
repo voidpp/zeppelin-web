@@ -333,3 +333,17 @@ miniButton3D:hover {
 		box-shadow: 0 0 3px black;
 	}
 }
+
+.sForm {
+	table {
+		width: 100%;
+		>tr>td:nth-child(2) {
+			width: 100%;
+			input {
+				width: 100%;
+				@include box-sizing(border-box);
+			}
+		}
+	}
+}
+
