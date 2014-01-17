@@ -2,7 +2,7 @@ var g_config = {
 	rpc: {
 		host: window.location.hostname,
 		port: window.location.port,
-		path: '/',
+		path: '/jsonrpc',
 	},
 	music_lists: {
 		/*
