@@ -660,8 +660,9 @@ var MusicTree = {
 
 		m_cont.eventMgr = new EventManager();
 
-		foreach(p_args.rpc_menu, function(menu) {
-			m_menuBar.add(clButton({label: menu.title, callback: function() { g_env.data.request(menu.cmd); }, class: 'miniButton3D'}), ' ');
+		foreach(p_args.menubar, function(menu) {
+			var cb = menu.cmd ? function() { g_env.data.request(menu.cmd); } : (menu.callback ? menu.callback : function() { console.error('Menu callback or cmd is not defined'); })
+			m_menuBar.add(clButton({label: menu.title, callback: cb, class: 'miniButton3D'}), ' ');
 		});
 
 		if(Map.def(p_args, 'quick_search', false))
@@ -884,7 +885,7 @@ var MusicTree = {
 function queueWidget(p_args)
 {
 	var m_args = def(p_args, {});
-	m_args.rpc_menu = [
+	m_args.menubar = [
 		{title: 'clear', cmd: 'player_queue_remove_all'},
 	];
 	var m_cont = MusicTree.container(m_args).addClass('queue');
@@ -1085,7 +1086,7 @@ function libraryWidget(p_args)
 {
 	var m_args = def(p_args, {});
 
-	m_args.rpc_menu = [
+	m_args.menubar = [
 		{title: 'Scan', cmd: 'library_scan'},
 		{title: 'Refresh', cmd: p_args.desc.cmd}
 	];
@@ -1188,6 +1189,10 @@ function directoryBrowserWidget(p_args)
 {
 	var m_args = def(p_args, {});
 	m_args.quick_search = true;
+	m_args.menubar = [
+		{title: 'Scan', cmd: 'library_scan'},
+		{title: 'Refresh', callback: function() { m_cont.reset(); loadDir(-1, 'Folders'); }}
+	];
 	var m_cont = MusicTree.container(m_args).addClass('directory');
 
 	var m_renderers = {
