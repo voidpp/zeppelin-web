@@ -362,7 +362,7 @@ var MusicTree = {
 
 			cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
 
-			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
+			$(iconCont).find('img').load(function() {
 				nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
 				if(nameCont.scrollWidth > $(nameCont).width())
 					$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});

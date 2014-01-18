@@ -1,8 +1,8 @@
 /*modalDialog*/
 div.mdBg {
 	position: fixed;
-	top: 0px; 
-	left: 0px; 
+	top: 0px;
+	left: 0px;
 	bottom: 0px;
 	right: 0px;
 	z-index: 4200;
@@ -10,21 +10,21 @@ div.mdBg {
 	background-color: rgba(255,255,255,0);
 	filter: alpha(opacity = 50);
 	font: normal 12px Arial, Helvetica, sans-serif;
-	padding: 15px;	
+	padding: 15px;
 }
 div.mdMain {
 	z-index: 4201;
-	border: 0px solid #555;	
+	border: 0px solid #555;
 	box-shadow: 0 0 15px black;
     -webkit-box-shadow: 0 0 15px black;
-    -moz-box-shadow: 0 0 15px black;	
+    -moz-box-shadow: 0 0 15px black;
 	/*background-color: #eee;*/
-	position: fixed; 
+	position: fixed;
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
 	-khtml-border-radius: 7px;
-	display: inline-block;
+	display: table;
 }
 
 div.mdMain_aero {
@@ -33,12 +33,12 @@ div.mdMain_aero {
 }
 
 div.mdHead{
-	background-image: -o-linear-gradient(#CCCCCC, #888);	
-	background-image: -moz-linear-gradient(center top , #CCCCCC, #888);	
+	background-image: -o-linear-gradient(#CCCCCC, #888);
+	background-image: -moz-linear-gradient(center top , #CCCCCC, #888);
 	background-image: -webkit-gradient(linear,left top, left bottom, from(#CCCCCC), to(#888888));
-	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#CCCCCC', EndColorStr='#888888', GradientType=0);		
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#CCCCCC', EndColorStr='#888888', GradientType=0);
 	padding: 4px;
-	text-shadow: 0px 1px 1px white;	
+	text-shadow: 0px 1px 1px white;
 	color: #222;
 	border-bottom: 1px solid #666;
 	font-weight: bold;
@@ -46,10 +46,10 @@ div.mdHead{
 	-moz-user-select: none;
 	-khtml-user-select: none;
 
-	border-radius: 7px 7px 0 0;	
-	-moz-border-radius: 7px 7px 0 0;	
+	border-radius: 7px 7px 0 0;
+	-moz-border-radius: 7px 7px 0 0;
 	-webkit-border-radius: 7px 7px 0 0;
-	-khtml-border-radius: 7px 7px 0 0;	
+	-khtml-border-radius: 7px 7px 0 0;
 	text-align: left;
 }
 div.mdHead_aero{
@@ -70,9 +70,9 @@ div.mdBody{
 	background-image: -o-linear-gradient(rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
 	background-image: -moz-linear-gradient(center top , rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
 	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(221, 221, 221, 0.9)), to(rgba(187, 187, 187, 0.9)));
-	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#E5DDDDDD', EndColorStr='#E5BBBBBB', GradientType=0);	
-	border-radius: 0 0 7px 7px;	
-	-moz-border-radius: 0 0 7px 7px;	
+	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#E5DDDDDD', EndColorStr='#E5BBBBBB', GradientType=0);
+	border-radius: 0 0 7px 7px;
+	-moz-border-radius: 0 0 7px 7px;
 	-webkit-border-radius: 0 0 7px 7px;
 	-khtml-border-radius: 0 0 7px 7px;
 	text-align: left;
@@ -88,7 +88,7 @@ div.mdFoot{
 	text-align: center;
 }
 div.mdBody input[type="text,password"], div.mdBody textarea, div.mdBody select {
-	border: 1px solid #555;	
+	border: 1px solid #555;
 	border-radius: 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -99,7 +99,7 @@ div.mdBody input[type="text,password"], div.mdBody textarea, div.mdBody select {
 	padding-left: 2px;
 }
 .mdBody_field_table{
-	font-size: inherit;	
+	font-size: inherit;
 	width: 100%;
 }
 .mdBody_field_table td{
@@ -112,6 +112,9 @@ div.mdBody input[type="text,password"], div.mdBody textarea, div.mdBody select {
 	margin-left: 3px;
 	cursor: default;
 }
+.mbHead_caption img {
+	max-height: 16px;
+}
 .mbHead_close {
 	float: right;
 	cursor: hand;
@@ -119,7 +122,7 @@ div.mdBody input[type="text,password"], div.mdBody textarea, div.mdBody select {
 	background-image: url("/pic/close16.png");
 	width: 16px;
 	height: 16px;
-	vertical-align: top;	
+	vertical-align: top;
 }
 
 img.mbBanner {
