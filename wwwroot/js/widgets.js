@@ -1121,7 +1121,6 @@ function libraryWidget(p_args)
 	var m_renderers = {
 		artist: function(p_data)
 		{
-			g_env.storage.library.artist[p_data.id] = p_data;
 			var item = MusicTree.item({
 				parent: m_cont,
 				id: p_data.id,
@@ -1148,7 +1147,6 @@ function libraryWidget(p_args)
 		},
 		album: function(p_data)
 		{
-			g_env.storage.library.album[p_data.id] = p_data;
 			var item = MusicTree.item({
 				parent: m_cont,
 				id: p_data.id,
@@ -1176,7 +1174,6 @@ function libraryWidget(p_args)
 		},
 		file: function(p_data)
 		{
-			g_env.storage.library.file[p_data.id] = p_data;
 			var item = MusicTree.item({
 				parent: m_cont,
 				id: p_data.id,

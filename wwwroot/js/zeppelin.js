@@ -3,6 +3,25 @@ function ZeppelinClient()
 {
 	var clientSettings = new CookieClientSettings();
 
+	//cache the library
+	g_env.data.mgr.subscribe('library_get_artists', function(p_list) {
+		foreach(p_list, function(data) {
+			g_env.storage.library.artist[data.id] = data;
+		});
+	});
+
+	g_env.data.mgr.subscribe('library_get_albums', function(p_list) {
+		foreach(p_list, function(data) {
+			g_env.storage.library.album[data.id] = data;
+		});
+	});
+
+	g_env.data.mgr.subscribe('library_get_files_of_album', function(p_list) {
+		foreach(p_list, function(data) {
+			g_env.storage.library.file[data.id] = data;
+		});
+	});
+
 	var libraryTypes = {
 		albums: {
 			title: 'Albums',
@@ -118,15 +137,17 @@ function MetaDataEditor(p_fileId, p_onSuccess)
 {
 	var openEditor = function(p_data, p_onSuccess)
 	{
-		//library_get_metadata
+		var artists = Map.mine(g_env.storage.library.artist, 'name');
+		var albums = Map.mine(g_env.storage.library.album, 'name');
+
 		var form = {
 			params: {
 				class: 'sForm'
 			},
 			fields: {
 				id: {name: 'id', type: 'hidden', value: p_data.id},
-				artist: {name: "artist", type: "text", label: "Artist", value: p_data.artist},
-				album: {name: "album", type: "text", label: "Album", value: p_data.album},
+				artist: {name: "artist", type: "text", label: "Artist", value: p_data.artist, list: artists},
+				album: {name: "album", type: "text", label: "Album", value: p_data.album, list: albums},
 				title: {name: "title", type: "text", label: "Title", value: p_data.title},
 				year: {name: "year", type: "number", label: "Year", value: p_data.year},
 				track_index: {name: "track_index", type: "number", label: "Track", value: p_data.track_index},

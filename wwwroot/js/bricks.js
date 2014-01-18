@@ -439,6 +439,15 @@ function sField(p_desc)
 			}
 			return inp;
 		case 'text':
+			if(p_desc.hasOwnProperty('outer_selection'))
+				p_desc.value = p_desc.outer_selection;
+			//html5 combobox
+			if(p_desc.hasOwnProperty('list') && p_desc.list instanceof Array) {
+				var listid = 'id'+randomString(8);
+				body().add(datalist(p_desc.list, {id: listid}));
+				p_desc.list = listid;
+			}
+			return input(p_desc);
 		case 'reset':
 		case 'password':
 		case 'submit':

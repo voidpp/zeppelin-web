@@ -65,6 +65,9 @@ var html = {
 		link: {},
 		iframe: {},
 		canvas: {},
+		datalist: {
+			child:'option'
+		},
 	},
 	externals: {}
 }
