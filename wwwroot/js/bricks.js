@@ -199,9 +199,10 @@ function sForm(p_args)
 		if(input_desc.type == 'separator') {
 			row.add(td(hr(),{colspan:2}));
 		} else {
+			var ftd = td();
 			if(p_args.selections && p_args.selections.hasOwnProperty(name))
 				input_desc.outer_selection = p_args.selections[name];
-			var field = sField(input_desc);
+			var field = sField(input_desc, ftd);
 			var label;
 			if(input_desc.togglable) {
 				field.hide();
@@ -212,7 +213,7 @@ function sForm(p_args)
 				label = false;
 			if(label)
 				row.add(td(label));
-			var ftd = td(field);
+			ftd.add(field);
 			if(label === false)
 				ftd.p('colspan', 2);
 			if(input_desc.hasOwnProperty('maxlength')) {
@@ -355,7 +356,7 @@ var g_form_error_renderers = {
 	}
 }
 
-function sField(p_desc)
+function sField(p_desc, p_parent)
 {
 	switch(p_desc.type)
 	{
@@ -442,9 +443,9 @@ function sField(p_desc)
 			if(p_desc.hasOwnProperty('outer_selection'))
 				p_desc.value = p_desc.outer_selection;
 			//html5 combobox
-			if(p_desc.hasOwnProperty('list') && p_desc.list instanceof Array) {
+			if(p_desc.hasOwnProperty('list') && p_desc.list instanceof Array && typeof p_parent != 'undefined') {
 				var listid = 'id'+randomString(8);
-				body().add(datalist(p_desc.list, {id: listid}));
+				p_parent.add(datalist(p_desc.list, {id: listid}));
 				p_desc.list = listid;
 			}
 			return input(p_desc);
