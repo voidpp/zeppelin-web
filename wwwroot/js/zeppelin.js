@@ -136,14 +136,24 @@ function MetaDataEditor(p_fileId, p_onSuccess)
 		});
 	}
 
-	if(g_env.storage.library.file.hasOwnProperty(p_fileId)) {
-		var data = g_env.storage.library.file[p_fileId];
-		data.artist = Map.get(g_env.storage.library, ['artist', data.artist_id, 'name'], '');
-		data.album = Map.get(g_env.storage.library, ['album', data.album_id, 'name'], '');
-		openEditor(data, p_onSuccess);
-	} else {
+	var loadMetaData = function()
+	{
 		g_env.rpc.request.send('library_get_metadata', {id: p_fileId}, function(p_data) {
 			openEditor(p_data, p_onSuccess);
 		});
 	}
+
+	if(g_env.storage.library.file.hasOwnProperty(p_fileId)) {
+		var data = g_env.storage.library.file[p_fileId];
+
+		if(!g_env.storage.library.artist.hasOwnProperty(data.artist_id) || !g_env.storage.library.album.hasOwnProperty(data.album_id)) {
+			loadMetaData()
+			return;
+		}
+
+		data.artist = g_env.storage.library.artist[data.artist_id].name;
+		data.album = g_env.storage.library.album[data.album_id].name;
+		openEditor(data, p_onSuccess);
+	} else
+		loadMetaData();
 }
