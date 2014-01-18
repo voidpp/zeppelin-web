@@ -99,6 +99,11 @@ function formDialog(p_args)
 	}
 	dlg.build();
 
+	var fields = $(form).find('input').filter(':visible');
+	if(fields.length) {
+		$(fields[0]).putCursorAtEnd();
+	}
+
 	return form;
 }
 
