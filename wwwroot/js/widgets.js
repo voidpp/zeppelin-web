@@ -196,10 +196,19 @@ function currentPositionBarWidget(p_args)
 			m_isDragging = true;
 		},
 		stop: function(event, ui) {
-			g_env.rpc.request.send('player_seek', {seconds: (ui.value/m_max) * m_file.length}, function() {
+			g_env.rpc.request.send('player_seek', {seconds: Math.floor((ui.value/m_max) * m_file.length)}, function() {
 				m_isDragging = false;
 			});
 		}
+	});
+
+	$(m_cont).click(function(ev) {
+		m_isDragging = true;
+		var ref = (ev.clientX - $(this).offset().left) / $(this).innerWidth();
+		$(m_slider).slider('value', ref * m_max);
+		g_env.rpc.request.send('player_seek', {seconds: Math.floor(ref * m_file.length)}, function() {
+			m_isDragging = false;
+		});
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {

@@ -122,6 +122,9 @@ $place_for_list_item_scrollbar: 9px;
 		max-height: 24px;
 	}
 }
+.current_position {
+	cursor: pointer;
+}
 
 .player_status {
 	.indicator {
@@ -287,6 +290,10 @@ $default_radius: 1px;
 		top: -3px;
 		height: 7px;
 	}
+}
+
+.ui-slider .ui-slider-handle {
+	cursor: inherit;
 }
 
 .miniButton3D {
