@@ -362,11 +362,20 @@ var MusicTree = {
 
 			cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
 
-			$(iconCont).find('img').load(function() {
+			var waitForDomReady = 0;
+
+			var update = function()
+			{
+				if(++waitForDomReady < 2)
+					return;
+				console.log('w:', $(iconCont).outerWidth());
 				nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
 				if(nameCont.scrollWidth > $(nameCont).width())
 					$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
-			});
+			}
+
+			$(iconCont).find('img').load(update);
+			p_data.parent.eventMgr.subscribe('onListItemUpdated', update);
 
 			if(p_data.menu && p_data.menu.length) {
 				cont.oncontextmenu = function() {
