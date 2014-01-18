@@ -756,7 +756,7 @@ function formatTime(p_time)
 	var h = Math.floor(p_time/3600);
 	var m = Math.floor((p_time%3600)/60);
 	var s = p_time%60;
-	return (h ? dT(h) + ':' : '') + dT(m) + ':' + dT(s);
+	return (h ? h + ':' : '') + dT(m) + ':' + dT(s);
 }
 function cookieData(p_key, p_val, p_params)
 {

@@ -180,11 +180,16 @@ function currentSongWidget(p_args)
 
 function currentPositionBarWidget(p_args)
 {
-	var m_cont = widget(p_args).addClass('current_position');
+	var m_cont = widget(p_args).addClass('current_position').p('title', '00:00');
 	var m_slider = div({class: 'slider'});
 	var m_max = 1000;
 	var m_file = {};
 	var m_isDragging = false;
+
+	var getRef = function(p_x)
+	{
+		return (p_x - $(m_cont).offset().left) / $(m_cont).innerWidth();
+	}
 
 	$(m_slider).slider({
 		orientation: "horizontal",
@@ -204,11 +209,20 @@ function currentPositionBarWidget(p_args)
 
 	$(m_cont).click(function(ev) {
 		m_isDragging = true;
-		var ref = (ev.clientX - $(this).offset().left) / $(this).innerWidth();
+		var ref = getRef(ev.clientX);
 		$(m_slider).slider('value', ref * m_max);
 		g_env.rpc.request.send('player_seek', {seconds: Math.floor(ref * m_file.length)}, function() {
 			m_isDragging = false;
 		});
+	}).tipsy({
+		gravity: 's',
+		delayOut: 1000,
+		fade: true,
+	}).mousemove(function(ev){
+		//update directly the tipsy inner container text
+		$('.tipsy-inner').html(formatTime(Math.floor(getRef(ev.clientX) * m_file.length)));
+		//update directly the pos of the tipsy outer cont
+		$('.tipsy').css({left: ev.clientX - $('.tipsy').outerWidth()/2});
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
