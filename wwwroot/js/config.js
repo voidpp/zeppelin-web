@@ -1,6 +1,9 @@
-function parseConfig(p_data)
+function parseConfig()
 {
-	Map.init(p_data, {
+	if(typeof g_config == 'undefined')
+		throw 'Config is missing or broken.<br>To create please copy the config.example.json to config.json and study it.';
+
+	Map.init(g_config, {
 		rpc: {
 			host: window.location.hostname
 		},
@@ -33,7 +36,5 @@ function parseConfig(p_data)
 		return res;
 	}
 
-	p_data.rpc.url = parseURL(p_data.rpc);
-
-	return p_data;
+	g_config.rpc.url = parseURL(g_config.rpc);
 }

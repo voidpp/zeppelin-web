@@ -84,7 +84,14 @@ function createEnviroment()
 
 function start_engine()
 {
-	parseConfig(g_config);
+	clDialogGlobalIcon = '/favico.ico';
+
+	try {
+		parseConfig();
+	} catch (ex) {
+		clMessageBox(ex, 'Failed to load the config');
+		return;
+	}
 
 	createEnviroment();
 

@@ -42,9 +42,8 @@ function clMessageBox(msg,caption,callback,type)
 		msgcont.add(msg);
 	else
 		msgcont.innerHTML = msg;
-	
-	var type = (type || 'info');
-	var icon = img({src:'/pic/msg_'+type+'.png'});
+
+	var icon = typeof type == 'undefined' ? null : img({src:'/pic/msg_'+type+'.png'});
 
 	var dlg = new clDialog({
 		caption: (caption || 'Message'),
@@ -105,7 +104,7 @@ function clDialog(args)
 		var ph = m_bg ? $(m_bg).outerHeight() : size.h;
 
 		var dtop = Math.round((ph-dh)/2);
-		
+
 		m_dialog.style.top = dtop+'px';
 		m_dialog.style.left = Math.round((pw-dw)/2)+'px';
 
@@ -210,11 +209,11 @@ function clDialog(args)
 		if(!m_animate) {
 			m_dialog.hide();
 			m_bg.hide();
-			if(callback) 
+			if(callback)
 				callback();
-			return;	
+			return;
 		}
-	
+
 		$(m_dialog).animate({
 				//top: '+=10',
 				opacity: 0,
@@ -233,13 +232,13 @@ function clDialog(args)
 	this.show = function()
 	{
 		this.layout();
-		
+
 		if(!m_animate) {
 			m_bg.show();
 			m_dialog.show();
 			return;
 		}
-		
+
 		m_dialog.style.opacity = 0.01;
 
 		if(m_bg) {
@@ -284,7 +283,7 @@ function clDialog(args)
 			args.buttons[id].element.enable(enable);
 		}
 	}
-	
+
 	this.build = function() {
 		if(m_isModal) {
 			m_bg = div({class: 'mdBg'});
@@ -307,7 +306,7 @@ function clDialog(args)
 		}
 
 		m_dialog = div({class:'mdMain'});
-		if(m_isAero) 
+		if(m_isAero)
 			m_dialog.addClass('mdMain_aero');
 
 		m_head = new buildDialogHeader({parent:this,label:args.caption,icon:m_headIcon});
@@ -327,7 +326,7 @@ function clDialog(args)
 		}
 
 		m_foot = new buildDialogFooter(footargs);
-		
+
 		if(m_isModal) {
 			m_bg.appendChild(m_dialog);
 			document.body.appendChild(m_bg);
@@ -365,14 +364,14 @@ function clDialog(args)
 			$(m_bannerImage).addClass('mbBanner');
 			m_bg.appendChild(m_bannerImage);
 			m_bannerImage.style.opacity = 0;
-			m_bannerImage.onload = function() {			
+			m_bannerImage.onload = function() {
 				m_currObj.layout();
-				$(this).animate({ opacity: 1 },500);				
+				$(this).animate({ opacity: 1 },500);
 			}
 		}
-		
+
 		if(m_autoShow)
-			this.show();		
+			this.show();
 	}
 
 }
@@ -565,8 +564,8 @@ function buildDialogFooter(args)
 		var button = clButton({label:(bdesc.tooltip || bdesc.label)});
 		bdesc.element = button;
 		button.fieldItemId = id;
-		button.desc = bdesc;		
-		
+		button.desc = bdesc;
+
 		button.callback = function(e) {
 			if(!e) e = window.event;
 			if(this.desc.validate == true) {
@@ -584,7 +583,7 @@ function buildDialogFooter(args)
 		button.style.marginRight = '7px';
 
 		if(args.hasOwnProperty('minwidth') && args.minwidth > 0) button.style.minWidth = args.minwidth+'px';
-		
+
 		m_win.appendChild(button);
 	}
 
