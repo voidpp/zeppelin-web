@@ -1,6 +1,8 @@
 
 function ZeppelinClient()
 {
+	var clientSettings = new CookieClientSettings();
+
 	var libraryTypes = {
 		albums: {
 			title: 'Albums',
@@ -35,13 +37,17 @@ function ZeppelinClient()
 	//$(main).draggable()/*.resizable()*/;
 
 	var tabbedWidgets = clTabulable({
-		pos: 'top',
+		settings: clientSettings,
+		id: 'tab1',
 		pages: [
-			{title: libraryTypes.artists.title, container: libraryWidget({desc: libraryTypes.artists}), default: true},
+			{title: libraryTypes.artists.title, container: libraryWidget({desc: libraryTypes.artists})},
 			{title: libraryTypes.albums.title, container: libraryWidget({desc: libraryTypes.albums})},
 			{title: 'Folders', container: directoryBrowserWidget()},
 		]
 	}).addClass('panel').css({width: 340, height: 500});
+
+	var openedTab = clientSettings.get('tab1');
+	tabbedWidgets.showPage(openedTab === null ? 0 : openedTab);
 
 	var queue = queueWidget().css({width: 340, height: 500}).addClass('panel');
 	var player = table({cellpadding:0, cellspacing: 0},
@@ -93,6 +99,19 @@ function ZeppelinClient()
 	}
 
 	window.onfocus(); //because the wonderful chrome does not send an onfocus event after onload...
+}
+
+function CookieClientSettings()
+{
+	this.set = function(p_key, p_val)
+	{
+		cookieData(p_key, p_val);
+	}
+
+	this.get = function(p_key)
+	{
+		return cookieData(p_key);
+	}
 }
 
 function MetaDataEditor(p_fileId, p_onSuccess)
