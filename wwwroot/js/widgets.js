@@ -919,7 +919,10 @@ function queueWidget(p_args)
 				desc: formatTime(p_data.length),
 				image: '/pic/default_song.png',
 				label: g_descriptors.codecs[p_data.codec].title,
-				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
+				menu: [
+					{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}},
+					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
+				]
 			}).addClass('file');
 
 			item.onclick = function() {
