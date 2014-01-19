@@ -155,8 +155,11 @@ function currentSongWidget(p_args)
 	var m_fid = 0;
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
+		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])){
+			m_text.clear();
+			m_fid = 0;
 			return;
+		}
 
 		if(m_fid == p_data.current)
 			return;
@@ -165,11 +168,9 @@ function currentSongWidget(p_args)
 
 		var file = g_env.storage.queue.file[p_data.current];
 
-		var t = m_text;
-
 		m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
 
-		$(t).autoScroll({
+		$(m_text).autoScroll({
 			duration: 5000,
 			wait: 500
 		});
