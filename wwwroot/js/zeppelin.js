@@ -139,6 +139,8 @@ function MetaDataEditor(p_fileId, p_onSuccess)
 	{
 		var artists = Map.mine(g_env.storage.library.artist, 'name');
 		var albums = Map.mine(g_env.storage.library.album, 'name');
+		artists.sort(strcmp);
+		albums.sort(strcmp);
 
 		var form = {
 			params: {

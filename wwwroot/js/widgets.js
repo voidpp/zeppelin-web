@@ -369,7 +369,6 @@ var MusicTree = {
 			{
 				if(++waitForDomReady < 2)
 					return;
-				console.log('w:', $(iconCont).outerWidth());
 				nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
 				if(nameCont.scrollWidth > $(nameCont).width())
 					$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
