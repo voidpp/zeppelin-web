@@ -53,13 +53,17 @@ function currentSongInfoWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song_info');
 
-	var m_sampleRate = td('42');
-	var m_compRate = td('na');
-	var m_codec = td('mp3');
+	var m_sampleRate = td();
+	var m_compRate = td();
+	var m_codec = td();
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
+		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+			m_sampleRate.clear();
+			m_compRate.clear();
+			m_codec.clear();
 			return;
+		}
 
 		var file = g_env.storage.queue.file[p_data.current];
 		m_sampleRate.set(parseInt(file.sampling_rate/1000));
@@ -180,8 +184,10 @@ function currentPositionNumWidget(p_args)
 	var m_back = div({class: 'background'}, '88:88:88');
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
+		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+			m_disp.clear();
 			return;
+		}
 
 		m_disp.set(formatTime(p_data.position));
 	});
@@ -235,6 +241,11 @@ function currentPositionBarWidget(p_args)
 		return (p_x - $(m_cont).offset().left) / $(m_cont).innerWidth();
 	}
 
+	m_slider.disabled = function()
+	{
+		return $(m_slider).slider("option", "disabled");
+	}
+
 	$(m_slider).slider({
 		orientation: "horizontal",
 		range: "min",
@@ -252,6 +263,8 @@ function currentPositionBarWidget(p_args)
 	});
 
 	$(m_cont).click(function(ev) {
+		if(m_slider.disabled())
+			return;
 		m_isDragging = true;
 		var ref = getRef(ev.clientX);
 		$(m_slider).slider('value', ref * m_max);
@@ -261,8 +274,11 @@ function currentPositionBarWidget(p_args)
 	}).tipsy({
 		gravity: 's',
 		delayOut: 1000,
+		delayIn: 100,
 		fade: true,
 	}).mousemove(function(ev){
+		if(m_slider.disabled())
+			return;
 		//update directly the tipsy inner container text
 		$('.tipsy-inner').html(formatTime(Math.floor(getRef(ev.clientX) * m_file.length)));
 		//update directly the pos of the tipsy outer cont
@@ -270,8 +286,12 @@ function currentPositionBarWidget(p_args)
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current]))
+		$(m_slider).slider(p_data.state ? "enable" : "disable");
+		$(m_cont).tipsy(p_data.state ? "enable" : "disable");
+		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+			$(m_slider).slider('value', 0);
 			return;
+		}
 
 		m_file = g_env.storage.queue.file[p_data.current];
 		if(!m_isDragging)
