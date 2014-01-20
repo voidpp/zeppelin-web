@@ -62,6 +62,7 @@ function ZeppelinClient()
 			{title: libraryTypes.artists.title, container: libraryWidget({desc: libraryTypes.artists})},
 			{title: libraryTypes.albums.title, container: libraryWidget({desc: libraryTypes.albums})},
 			{title: 'Folders', container: directoryBrowserWidget()},
+			{title: 'Stats', container: statisticsWidget()},
 		]
 	}).addClass('panel').css({width: 340, height: 500});
 

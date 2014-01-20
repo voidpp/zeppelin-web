@@ -198,3 +198,21 @@ $letter_box_shadow: rgba(black,0.8);
 		}
 	}
 }
+
+.statistics {
+	>table {
+		>tr {
+			.section {
+				border-bottom: 1px solid #555;			
+			}
+			.title {
+				color: $gray;
+			}
+			.value {
+				color: $base_color;
+				text-shadow: 0 0 2px $base_color;
+			}
+		}
+	}
+}
+

@@ -6,6 +6,49 @@ function widget(p_args)
 	return m_cont;
 }
 
+function statisticsWidget(p_args)
+{
+	var m_cont = widget(p_args).addClass('statistics');
+	var m_table = table();
+	m_cont.add(m_table);
+	var m_dynData = {
+		values: {},
+		addSectionLabel: function(p_title) {
+			m_table.add(tr(td({colspan: 2, class:'section'}, p_title)));
+			return this;
+		},
+		addValue: function(p_title, p_name, p_initVal, p_formatter) {
+			var val = td({class: 'value'}, def(p_initVal, ''));
+			this.values[p_name] = {cont: val, formatter: def(p_formatter, null)};
+			m_table.add(tr(td({class: 'title'}, p_title),val));
+			return this;
+		},
+		setValue: function(p_name, p_val) {
+			var desc = this.values[p_name];
+			desc.cont.set(desc.formatter ? desc.formatter(p_val) : p_val);
+			return this;
+		},
+		setMap: function(p_map) {
+			for(var name in p_map) {
+				this.setValue(name, p_map[name]);
+			}
+			return this;
+		}
+	}
+
+	m_dynData.addSectionLabel('Library')
+		.addValue('Number of artists', 'num_of_artists', 0)
+		.addValue('Number of albums', 'num_of_albums', 0)
+		.addValue('Number of songs', 'num_of_files', 0)
+		.addValue('Sum of song length', 'sum_of_song_length', 0, formatTime)
+
+	g_env.rpc.request.send('library_get_statistics', {}, function(res){
+		m_dynData.setMap(res);
+	});
+
+	return m_cont;
+}
+
 function currentSongInfoWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song_info');

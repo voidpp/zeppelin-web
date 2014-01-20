@@ -354,3 +354,25 @@ miniButton3D:hover {
 	}
 }
 
+.statistics {
+	padding: 5px;
+	@include box-sizing(border-box);
+	>table {
+		width: 100%;
+		>tr {
+			.section {
+				font-weight: bold;
+				padding: 5px;
+				
+			}
+			.title {
+				padding-left: 15px;
+			}
+			.value {
+				font-family: Digital7;
+				text-align: right;
+				font-size: 16px;
+			}
+		}
+	}
+}
