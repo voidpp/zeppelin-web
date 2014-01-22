@@ -40,6 +40,9 @@ var g_descriptors = {
 		},
 		2: {
 			title: 'FLAC'
+		},
+		unknown: {
+			title: '?'
 		}
 	},
 	sortMethods: {
@@ -51,6 +54,9 @@ var g_descriptors = {
 function createEnviroment()
 {
 	g_env = {
+		getCodec: function(p_type) {
+			return g_descriptors.codecs.hasOwnProperty(p_type) ? g_descriptors.codecs[p_type] : g_descriptors.codecs.unknown;
+		},
 		rpc: {
 			request: new RPC({host: g_config.rpc.url}),
 		},

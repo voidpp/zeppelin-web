@@ -68,7 +68,7 @@ function currentSongInfoWidget(p_args)
 		var file = g_env.storage.queue.file[p_data.current];
 		m_sampleRate.set(parseInt(file.sampling_rate/1000));
 		m_compRate.set('na');
-		m_codec.set(g_descriptors.codecs[file.codec].title);
+		m_codec.set(g_env.getCodec(file.codec).title);
 	});
 
 	return m_cont.add(table({cellpadding: 0, cellspacing: 0},
@@ -1013,7 +1013,7 @@ function queueWidget(p_args)
 				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
 				image: '/pic/default_song.png',
-				label: g_descriptors.codecs[p_data.codec].title,
+				label: g_env.getCodec(p_data.codec).title,
 				menu: [
 					{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}},
 					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
@@ -1252,7 +1252,7 @@ function libraryWidget(p_args)
 				name: p_data.title || p_data.name,
 				desc: formatTime(p_data.length),
 				image: '/pic/default_song.png',
-				label: g_descriptors.codecs[p_data.codec].title,
+				label: g_env.getCodec(p_data.codec).title,
 				menu: [
 					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}},
 					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }}
@@ -1311,7 +1311,7 @@ function directoryBrowserWidget(p_args)
 				id: p_data.id,
 				name: p_data.name,
 				image: '/pic/default_song.png',
-				label: p_data.codec ? g_descriptors.codecs[p_data.codec].title : '',
+				label: p_data.codec ? g_env.getCodec(p_data.codec).title : '',
 				menu: [
 					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}},
 					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
