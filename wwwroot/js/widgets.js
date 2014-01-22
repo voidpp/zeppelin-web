@@ -1,4 +1,6 @@
 
+registerHTML('panel', 'text', function() { var p = create_html('div', arguments, 'text'); p.addClass('panel'); return p; });
+
 function widget(p_args)
 {
 	var m_cont = div({class: 'widget'});

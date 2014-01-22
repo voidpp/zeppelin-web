@@ -1,7 +1,29 @@
 
 function ZeppelinClient()
 {
-	var clientSettings = new CookieClientSettings();
+	var zeppelin = {
+		clientSettings: new CookieClientSettings(),
+		libraryTypes: {
+			albums: {
+				title: 'Albums',
+				cmd: 'library_get_albums',
+				root_renderer: 'album',
+				lists: {
+					grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
+					sorting: ['name', 'songs']
+				}
+			},
+			artists: {
+				title: 'Artists',
+				cmd: 'library_get_artists',
+				root_renderer: 'artist',
+				lists: {
+					grouping: {limit: g_config.music_lists.letter_grouping.artists, name: 'name'},
+					sorting: ['name', 'albums']
+				}
+			}
+		}
+	}
 
 	//cache the library
 	g_env.data.mgr.subscribe('library_get_artists', function(p_list) {
@@ -22,70 +44,29 @@ function ZeppelinClient()
 		});
 	});
 
-	var libraryTypes = {
-		albums: {
-			title: 'Albums',
-			cmd: 'library_get_albums',
-			root_renderer: 'album',
-			lists: {
-				grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
-				sorting: ['name', 'songs']
-			}
-		},
-		artists: {
-			title: 'Artists',
-			cmd: 'library_get_artists',
-			root_renderer: 'artist',
-			lists: {
-				grouping: {limit: g_config.music_lists.letter_grouping.artists, name: 'name'},
-				sorting: ['name', 'albums']
-			}
-		}
+	var windowSize = getClientSize();
+	var browserType = isMobileBrowser() ? 'mobile' : 'desktop';
+	var orientation = windowSize.w > windowSize.h ? 'landscape' : 'portrait';
+	var layout = false;
+
+	foreach(Layouts, function(desc, name) {
+		if(desc.type != browserType)
+			return;
+		if(desc.hasOwnProperty('orientation') && desc.orientation != orientation)
+			return;
+
+		layout = desc;
+		return false;
+	});
+
+	if(layout === false) {
+		clMessageBox('Not found any layout!', 'Error');
+		return;
 	}
 
-	var main = div({class: 'panel', style:'padding: 10px; width: 680px'},
-				playerStatusWidget().css({marginRight: 5}),
-				currentPositionNumWidget().css({marginRight: 10}),
-				currentSongInfoWidget(), br(),
-				currentSongWidget().css({width: '100%'}), br(),
-				currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),
-				controlWidget(),
-				volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
-			);
-
-	//$(main).draggable()/*.resizable()*/;
-
-	var tabbedWidgets = clTabulable({
-		settings: clientSettings,
-		id: 'tab1',
-		pages: [
-			{title: libraryTypes.artists.title, container: libraryWidget({desc: libraryTypes.artists})},
-			{title: libraryTypes.albums.title, container: libraryWidget({desc: libraryTypes.albums})},
-			{title: 'Folders', container: directoryBrowserWidget()},
-			{title: 'Stats', container: statisticsWidget()},
-		]
-	}).addClass('panel').css({width: 340, height: 500});
-
-	var openedTab = clientSettings.get('tab1');
-	tabbedWidgets.showPage(openedTab === null ? 0 : openedTab);
-
-	var queue = queueWidget().css({width: 340, height: 500}).addClass('panel');
-	var player = table({cellpadding:0, cellspacing: 0},
-				tr(td({colspan: 2}, main)),
-				tr(td(queue), td(tabbedWidgets)));
+	var player = layout.render(zeppelin);
 
 	body().add(div({class: 'player'}, player));
-
-	var windowSize = getClientSize();
-
-	var diff = $(player).outerHeight() - windowSize.h;
-
-	if(diff > 0) {
-		queue.css({height: $(queue).height() - diff});
-		tabbedWidgets.css({height: $(tabbedWidgets).height() - diff});
-	}
-
-	tabbedWidgets.updateLayout();
 
 	g_env.eventMgr.notify('onZeppelinBuilt');
 
@@ -128,9 +109,9 @@ function CookieClientSettings()
 		cookieData(p_key, p_val);
 	}
 
-	this.get = function(p_key)
+	this.get = function(p_key, p_default)
 	{
-		return cookieData(p_key);
+		return def(cookieData(p_key), p_default);
 	}
 }
 

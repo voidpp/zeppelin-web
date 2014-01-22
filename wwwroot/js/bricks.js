@@ -678,7 +678,7 @@ function clTabulable(p_desc)
 		p_desc.settings.set(p_desc.id, p_idx);
 	}
 
-	var firstPage = false;
+	var firstPage = p_desc.settings.get(p_desc.id, -1);
 
 	foreach(p_desc.pages, function(desc, i) {
 		var page = div({class: 'page'}, desc.container);
