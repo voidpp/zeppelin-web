@@ -32,7 +32,7 @@ input.tiny {
 	padding: 0px 1px;
 	border: 1px solid;
 	border-radius: 2px;
-	font-size: 9px;
+	font-size: 0.75em;
 }
 
 .player {
@@ -49,6 +49,9 @@ input.tiny {
 
 .panel {
 	text-align: left;
+	margin: 10px;
+	display: inline-block;
+	position: relative;
 }
 
 $place_for_list_item_scrollbar: 9px;
@@ -74,16 +77,15 @@ $place_for_list_item_scrollbar: 9px;
 			.label{
 				border-radius: 2px;
 				padding: 1px 2px;
-				font-size: 8px;
+				font-size: 0.67em;
 				display: inline-block;
 				position: absolute;
 				bottom: 0;
 				right: 0;
-				line-height: 8px;
-			}
+				line-height: 0.67em			}
 			img {
 				vertical-align: middle;
-				max-height: 32px;
+				max-height: 2.67em;
 			}
 		}
 		.name {
@@ -119,7 +121,7 @@ $place_for_list_item_scrollbar: 9px;
 		top: 7px;
 	}
 	.image img {
-		max-height: 24px;
+		max-height: 2em;
 	}
 }
 .current_position {
@@ -128,13 +130,9 @@ $place_for_list_item_scrollbar: 9px;
 
 .player_status {
 	.indicator {
-		width: 9px;
-		height: 9px;
 	}
 	table {
-		margin-bottom: -2px;
 		td {
-			line-height: 10px;
 		}
 	}
 }
@@ -143,7 +141,7 @@ $place_for_list_item_scrollbar: 9px;
 	overflow: hidden;
 	.header {
 		padding: 2px;
-		min-height: 32px;
+		min-height: 2.67em;
 		.menubar {
 			text-align: right;
 		}
@@ -157,14 +155,14 @@ $place_for_list_item_scrollbar: 9px;
 		.tags {
 			vertical-align: top;
 			display: inline-block;
-			font-size: 10px;
-			width: 17px;
+			font-size: 0.83em;
+			width: 1.41em;
 			text-align: center;
 			cursor: pointer;
 			@include user-select(none);
 			overflow: hidden;
 			.letter {
-				line-height: 13px;
+				line-height: 1.1em;
 				font-weight: bold;
 				margin-left: -3px;
 			}
@@ -189,7 +187,6 @@ $place_for_list_item_scrollbar: 9px;
 
 .current_num {
 	font-family: Digital7;
-	font-size: 42px;
 	.display {
 		display: inline-block;
 		position: absolute;
@@ -204,7 +201,6 @@ $place_for_list_item_scrollbar: 9px;
 
 .current_song {
 	font-family: DotMatrix;
-	font-size: 20px;
 	overflow: hidden;
 	.display {
 		display: inline-block;
@@ -335,7 +331,7 @@ miniButton3D:hover {
 }
 
 .tipsy {
-	font-size: 12px;
+	font-size: 1em;
 	.tipsy-inner {
 		box-shadow: 0 0 3px black;
 	}
@@ -363,7 +359,7 @@ miniButton3D:hover {
 			.section {
 				font-weight: bold;
 				padding: 5px;
-				
+
 			}
 			.title {
 				padding-left: 15px;
@@ -371,7 +367,7 @@ miniButton3D:hover {
 			.value {
 				font-family: Digital7;
 				text-align: right;
-				font-size: 16px;
+				font-size: 1.33em;
 			}
 		}
 	}

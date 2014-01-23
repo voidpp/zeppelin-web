@@ -158,6 +158,10 @@ function playerStatusWidget(p_args)
 	}
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		var size = $(m_cont).width();
+		$(m_states).css({width: size, height: size});
+		m_cont.css({lineHeight: (size*0.8)+'px'});
+
 		m_play.drawIndicator();
 		m_stop.drawIndicator();
 		m_pause.drawIndicator();
@@ -176,7 +180,7 @@ function playerStatusWidget(p_args)
 		m_state = p_data.state;
 	});
 
-	return m_cont.add(table({cellpadding:0, cellspacing:0}, tr(td(m_play)), tr(td(m_pause)), tr(td(m_stop))));
+	return m_cont.add(m_play, m_pause, m_stop);
 }
 
 function currentPositionNumWidget(p_args)
@@ -192,6 +196,10 @@ function currentPositionNumWidget(p_args)
 		}
 
 		m_disp.set(formatTime(p_data.position));
+	});
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		m_cont.css({fontSize: $(m_cont).height()});
 	});
 
 	return m_cont.add(m_back, m_disp);
@@ -225,6 +233,11 @@ function currentSongWidget(p_args)
 			duration: 5000,
 			wait: 500
 		});
+	});
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		var size = $(m_cont).height();
+		m_cont.css({fontSize: size});
 	});
 
 	return m_cont.add(m_back, m_text);

@@ -5,10 +5,10 @@ var Layouts = {
 		render: function(p_zeppelin) {
 
 			var main = panel(
-						playerStatusWidget().css({marginRight: 5}),
-						currentPositionNumWidget().css({marginRight: 10}),
+						playerStatusWidget().css({marginRight: 5, width: 10}),
+						currentPositionNumWidget().css({marginRight: 10, height: 42}),
 						currentSongInfoWidget(), br(),
-						currentSongWidget().css({width: '100%'}), br(),
+						currentSongWidget().css({height: 20, width: '100%'}), br(),
 						currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),
 						controlWidget(),
 						volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})

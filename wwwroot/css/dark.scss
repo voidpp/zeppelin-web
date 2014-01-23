@@ -53,9 +53,6 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 .panel {
 	background: $blured_background;
 	box-shadow: 0 0 4px black;
-	margin: 10px;
-	display: inline-block;
-	position: relative;
 }
 
 .current_song_info {
@@ -203,7 +200,7 @@ $letter_box_shadow: rgba(black,0.8);
 	>table {
 		>tr {
 			.section {
-				border-bottom: 1px solid #555;			
+				border-bottom: 1px solid #555;
 			}
 			.title {
 				color: $gray;
