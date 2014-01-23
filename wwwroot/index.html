@@ -35,20 +35,6 @@
 var g_env = {};
 
 var g_descriptors = {
-	codecs: {
-		1: {
-			title: 'MP3'
-		},
-		2: {
-			title: 'FLAC'
-		},
-		3: {
-			title: 'OGG'
-		},
-		unknown: {
-			title: '?'
-		}
-	},
 	sortMethods: {
 		number: intcmp,
 		string: strcmp
@@ -59,7 +45,7 @@ function createEnviroment()
 {
 	g_env = {
 		getCodec: function(p_type) {
-			return g_descriptors.codecs.hasOwnProperty(p_type) ? g_descriptors.codecs[p_type] : g_descriptors.codecs.unknown;
+			return {title: p_type.toUpperCase()};
 		},
 		rpc: {
 			request: new RPC({host: g_config.rpc.url}),
