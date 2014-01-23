@@ -236,7 +236,7 @@ function currentSongWidget(p_args)
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
-		var size = $(m_cont).height();
+		var size = parseInt($(m_cont).height() * 0.84);
 		m_cont.css({fontSize: size});
 	});
 
