@@ -676,6 +676,8 @@ function clTabulable(p_desc)
 		page.cont.addClass('active');
 		m_currPage = p_idx;
 		p_desc.settings.set(p_desc.id, p_idx);
+		if(p_desc.onShowPage)
+			p_desc.onShowPage(p_idx, p_desc.pages[p_idx]);
 	}
 
 	var firstPage = p_desc.settings.get(p_desc.id, -1);
@@ -710,9 +712,9 @@ function clTabulable(p_desc)
 		foreach(p_desc.pages, function(desc, i) {
 			desc.container.css(size);
 		});
-	}
 
-	m_cont.showPage(firstPage == -1 ? 0 : firstPage);
+		m_cont.showPage(firstPage == -1 ? 0 : firstPage);
+	}
 
 	return m_cont;
 }

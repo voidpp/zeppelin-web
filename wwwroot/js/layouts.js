@@ -22,7 +22,10 @@ var Layouts = {
 					{title: p_zeppelin.libraryTypes.albums.title, container: libraryWidget({desc: p_zeppelin.libraryTypes.albums})},
 					{title: 'Folders', container: directoryBrowserWidget()},
 					{title: 'Stats', container: statisticsWidget()},
-				]
+				],
+				onShowPage: function(p_idx, p_page) {
+					p_page.container.eventMgr.notify('onLayoutChanged');
+				},
 			}).css({width: 340, height: 500});
 
 			var queue = panel(queueWidget().css({width: 340, height: 500}));

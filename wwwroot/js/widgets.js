@@ -972,7 +972,8 @@ var MusicTree = {
 				return false;
 		}
 
-		g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		m_cont.updateBreadCrumbsLayout = function()
+		{
 			m_breadcrumbs.css({width: $(m_header).width()});
 
 			$(m_breadcrumbs).tipsy({
@@ -980,7 +981,10 @@ var MusicTree = {
 				fade: true,
 				opacity: 0.9,
 			});
-		});
+		}
+
+		g_env.eventMgr.subscribe('onZeppelinBuilt', m_cont.updateBreadCrumbsLayout);
+		m_cont.eventMgr.subscribe('onLayoutChanged', m_cont.updateBreadCrumbsLayout);
 
 		$(m_breadcrumbs).bind('mousewheel',function(ev, delta) {
 			var scrollLeft = $(this).scrollLeft();
