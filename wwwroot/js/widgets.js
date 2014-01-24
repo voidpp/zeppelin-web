@@ -237,7 +237,9 @@ function currentSongWidget(p_args)
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		var size = parseInt($(m_cont).height());
-		m_cont.css({fontSize: size, lineHeight: size+'px'});
+		m_cont.css({fontSize: size});
+		//need to disable the previously configured height, because different browsers and operating systems rendering the fonts in different way, so the text may truncated or sg weird shit...
+		$(m_cont).height('auto');
 	});
 
 	return m_cont.add(m_back, m_text);
