@@ -80,15 +80,30 @@ function currentSongInfoWidget(p_args)
 	));
 }
 
-function indicator()
+function customCSSDrawer(p_args)
 {
-	var m_cont = canvas({class: 'indicator'});
+	var m_cont = canvas();
+	var m_shadow = 0;
 
-	m_cont.getIconRect = function()
+	m_cont.setLayout = function(p_width, p_height, p_shadow)
 	{
-		var s = this.getSize();
-		var padding = 1;
-		return {x: padding, y: padding, w: s.w-padding*2, h: s.h-padding*2};
+		m_cont.css({width: p_width + 2*p_shadow, height: p_height + 2*p_shadow, margin: -p_shadow});
+		m_shadow = p_shadow;
+	}
+
+	m_cont.getShadowData = function()
+	{
+		if(m_shadow == 0)
+			return false;
+		var blur = $(this).css('text-shadow');
+		if(blur == 'none')
+			return false;
+		var blurProps = blur.split(' '); //ECMA is a bitch...
+
+		return {
+			blur: m_shadow,
+			color: blurProps.slice(0,blurProps.length-3).join(' '),
+		};
 	}
 
 	m_cont.initDrawer = function()
@@ -104,16 +119,32 @@ function indicator()
 
 	m_cont.setBlur = function(p_ctx)
 	{
-		var blur = $(this).css('text-shadow');
-		if(blur == 'none')
-			return;
-		var blurProps = blur.split(' '); //ECMA is a bitch...
-		var distance = parseInt(blurProps.last());
-		var color = blurProps.slice(0,blurProps.length-3).join(' ');
-		p_ctx.shadowColor = color;
-		p_ctx.shadowBlur = distance;
+		var shadowData = this.getShadowData();
+		if(shadowData !== false)
+			return this;
+		p_ctx.shadowColor = shadowData.color;
+		p_ctx.shadowBlur = shadowData.blur;
 		return this;
 	}
+
+	m_cont.getRect = function()
+	{
+		var s = this.getSize();
+		var padding = m_shadow;
+		return {x: padding, y: padding, w: s.w-padding*2, h: s.h-padding*2};
+	}
+
+	m_cont.draw = function()
+	{
+		p_args.renderer(this.initDrawer(), this.getRect());
+	}
+
+	return m_cont;
+}
+
+function indicator(p_args)
+{
+	var m_cont = customCSSDrawer(p_args).addClass('indicator');
 
 	return m_cont;
 }
@@ -122,49 +153,18 @@ function playerStatusWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('player_status');
 	var m_state = 0;
-	var m_play = indicator();
-	var m_pause = indicator();
-	var m_stop = indicator().addClass('active');
+	var m_play = indicator({renderer: Graphics.drawers.music.play});
+	var m_pause = indicator({renderer: Graphics.drawers.music.pause});
+	var m_stop = indicator({renderer: Graphics.drawers.music.stop}).addClass('active');
 	var m_states = [m_stop, m_play, m_pause];
-
-	m_play.drawIndicator = function()
-	{
-		var rect = this.getIconRect();
-		var ctx = this.initDrawer();
-		ctx.beginPath();
-		ctx.moveTo(rect.x+rect.w*0.15, rect.y);
-		ctx.lineTo(rect.x+rect.w*0.85, rect.y+rect.h/2);
-		ctx.lineTo(rect.x+rect.w*0.15, rect.y+rect.h);
-		ctx.closePath();
-		ctx.fill();
-		return this;
-	}
-
-	m_stop.drawIndicator = function()
-	{
-		var rect = this.getIconRect();
-		var ctx = this.initDrawer();
-		ctx.fillRect(rect.x+rect.w*0.1,rect.y+rect.h*0.1,rect.w*0.8,rect.h*0.8);
-		return this;
-	}
-
-	m_pause.drawIndicator = function()
-	{
-		var rect = this.getIconRect();
-		var ctx = this.initDrawer();
-		ctx.fillRect(rect.x+rect.w*0.15,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
-		ctx.fillRect(rect.x+rect.w*0.60,rect.y+rect.h*0.05,rect.w*0.25,rect.h*0.9);
-		return this;
-	}
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		var size = $(m_cont).width();
-		$(m_states).css({width: size, height: size});
-		m_cont.css({lineHeight: (size*0.8)+'px'});
-
-		m_play.drawIndicator();
-		m_stop.drawIndicator();
-		m_pause.drawIndicator();
+		m_cont.css({lineHeight: (size)+'px'});
+		foreach(m_states, function(state) {
+			state.setLayout(size, size, size*0.2);
+			state.draw();
+		});
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
@@ -174,8 +174,8 @@ function playerStatusWidget(p_args)
 		m_states[m_state].removeClass('active');
 		m_states[p_data.state].addClass('active');
 
-		m_states[m_state].drawIndicator();
-		m_states[p_data.state].drawIndicator();
+		m_states[m_state].draw();
+		m_states[p_data.state].draw();
 
 		m_state = p_data.state;
 	});

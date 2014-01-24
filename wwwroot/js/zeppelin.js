@@ -111,7 +111,8 @@ function CookieClientSettings()
 
 	this.get = function(p_key, p_default)
 	{
-		return def(cookieData(p_key), p_default);
+		var val = cookieData(p_key);
+		return val == null ? p_default : val;
 	}
 }
 

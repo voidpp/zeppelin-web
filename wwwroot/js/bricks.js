@@ -712,8 +712,7 @@ function clTabulable(p_desc)
 		});
 	}
 
-	if(firstPage !== false)
-		m_cont.showPage(firstPage);
+	m_cont.showPage(firstPage == -1 ? 0 : firstPage);
 
 	return m_cont;
 }
