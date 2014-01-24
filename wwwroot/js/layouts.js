@@ -5,7 +5,7 @@ var Layouts = {
 		render: function(p_zeppelin) {
 
 			var main = panel(
-						playerStatusWidget().css({marginRight: 5, width: 9}),
+						playerStatusWidget().css({marginRight: 5, width: 8}),
 						currentPositionNumWidget().css({marginRight: 10, height: 42}),
 						currentSongInfoWidget(), br(),
 						currentSongWidget().css({height: 20, width: '100%'}), br(),

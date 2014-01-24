@@ -160,7 +160,7 @@ function playerStatusWidget(p_args)
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		var size = $(m_cont).width();
-		m_cont.css({lineHeight: (size)+'px'});
+		m_cont.css({lineHeight: (size*1.2)+'px'});
 		foreach(m_states, function(state) {
 			state.setLayout(size, size, size*0.2);
 			state.draw();
