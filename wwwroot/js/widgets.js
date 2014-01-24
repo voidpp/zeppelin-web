@@ -321,17 +321,21 @@ function currentPositionBarWidget(p_args)
 function controlWidget()
 {
 	var m_cont = widget().addClass('control');
-	var m_play = rpcButton({img:'/pic/Play.png', command:'player_play'});
-	var m_pause = rpcButton({img:'/pic/Pause.png', command:'player_pause'}).hide();
+	var m_play = rpcButton({img:'/pic/neg-play-256.png', command:'player_play'});
+	var m_pause = rpcButton({img:'/pic/neg-pause-256.png', command:'player_pause'}).hide();
 	var m_state = -1;
 
 	m_cont.add(
-		rpcButton({img:'/pic/Start.png', command:'player_prev'}),
+		rpcButton({img:'/pic/neg-prev-256.png', command:'player_prev'}),
 		m_play,
 		m_pause,
-		rpcButton({img:'/pic/Stop.png', command:'player_stop'}),
-		rpcButton({img:'/pic/End.png', command:'player_next'})
+		rpcButton({img:'/pic/neg-stop-256.png', command:'player_stop'}),
+		rpcButton({img:'/pic/neg-next-256.png', command:'player_next'})
 	);
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		$(m_cont).children().css({maxHeight: $(m_cont).height()});
+	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		if(m_state == p_data.state)

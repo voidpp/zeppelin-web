@@ -10,7 +10,7 @@ var Layouts = {
 						currentSongInfoWidget(), br(),
 						currentSongWidget().css({height: 20, width: '100%'}), br(),
 						currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),
-						controlWidget(),
+						controlWidget().css({height: 32}),
 						volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
 					).css({padding: 10, width: 680});
 
