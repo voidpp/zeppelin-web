@@ -318,23 +318,61 @@ function currentPositionBarWidget(p_args)
 	return m_cont.add(m_slider);
 }
 
+function controlButton(p_type)
+{
+	var m_cont = div({class: 'button'});
+
+	var m_sizes = {
+		 32: [0,32],
+		 64: [32,64],
+		128: [64,128],
+		256: [128,256],
+	}
+
+	var m_layers = [
+		img({class: 'base'}),
+		img({class: 'down'}),
+		img({class: 'icon'}),
+		img({class: 'frame'}),
+		img({class: 'highlight'})
+	];
+
+	m_cont.setSize = function(p_size) {
+		var size = searchInRange(p_size, m_sizes);
+		m_layers[0].add({src:'/pic/circ-buttons/' + size + '/common-base-up.png'}).css({maxHeight: p_size});
+		m_layers[1].add({src:'/pic/circ-buttons/' + size + '/common-base-down.png'}).css({maxHeight: p_size});
+		m_layers[2].add({src:'/pic/circ-buttons/' + size + '/' + p_type + '.png'}).css({maxHeight: p_size});
+		m_layers[3].add({src:'/pic/circ-buttons/' + size + '/common-base-frame.png'}).css({maxHeight: p_size});
+		m_layers[4].add({src:'/pic/circ-buttons/' + size + '/common-hl.png'}).css({maxHeight: p_size});
+	}
+
+	m_cont.add(m_layers);
+
+	m_cont.onclick = function() {
+		g_env.rpc.request.send('player_'+p_type);
+	}
+
+	return m_cont;
+}
+
 function controlWidget()
 {
 	var m_cont = widget().addClass('control');
-	var m_play = rpcButton({img:'/pic/neg-play-256.png', command:'player_play'});
-	var m_pause = rpcButton({img:'/pic/neg-pause-256.png', command:'player_pause'}).hide();
+	var m_play = controlButton('play');
+	var m_pause = controlButton('pause').hide();
 	var m_state = -1;
 
 	m_cont.add(
-		rpcButton({img:'/pic/neg-prev-256.png', command:'player_prev'}),
+		controlButton('prev'),
 		m_play,
 		m_pause,
-		rpcButton({img:'/pic/neg-stop-256.png', command:'player_stop'}),
-		rpcButton({img:'/pic/neg-next-256.png', command:'player_next'})
+		controlButton('stop'),
+		controlButton('next')
 	);
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
-		$(m_cont).children().css({maxHeight: $(m_cont).height()});
+		var h = $(m_cont).height();
+		foreach(m_cont.childNodes, function(b) { b.css({maxHeight: h}); b.setSize(h); });
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
@@ -368,7 +406,7 @@ function volumeWidget(p_args)
 	var m_ranges = {
 		0: [0,1],
 		1: [1,50],
-		2: [51,101]
+		2: [50,100]
 	};
 	var m_orientation = Map.def(m_args, 'orientation', 'vertical');
 

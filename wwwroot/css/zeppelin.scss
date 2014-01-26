@@ -232,6 +232,7 @@ $place_for_list_item_scrollbar: 9px;
 
 .volume {
 	text-align: center;
+	vertical-align: top;
 	img {
 		padding-right: 10px;
 		vertical-align: middle;
@@ -368,6 +369,49 @@ miniButton3D:hover {
 				font-family: Digital7;
 				text-align: right;
 				font-size: 1.33em;
+			}
+		}
+	}
+}
+
+.control {
+	> .button {
+		display: inline-block;
+		cursor: pointer;
+		margin: 0 1px;
+		position: relative;
+		.base {
+		}
+		.down {
+			position: absolute;
+			top: 0;
+			left: 0;
+			opacity: 0;
+			@include transition(opacity 0.5s);
+		}
+		.icon, .frame {
+			position: absolute;
+			top: 0;
+			left: 0;
+			max-height: 32px;
+		}
+		.highlight {
+			position: absolute;
+			top: 0;
+			left: 0;
+			opacity: 0;
+			@include transition(opacity 0.5s);
+		}
+		&:hover {
+			.highlight {
+				opacity: 0.8;
+				@include transition(opacity 0.2s);
+			}
+		}
+		&:active {
+			.down{
+				opacity: 1;
+				@include transition(opacity 0.2s);
 			}
 		}
 	}

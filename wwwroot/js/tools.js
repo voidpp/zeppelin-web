@@ -948,7 +948,7 @@ function searchInRange(p_value, p_ranges)
 {
 	for(var name in p_ranges) {
 		var ranged = p_ranges[name];
-		if(ranged[0] <= p_value && ranged[1] > p_value)
+		if(ranged[0] <= p_value && ranged[1] >= p_value)
 			return name;
 	}
 }

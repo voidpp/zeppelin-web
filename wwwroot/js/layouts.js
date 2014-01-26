@@ -9,9 +9,11 @@ var Layouts = {
 						currentPositionNumWidget().css({marginRight: 10, height: 42}),
 						currentSongInfoWidget(), br(),
 						currentSongWidget().css({height: 20, width: '100%'}), br(),
-						currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}), br(),
-						controlWidget().css({height: 32}),
-						volumeWidget({orientation: 'horizontal'}).css({width: 150, padding: 5})
+						currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}),
+						div(
+							controlWidget().css({height: 32}),
+							volumeWidget({orientation: 'horizontal'}).css({width: 150, margin: 8})
+						)
 					).css({padding: 10, width: 680});
 
 			var tabbedWidgets = clTabulable({
