@@ -60,7 +60,7 @@ $place_for_list_item_scrollbar: 9px;
 	text-align: left;
 	display: inline-block;
 	position: relative;
-	.music_item {
+	.tree_item {
 		cursor: pointer;
 		@include transition(background-color 1s);
 	}
@@ -137,7 +137,7 @@ $place_for_list_item_scrollbar: 9px;
 	}
 }
 
-.music_container{
+.tree_container{
 	overflow: hidden;
 	.header {
 		padding: 2px;
@@ -150,7 +150,7 @@ $place_for_list_item_scrollbar: 9px;
 			white-space: nowrap;
 		}
 	}
-	.music_list {
+	.tree_list {
 		display: inline-block;
 		.tags {
 			vertical-align: top;
@@ -413,6 +413,25 @@ miniButton3D:hover {
 				opacity: 1;
 				@include transition(opacity 0.2s);
 			}
+		}
+	}
+}
+
+.config_panel {
+	text-shadow: none;
+	.node {
+		cursor: pointer;
+		@include user-select(none);
+		padding: 10px 5px;
+		border-top: 1px solid #555;
+		font-weight: bold;
+	}
+	.leaf {
+		border-top: 1px solid #555;
+		padding: 5px;
+		input {
+			width: 100%;
+			@include box-sizing(border-box);
 		}
 	}
 }

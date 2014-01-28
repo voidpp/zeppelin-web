@@ -21,7 +21,7 @@
 <script type="text/javascript" src="/js/layouts.js"></script>
 <script type="text/javascript" src="/js/zeppelin.js"></script>
 <script type="text/javascript" src="/js/config.js"></script>
-<script type="text/javascript" src="/config.json"></script>
+<script type="text/javascript" src="/js/treeviewer.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/dark-hive/jquery-ui-1.10.3.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/css/jquery.mCustomScrollbar.css">
 <link rel="stylesheet" type="text/css" href="/css/tipsy.css">
@@ -35,6 +35,7 @@
 <script type="text/javascript">
 
 var g_env = {};
+var g_config = {};
 
 var g_descriptors = {
 	sortMethods: {
@@ -86,8 +87,9 @@ function start_engine()
 	clDialogGlobalIcon = '/favico.ico';
 
 	try {
-		parseConfig();
+		g_config = Config.load();
 	} catch (ex) {
+		console.error(ex);
 		clMessageBox(ex, 'Failed to load the config');
 		return;
 	}

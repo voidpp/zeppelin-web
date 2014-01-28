@@ -516,6 +516,15 @@ function isElement(obj)
   }
 }
 var Map = {
+	numberize: function(p_obj)
+	{
+		foreach(p_obj, function(val, key) {
+			if(typeof val == 'object')
+				Map.numberize(val);
+			else if(isNumber(val))
+				p_obj[key] = parseInt(val);
+		});
+	},
 	def: function(p_obj, p_key, p_default)
 	{
 		return p_obj.hasOwnProperty(p_key) ? p_obj[p_key] : p_default;
@@ -1161,3 +1170,5 @@ window.isMobileBrowser = function()
 {
 	return /(up.browser|up.link|mmp|symbian|opera mobi|opera mini|opera tablet|smartphone|midp|wap|phone|android)/i.test(navigator.userAgent);
 }
+
+function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
