@@ -26,7 +26,8 @@ var Layouts = {
 					{title: 'Stats', container: statisticsWidget()},
 				],
 				onShowPage: function(p_idx, p_page) {
-					p_page.container.eventMgr.notify('onLayoutChanged');
+					if(p_page.container.eventMgr)
+						p_page.container.eventMgr.notify('onLayoutChanged');
 				},
 			}).css({width: 340, height: 500});
 
