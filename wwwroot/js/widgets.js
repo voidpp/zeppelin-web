@@ -171,7 +171,8 @@ function statisticsWidget(p_args)
 		.addValue('Number of artists', 'num_of_artists', 0)
 		.addValue('Number of albums', 'num_of_albums', 0)
 		.addValue('Number of songs', 'num_of_files', 0)
-		.addValue('Sum of song length', 'sum_of_song_length', 0, formatTime)
+		.addValue('Sum of song length', 'sum_of_song_lengths', 0, formatTime)
+		.addValue('Sum of file sizes', 'sum_of_file_sizes', 0, bytesToSize)
 
 	g_env.rpc.request.send('library_get_statistics', {}, function(res){
 		m_dynData.setMap(res);
