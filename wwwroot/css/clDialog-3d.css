@@ -67,9 +67,9 @@ div.mdBody{
 	padding: 10px;
 	text-shadow: 1px 1px 1px white;
 	color: #333;
-	background-image: -o-linear-gradient(rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
-	background-image: -moz-linear-gradient(center top , rgba(221, 221, 221, 0.9), rgba(187, 187, 187, 0.9));
-	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(221, 221, 221, 0.9)), to(rgba(187, 187, 187, 0.9)));
+	background-image: -o-linear-gradient(rgba(221, 221, 221, 0.99), rgba(187, 187, 187, 0.99));
+	background-image: -moz-linear-gradient(center top , rgba(221, 221, 221, 0.99), rgba(187, 187, 187, 0.99));
+	background-image: -webkit-gradient(linear,left top, left bottom, from(rgba(221, 221, 221, 0.99)), to(rgba(187, 187, 187, 0.99)));
 	filter: progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#E5DDDDDD', EndColorStr='#E5BBBBBB', GradientType=0);
 	border-radius: 0 0 7px 7px;
 	-moz-border-radius: 0 0 7px 7px;

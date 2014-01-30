@@ -1,50 +1,49 @@
 var Config = {
 	eventMgr: new EventManager(),
 	descriptor: {
-		rpc: {
-			title: 'RPC',
+		server: {
+			title: 'Server',
 			children: {
-				host: {
-					title: 'Host',
+				address: {
+					title: 'Address',
 					default: window.location.hostname,
 				},
-				port: {
-					title: 'Port',
-					default: parseInt(window.location.port),
+				controller_port: {
+					title: 'Controller port',
+					default: window.location.port,
 				},
-				path: {
-					title: 'Path',
+				controller_path: {
+					title: 'Controller path',
 					default: '/jsonrpc',
 				},
-				/*
-				protocol: {
-					title: 'Protocol',
-					default: window.location.protocol,
-				},
-				*/
 			}
 		},
 		music_lists: {
 			title: 'Music lists',
 			children: {
 				letter_grouping: {
-					title: 'Letter grouping',
-					help: 'If the size of the list is over this value the list is groupped by the first letter of the items. -1 means disable the grouping',
+					title: 'Grouping',
+					help: 'Group library lists by the starting letter.',
+					details: 'Letter grouping will be turned on after having at least the configured amount of items. Leave the fields empty if you do not want to enable this feature.',
 					children: {
 						artists: {
 							title: 'Artists',
+							format: 'number',
 							default: 42,
 						},
 						albums: {
 							title: 'Albums',
+							format: 'number',
 							default: 42,
 						},
 						songs: {
 							title: 'Songs',
-							default: -1,
+							format: 'number',
+							default: '',
 						},
 						directories: {
 							title: 'Directories',
+							format: 'number',
 							default: 42,
 						},
 					}
@@ -54,12 +53,12 @@ var Config = {
 					children: {
 						auto_jump: {
 							title: 'Auto jumping',
-							help: 'The highlight jumps automatic to the currently played item',
+							help: 'The highlight jumps automatically to the currently played item',
 							default: true,
 						},
 						auto_scroll: {
 							title: 'Auto scrolling',
-							help: 'The highlight scrolls automatic to the currently played item',
+							help: 'The highlight scrolls automatically to the currently played item',
 							default: false,
 						},
 					}
@@ -96,27 +95,8 @@ var Config = {
 			console.error(e);
 		}
 
-		console.log(conf);
-
 		//default values
 		this.fillDefaults(conf, this.descriptor);
-
-		var parseURL = function(p_parts)
-		{
-			var res = '';
-			res += Map.def(p_parts, 'protocol', 'http') + '://';
-
-			res += p_parts.host;
-
-			if(p_parts.port)
-				res += ':' + p_parts.port;
-
-			res += Map.def(p_parts, 'path', '/');
-
-			return res;
-		}
-
-		conf.rpc.url = parseURL(conf.rpc);
 
 		return conf;
 	},

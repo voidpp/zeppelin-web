@@ -46,7 +46,7 @@ var TreeViewer = {
 
 		return cont;
 	},
-	directOpenableHandler: function(p_cont, p_data, p_typeDesc)
+	directOpenableHandler: function(p_cont, p_data, p_typeDesc, p_onPanelGenerated)
 	{
 		var typeDesc = def(p_typeDesc, {});
 
@@ -58,6 +58,8 @@ var TreeViewer = {
 				var list = TreeViewer.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers, typeDesc.getGrouping ? typeDesc.getGrouping() : {});
 				list.p('id', aid);
 				p_data.parent.addNode({title: p_data.name, id: aid, container: list});
+				if(p_onPanelGenerated)
+					p_onPanelGenerated(list);
 			}
 
 			return aid;
@@ -93,7 +95,7 @@ var TreeViewer = {
 			});
 		}
 
-		if(grouping.hasOwnProperty('name') && grouping.limit != -1 && p_data.list.length > grouping.limit)
+		if(grouping.hasOwnProperty('name') && grouping.limit !== '' && p_data.list.length > grouping.limit)
 			return this.listItemGrouped(p_data, p_itemProcess, grouping.name);
 		else
 			return this.listItemMixed(p_data, p_itemProcess);

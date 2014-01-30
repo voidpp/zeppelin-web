@@ -214,8 +214,18 @@ $letter_box_shadow: rgba(black,0.8);
 }
 
 .config_panel {
+	.item {
+		border-top: 1px solid #777;
+	}
+	.node {
+		&:hover {
+			background-color: rgba(255,255,255,0.5);
+		}
+	}
+	.item:last-child {
+		border-bottom: 1px solid #777;
+	}
 	.header .clTextButton {
 		color: black;
 	}
-	box-shadow: 0 0 2px black;
 }

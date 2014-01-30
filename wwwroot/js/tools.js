@@ -1172,3 +1172,17 @@ window.isMobileBrowser = function()
 }
 
 function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
+
+function makeURL(p_parts)
+{
+	var res = Map.def(p_parts, 'protocol', 'http') + '://';
+
+	res += p_parts.host;
+
+	if(p_parts.port)
+		res += ':' + p_parts.port;
+
+	res += Map.def(p_parts, 'path', '/');
+
+	return res;
+}

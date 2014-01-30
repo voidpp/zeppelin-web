@@ -419,19 +419,50 @@ miniButton3D:hover {
 
 .config_panel {
 	text-shadow: none;
+	margin: -10px;
+	.header {
+		min-height: 0;
+		padding: 4px;
+	}
+	.title {
+		font-weight: bold;
+	}
+	.item {
+		display: table;
+		width: 100%;
+		padding: 5px;
+		@include box-sizing(border-box);
+	}
 	.node {
 		cursor: pointer;
 		@include user-select(none);
 		padding: 10px 5px;
-		border-top: 1px solid #555;
-		font-weight: bold;
 	}
 	.leaf {
-		border-top: 1px solid #555;
-		padding: 5px;
+		.label {
+			@include box-sizing(border-box);
+			display: table-cell;
+			width: 100%;
+		}
+		.input {
+			display: table-cell;
+			cursor: pointer;
+			input {
+				min-width: 100px;
+				text-align: right;
+			}
+		}
 		input {
 			width: 100%;
 			@include box-sizing(border-box);
 		}
+	}
+	.help {
+		font-size: 0.8em;
+		margin-top: 5px;
+	}
+	.details {
+		font-size: 0.9em;
+		padding: 5px;
 	}
 }
