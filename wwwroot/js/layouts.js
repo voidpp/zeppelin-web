@@ -16,13 +16,17 @@ var Layouts = {
 						)
 					).css({padding: 10, width: 680});
 
+			var lib1 = libraryWidget({desc: p_zeppelin.libraryTypes.artists});
+			var lib2 = libraryWidget({desc: p_zeppelin.libraryTypes.albums});
+			var dirs = directoryBrowserWidget();
+
 			var tabbedWidgets = clTabulable({
 				settings: p_zeppelin.clientSettings,
 				id: 'tab1',
 				pages: [
-					{title: p_zeppelin.libraryTypes.artists.title, container: libraryWidget({desc: p_zeppelin.libraryTypes.artists})},
-					{title: p_zeppelin.libraryTypes.albums.title, container: libraryWidget({desc: p_zeppelin.libraryTypes.albums})},
-					{title: 'Folders', container: directoryBrowserWidget()},
+					{title: p_zeppelin.libraryTypes.artists.title, container: lib1},
+					{title: p_zeppelin.libraryTypes.albums.title, container: lib2},
+					{title: 'Folders', container: dirs},
 					{title: 'Stats', container: statisticsWidget()},
 				],
 				onShowPage: function(p_idx, p_page) {
@@ -31,12 +35,17 @@ var Layouts = {
 				},
 			}).css({width: 340, height: 500});
 
-			var queue = panel(queueWidget().css({width: 340, height: 500}));
+			var queue = queueWidget().css({width: 340, height: 500});
 			var player = table({cellpadding:0, cellspacing: 0},
 						tr(td({colspan: 2}, main)),
-						tr(td(queue), td(panel(tabbedWidgets))));
+						tr(td(panel(queue)), td(panel(tabbedWidgets))));
 
 			g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+
+				queue.eventMgr.notify('onDomReady');
+				lib1.eventMgr.notify('onDomReady');
+				lib2.eventMgr.notify('onDomReady');
+				dirs.eventMgr.notify('onDomReady');
 
 				var windowSize = getClientSize();
 
@@ -49,6 +58,19 @@ var Layouts = {
 
 				tabbedWidgets.updateLayout();
 			});
+
+			player.add(configIconWidget({
+				zeppelin: p_zeppelin,
+				panelCss: {
+					width: 300,
+					height: 300
+				}
+			}).css({
+				position: 'fixed',
+				top: 10,
+				right: 10,
+				height: 48
+			}));
 
 			return player;
 		}

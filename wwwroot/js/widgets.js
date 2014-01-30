@@ -8,6 +8,158 @@ function widget(p_args)
 	return m_cont;
 }
 
+function configPanel(p_confDesc, p_config)
+{
+	var m_cont = TreeViewer.container({}).addClass('config_panel');
+	var m_confDesc = clone(p_confDesc);
+
+	var m_fieldRenderers = {
+		string: function(p_data) {
+			var inp = input({type: 'text'});
+			var cont = div(div({class: 'title'},p_data.title), inp);
+			if(p_data.help)
+				cont.add(div({class: 'help'}, p_data.help))
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.value; },
+				set: function(val){ inp.value = val; }
+			});
+			return cont;
+		},
+		number: function(p_data) {
+			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
+			var inp = input({type: 'text'});
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.value; },
+				set: function(val){ inp.value = val; }
+			});
+			return cont.add(label(inp, {class: 'input'}));
+		},
+		boolean: function(p_data) {
+			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
+			var inp = input({type: 'checkbox', class: 'cb-switch'});
+			var sw = div({class: 'switch'});
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.checked; },
+				set: function(val){ inp.checked = val; }
+			});
+			return cont.add(label(inp, sw, {class: 'input'}));
+		},
+	};
+
+	var formatConfig = function(p_desc, p_conf)
+	{
+		foreach(p_desc, function(val, key) {
+			if(val.hasOwnProperty('children')) {
+				val.type = 'node';
+				formatConfig(val.children, p_conf[key]);
+			} else {
+				val.type = 'leaf';
+				val.value = p_conf[key];
+			}
+		});
+	};
+
+	formatConfig(m_confDesc, p_config);
+
+	m_cont.renderers = {
+		leaf: function(p_data) {
+			var format = p_data.format ? p_data.format : (typeof p_data.default);
+			var leafRenderer = m_fieldRenderers[format];
+			var cont = leafRenderer(p_data);
+			cont.value = p_data.value;
+			p_data.container = cont;
+			return cont.addClass('leaf item');
+		},
+		node: function(p_data) {
+			var cont = div({class: 'node item'}, div({class:'title'}, p_data.title));
+			if(p_data.help)
+				cont.add(div({class: 'help'}, p_data.help));
+			TreeViewer.directOpenableHandler(cont, {
+				parent: m_cont,
+				id: randomString(5),
+				name: p_data.title,
+				type: p_data.type,
+				items: p_data.children,
+			}, {}, function(p_panel) {
+				if(p_data.details)
+					p_panel.pre(div({class: 'details'}, p_data.details));
+			});
+
+			return cont;
+		}
+	}
+
+	var list = TreeViewer.listItem({list: m_confDesc, parent: m_cont}, m_cont.renderers);
+
+	m_cont.addNode({title: 'Config', id: -1, container: list}); //root
+	m_cont.switchNextNode(-1);
+
+	var saveToConfig = function(p_desc, p_conf)
+	{
+		foreach(p_desc, function(val, key) {
+			if(val.hasOwnProperty('children')) {
+				saveToConfig(val.children, p_conf[key]);
+			} else {
+				if(val.container)
+					p_conf[key] = val.container.value;
+			}
+		});
+	}
+
+	m_cont.saveConfig = function(p_conf)
+	{
+		saveToConfig(m_confDesc, p_conf);
+	}
+
+	return m_cont;
+}
+
+function configIconWidget(p_args)
+{
+	var m_cont = widget(p_args).addClass('config');
+
+	var m_button = clImageButton({img: '/pic/settings-256.png', onclick: function(){
+
+		var panel = configPanel(Config.descriptor, g_config).css(p_args.panelCss);
+
+		var dlg = new clDialog({
+			caption: 'Configuration',
+			content: panel,
+			minwidth: 300,
+			icon: clDialogGlobalIcon,
+			buttons: {
+				save: {
+					label: 'Save',
+					keyCodes: [13]
+				},
+				cancel: {
+					label: 'Cancel',
+					keyCodes: [27]
+				}
+			},
+			callback: function(ret) {
+				if(ret == 'save') {
+					panel.saveConfig(g_config);
+					Config.save(g_config);
+					window.location.reload();
+				}
+			}
+		});
+		dlg.build();
+
+		panel.eventMgr.notify('onDomReady');
+		panel.eventMgr.notify('onListItemUpdated');
+
+	}}).hide();
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		m_button.css({maxHeight: $(m_cont).height()}).show();
+	});
+
+	m_cont.add(m_button);
+	return m_cont;
+}
+
 function statisticsWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('statistics');
@@ -373,7 +525,13 @@ function controlWidget()
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		var h = $(m_cont).height();
-		foreach(m_cont.childNodes, function(b) { b.css({maxHeight: h}); b.setSize(h); });
+
+		foreach(m_cont.childNodes, function(b) {
+			if(!isElement(b))
+				return; //f... chrome...
+			b.css({maxHeight: h});
+			b.setSize(h);
+		});
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
@@ -460,584 +618,16 @@ var MusicTree = {
 			cache_key: '',
 		},
 		album: {
-			sub_renderer: 'file',
 			cache_key: 'files',
 			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
 		},
 		file: {
 		},
 		dir: {
-			sub_renderer: 'file',
 			cache_key: 'files',
 			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
 		}
 	},
-	item: function(p_data)
-	{
-		var cont = div({class: 'music_item face'});
-
-		if(p_data.hasOwnProperty('id'))
-			cont.p('dbId', p_data.id);
-
-		if(p_data.image && p_data.name) {
-			var nameCont = div({class: 'name'}, p_data.name);
-
-			var iconCont = div({class: 'image'}, img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null);
-
-			cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
-
-			var waitForDomReady = 0;
-
-			var update = function()
-			{
-				if(++waitForDomReady < 2)
-					return;
-				nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
-				if(nameCont.scrollWidth > $(nameCont).width())
-					$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
-			}
-
-			$(iconCont).find('img').load(update);
-			p_data.parent.eventMgr.subscribe('onListItemUpdated', update);
-
-			if(p_data.menu && p_data.menu.length) {
-				cont.oncontextmenu = function() {
-					if(window.location.search == '?nocontextmenu')
-						return true;
-					var contextMenu = new clMenu({
-						destroyAfterHide: true,
-						link_handler: function(p_href) {
-							g_env.data.request(p_href.cmd, p_href.params);
-						}
-					});
-					foreach(p_data.menu, function(m) {
-						contextMenu.appendItem(m);
-					});
-					contextMenu.popup();
-					return false;
-				}
-			}
-		}
-
-		return cont;
-	},
-	openableItem: function(p_data)
-	{
-		var m_cont = this.item(p_data);
-
-		m_cont.generateList = function()
-		{
-			var aid = p_data.type+'_'+p_data.id;
-
-			if(!p_data.parent.hasNode(aid)) {
-				var typeDesc = MusicTree.types[p_data.type];
-				var list = MusicTree.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers[typeDesc.sub_renderer], typeDesc.getGrouping());
-				list.p('id', aid);
-				p_data.parent.addNode({title: p_data.name, id: aid, container: list});
-			}
-
-			return aid;
-		}
-
-		m_cont.onclick = function()
-		{
-			p_data.parent.switchNextNode(this.generateList());
-		}
-
-		return m_cont;
-	},
-	listItem: function(p_data, p_itemProcess, p_grouping, p_sortName)
-	{
-		var grouping = def(p_grouping, {});
-
-		if(p_sortName) {
-			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
-			p_data.list.sort(function(a, b){
-				var res = 0;
-				foreach(sortNames, function(name) {
-					res = g_descriptors.sortMethods[typeof a[name]](a[name],b[name]);
-					if(res != 0)
-						return false;
-				});
-				return res;
-			});
-		}
-
-		if(grouping.hasOwnProperty('name') && grouping.limit !== false && p_data.list.length > grouping.limit)
-			return this.listItemGrouped(p_data, p_itemProcess, grouping.name);
-		else
-			return this.listItemMixed(p_data, p_itemProcess);
-	},
-	listItemBase: function()
-	{
-		var m_cont = div({class: 'music_list'});
-
-		m_cont.search = function(p_items, p_val)
-		{
-			var val = p_val.toLowerCase();
-
-			foreach(p_items, function(desc) {
-				if(!p_val.length) {
-					desc.container.show();
-					return;
-				}
-				var found = foreach(desc.data, function(value, key) {
-					if(!(typeof value == 'string'))
-						return;
-					if(value.toLowerCase().indexOf(val) != -1)
-						return false;
-				}) === false;
-				desc.container.show(found);
-			});
-		}
-
-		return m_cont;
-	},
-	listItemMixed: function(p_data, p_itemProcess)
-	{
-		var m_cont = this.listItemBase();
-		var m_items = [];
-		var m_currHighLightedItem = -1;
-
-		foreach(p_data.list, function(item) {
-			var cont = p_itemProcess(item);
-			m_items.push({data: item, container: cont});
-			m_cont.add(cont);
-		});
-
-		$(m_cont).mCustomScrollbar({
-			contentTouchScroll: true,
-			autoHideScrollbar: true,
-			mouseWheelPixels: 200
-		});
-
-		p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
-			$(m_cont).mCustomScrollbar("update");
-		});
-
-		m_cont.onQuickSearch = function(p_val)
-		{
-			this.search(m_items, p_val);
-		}
-
-		m_cont.getItem = function(p_idx)
-		{
-			if(p_idx >= 0 && p_idx < m_items.length)
-				return m_items[p_idx];
-			return false;
-		}
-
-		m_cont.resetHighlight = function()
-		{
-			if(m_currHighLightedItem >= 0)
-				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');
-			m_currHighLightedItem = -1;
-		}
-
-		m_cont.highlightItem = function(p_idx)
-		{
-			var item = this.getItem(p_idx);
-			if(item === false)
-				return;
-
-			if(m_currHighLightedItem == p_idx)
-				return;
-
-			if(m_currHighLightedItem >= 0)
-				this.getItem(m_currHighLightedItem).container.removeClass('highlighted');
-			var cont = $(item.container);
-			cont.addClass('highlighted');
-
-			if(g_config.music_lists.auto_scroll)
-			{
-				var scrollContTop = $(m_cont).find('.mCSB_container').position().top;
-				var to = cont.position().top - $(m_cont).height() + cont.outerHeight();
-
-				if(cont.position().top + scrollContTop < 0)
-					$(m_cont).mCustomScrollbar('scrollTo', cont.position().top); //items at the top
-				else if(to + scrollContTop > 0)
-					$(m_cont).mCustomScrollbar('scrollTo',  to); //items at the bottom
-			}
-
-			m_currHighLightedItem = p_idx;
-		}
-
-		m_cont.updateLayout = function() {};
-
-		return m_cont;
-	},
-	listItemGrouped: function(p_data, p_itemProcess, p_groupingName)
-	{
-		var m_tagCont = div({class: 'tags'});
-		var m_list = div({class: 'list'});
-		var m_cont = this.listItemBase().add(m_tagCont, m_list);
-		var m_tags = {};
-		var m_letters = {};
-		var m_currGroupLetter = -1;
-		var m_css = {};
-
-		foreach(p_data.list, function(item) {
-			var letter = item[p_groupingName][0];
-			if(!letter)
-				return;
-
-			letter = letter.toUpperCase();
-
-			if(letter == ' ')
-				return;
-
-			if(!m_letters.hasOwnProperty(letter)) {
-				m_letters[letter] = {
-					count: 0,
-					cont: null,
-					items: []
-				};
-			}
-			m_letters[letter].count++;
-			m_letters[letter].items.push({data: item});
-		});
-
-		var generateGroup = function(p_desc)
-		{
-			p_desc.cont = div().hide();
-
-			m_list.add(p_desc.cont);
-
-			foreach(p_desc.items, function(item) {
-				item.container = p_itemProcess(item.data);
-				p_desc.cont.add(item.container);
-			});
-
-			$(p_desc.cont).css(m_css).mCustomScrollbar({
-				contentTouchScroll: true,
-				autoHideScrollbar: true,
-				mouseWheelPixels: 200
-			});
-
-			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
-				$(p_desc.cont).mCustomScrollbar("update");
-			});
-		}
-
-		var lettersArr = Map.keys(m_letters);
-
-		lettersArr.sort();
-
-		foreach(lettersArr, function(letter) {
-			var tagCont = div(letter, {class: 'letter', onclick: function() {
-				hideGroup(m_currGroupLetter);
-				showGroup(letter);
-			}});
-
-			m_tags[letter] = tagCont;
-
-			m_tagCont.add(tagCont);
-		});
-
-		var hideGroup = function(p_letter)
-		{
-			m_letters[p_letter].cont.hide();
-			m_tags[p_letter].removeClass('active');
-		}
-
-		var showGroup = function(p_letter)
-		{
-			var desc = m_letters[p_letter];
-
-			if(!desc.cont)
-				generateGroup(desc);
-
-			desc.cont.show();
-			m_tags[p_letter].addClass('active');
-			m_currGroupLetter = p_letter;
-
-			m_cont.onQuickSearch('');
-			if(m_cont.setQuickSearchValue)
-				m_cont.setQuickSearchValue('');
-
-			p_data.parent.eventMgr.notify('onListItemUpdated');
-		}
-
-		m_cont.onQuickSearch = function(p_val)
-		{
-			var desc = m_letters[m_currGroupLetter];
-			this.search(desc.items, p_val);
-		}
-
-		m_cont.updateLayout = function()
-		{
-			m_css = {
-				width: $(m_cont).width() - $(m_tagCont).width(),
-				height: $(m_cont).height(),
-				overflow: 'hidden'
-			};
-
-			$(m_list).css(m_css);
-			$(m_tagCont).height($(m_cont).height());
-
-			for(var l in m_letters) {
-				if(m_letters[l].cont)
-					$(m_letters[l].cont).css(m_css);
-			}
-		}
-
-		$(m_tagCont).bind('mousewheel',function(ev, delta) {
-			var scrollTop = $(this).scrollTop();
-			$(this).scrollTop(scrollTop-Math.round(delta*50));
-		});
-
-		if(lettersArr.length)
-			showGroup(lettersArr[0]);
-
-		m_cont.highlightItem = function(p_idx)
-		{
-			throw 'Not implemented.';
-		}
-
-		m_cont.getItem = function(p_idx)
-		{
-			throw 'Not implemented.';
-		}
-
-		return m_cont;
-	},
-	container: function(p_args)
-	{
-		var m_cont = widget(p_args).addClass('music_container');
-		var m_menuBar = div({class: 'menubar'});
-		var m_breadcrumbs = div({class: 'breadcrumbs'});
-		var m_header = div({class: 'header'}, m_menuBar, m_breadcrumbs);
-		var m_nodesCont = div({class: 'nodes'});
-		var m_nodes = {};
-		var m_path = [];
-		var m_quickSearch = null;
-
-		m_cont.eventMgr = new EventManager();
-
-		foreach(p_args.menubar, function(menu) {
-			var cb = menu.cmd ? function() { g_env.data.request(menu.cmd); } : (menu.callback ? menu.callback : function() { console.error('Menu callback or cmd is not defined'); })
-			m_menuBar.add(clButton({label: menu.title, callback: cb, class: 'miniButton3D'}), ' ');
-		});
-
-		if(Map.def(p_args, 'quick_search', false))
-		{
-			m_quickSearch = quickSearchField({minLimit: 0, placeholder: 'Filter', class: 'tiny', wait: 0, callback: function(val) {
-				if(!m_path.length)
-					return;
-				var id = m_path.last().id;
-				if(!m_nodes.hasOwnProperty(id))
-					return;
-
-				m_nodes[id].quickSearchValue = val;
-				m_nodes[id].container.onQuickSearch(val);
-			}});
-			m_menuBar.add(m_quickSearch);
-		}
-
-		//$(m_cont).draggable({handle: m_header});
-		//$(m_cont).resizable({alsoResize: '.music_list'});
-
-		m_cont.reset = function()
-		{
-			m_nodes = {};
-			m_path = [];
-			m_nodesCont.clear();
-			this.updateBreadcrumbs();
-			m_cont.eventMgr.notify('onListItemUpdated');
-		}
-
-		m_cont.updateQuickSearchField = function(p_id)
-		{
-			if(m_quickSearch)
-				m_quickSearch.setValue(m_nodes[p_id].quickSearchValue);
-		}
-
-		m_cont.switchNextNode = function(p_id)
-		{
-			if(!m_nodes.hasOwnProperty(p_id))
-				return;
-
-			var node = m_nodes[p_id];
-			var cont = $(node.container);
-			cont.show();
-			cont.css('marginLeft', 0);
-			if(node.container.onShow)
-				node.container.onShow();
-
-			if(m_path.length)
-				this.hideNode(m_path.last().id);
-
-			m_path.push({id: p_id, title: node.title});
-			this.updateBreadcrumbs();
-			this.updateQuickSearchField(p_id);
-			m_cont.eventMgr.notify('onListItemUpdated');
-		}
-
-		m_cont.getPathOfNodes = function()
-		{
-			if(!m_path.length)
-				return false;
-
-			var path = [];
-			foreach(m_path, function(part) {
-				path.push(part.id);
-			});
-
-			return path;
-		}
-
-		m_cont.switchPrevNode = function(p_id, p_animLen)
-		{
-			if(!m_path.length)
-				return;
-
-			var animLen = def(p_animLen, 200);
-
-			var idx = -1;
-			foreach(m_path, function(part, i) {
-				if(part.id == p_id) {
-					idx = parseInt(i);
-					return false;
-				}
-			});
-
-			if(idx < 0)
-				return;
-
-			var curr = m_path.last();
-			if(curr.id == p_id)
-				return;
-
-			var cont = $(m_nodes[p_id].container);
-			cont.show();
-			if(m_nodes[p_id].container.onShow)
-				m_nodes[p_id].container.onShow();
-
-			cont.animate({
-					marginLeft: 0
-				}, animLen, 'swing', function() {
-					m_nodes[curr.id].container.hide();
-				});
-
-			m_path.splice(idx+1, m_path.length);
-
-			this.updateBreadcrumbs();
-			this.updateQuickSearchField(p_id);
-			m_cont.eventMgr.notify('onListItemUpdated');
-		}
-
-		m_cont.hideNode = function(p_id)
-		{
-			if(!m_nodes.hasOwnProperty(p_id))
-				return;
-
-			var cont = $(m_nodes[p_id].container);
-
-			cont.animate({
-					marginLeft: -1 * cont.outerWidth()
-				}, 200, 'swing', function() {
-					cont.hide();
-				});
-		}
-
-		m_cont.hasNode = function(p_id)
-		{
-			return m_nodes.hasOwnProperty(p_id);
-		}
-
-		m_cont.updateBreadcrumbs = function()
-		{
-			var parts = [];
-			var title = [];
-			foreach(m_path, function(part) {
-				parts.push(clTextButton({label: part.title, onclick: function() {
-					m_cont.switchPrevNode(part.id);
-				}}));
-				title.push(part.title);
-			});
-			m_breadcrumbs.set(parts.quilt(' > '));
-
-			//only show the tooltip when it overflowed the breadcrumbs container
-			if($(m_breadcrumbs).width() < m_breadcrumbs.scrollWidth)
-				m_breadcrumbs.p('title', title.join(' > '));
-			else {
-				$(m_breadcrumbs).tipsy("hide");
-				m_breadcrumbs.p('original-title', '');
-			}
-		}
-
-		m_cont.back = function()
-		{
-
-		}
-
-		m_cont.addNode = function(p_desc)
-		{
-			m_nodesCont.add(p_desc.container);
-
-			$(m_nodesCont).width($(m_nodesCont).width() + $(p_desc.container).width());
-
-			var h = $(m_header).outerHeight(true);
-
-			var updateLayout = function() {
-				$(p_desc.container).css({
-					width: $(m_cont).width(),
-					height: $(m_cont).height() - $(m_header).outerHeight(true),
-					overflow: 'hidden'
-				});
-
-				p_desc.container.updateLayout();
-			}
-
-			if(h < 10) { //the element is not the part of the DOM yet
-				g_env.eventMgr.subscribe(['onZeppelinBuilt'], function() {
-					updateLayout();
-				});
-			}
-
-			updateLayout();
-
-			p_desc.quickSearchValue = '';
-			p_desc.container.setQuickSearchValue = function(p_val)
-			{
-				p_desc.quickSearchValue = p_val;
-				m_quickSearch.setValue(p_val);
-			}
-
-			p_desc.container.hide();
-
-			m_nodes[p_desc.id] = p_desc;
-		}
-
-		m_cont.getNode = function(p_id)
-		{
-			if(this.hasNode(p_id))
-				return m_nodes[p_id];
-			else
-				return false;
-		}
-
-		m_cont.updateBreadCrumbsLayout = function()
-		{
-			m_breadcrumbs.css({width: $(m_header).width()});
-
-			$(m_breadcrumbs).tipsy({
-				gravity: 's',
-				fade: true,
-				opacity: 0.9,
-			});
-		}
-
-		g_env.eventMgr.subscribe('onZeppelinBuilt', m_cont.updateBreadCrumbsLayout);
-		m_cont.eventMgr.subscribe('onLayoutChanged', m_cont.updateBreadCrumbsLayout);
-
-		$(m_breadcrumbs).bind('mousewheel',function(ev, delta) {
-			var scrollLeft = $(this).scrollLeft();
-			$(this).scrollLeft(scrollLeft-Math.round(delta*50));
-		});
-
-		return m_cont.add(m_header, m_nodesCont);
-	}
 }
 
 function queueWidget(p_args)
@@ -1046,7 +636,7 @@ function queueWidget(p_args)
 	m_args.menubar = [
 		{title: 'clear', cmd: 'player_queue_remove_all'},
 	];
-	var m_cont = MusicTree.container(m_args).addClass('queue');
+	var m_cont = TreeViewer.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
 	m_cont.renderers = {
@@ -1056,7 +646,7 @@ function queueWidget(p_args)
 		},
 		album: function(p_data)
 		{
-			var item = MusicTree.openableItem({
+			var item = TreeViewer.directOpenableItem({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
@@ -1065,13 +655,13 @@ function queueWidget(p_args)
 				items: p_data.files,
 				image: '/pic/default_album.png',
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
-			}).addClass('album');
+			}, MusicTree.types[p_data.type]).addClass('album');
 
 			return item;
 		},
 		file: function(p_data)
 		{
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.title || p_data.name,
@@ -1091,7 +681,7 @@ function queueWidget(p_args)
 		},
 		dir: function(p_data)
 		{
-			var item = MusicTree.openableItem({
+			var item = TreeViewer.directOpenableItem({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
@@ -1100,7 +690,7 @@ function queueWidget(p_args)
 				items: p_data.files,
 				image: '/pic/default_folder.png',
 				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
-			}).addClass('dir');
+			}, MusicTree.types[p_data.type]).addClass('dir');
 
 			return item;
 		},
@@ -1217,7 +807,7 @@ function queueWidget(p_args)
 
 		cache(p_data, []);
 
-		var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
+		var list = TreeViewer.listItem({list: p_data, parent: m_cont}, function(item) {
 			return m_cont.renderers[item.type](item);
 		}).addClass('playlist');
 
@@ -1252,12 +842,12 @@ function libraryWidget(p_args)
 		{title: 'Refresh', cmd: p_args.desc.cmd}
 	];
 	m_args.quick_search = true;
-	var m_cont = MusicTree.container(m_args).addClass('library');
+	var m_cont = TreeViewer.container(m_args).addClass('library');
 
 	var m_renderers = {
 		artist: function(p_data)
 		{
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.id == -1 ? 'unknown' : p_data.name,
@@ -1272,7 +862,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_albums_by_artist', {artist_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data, parent: m_cont}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
+						var list = TreeViewer.listItem({list: data, parent: m_cont}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1283,7 +873,7 @@ function libraryWidget(p_args)
 		},
 		album: function(p_data)
 		{
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name || 'unknown',
@@ -1299,7 +889,7 @@ function libraryWidget(p_args)
 					m_cont.switchNextNode(aid);
 				else{
 					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
-						var list = MusicTree.listItem({list: data, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
+						var list = TreeViewer.listItem({list: data, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
 						m_cont.addNode({title: p_data.name, id: aid, container: list});
 						m_cont.switchNextNode(aid);
 					});
@@ -1310,7 +900,7 @@ function libraryWidget(p_args)
 		},
 		file: function(p_data)
 		{
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.title || p_data.name,
@@ -1330,7 +920,7 @@ function libraryWidget(p_args)
 
 	g_env.data.mgr.subscribe(p_args.desc.cmd, function(p_data) {
 		m_cont.reset();
-		var list = MusicTree.listItem({list: p_data, parent: m_cont}, m_renderers[p_args.desc.root_renderer], p_args.desc.lists.grouping, p_args.desc.lists.sorting);
+		var list = TreeViewer.listItem({list: p_data, parent: m_cont}, m_renderers[p_args.desc.root_renderer], p_args.desc.lists.grouping, p_args.desc.lists.sorting);
 		m_cont.addNode({title: p_args.desc.title, id: -1, container: list});
 		m_cont.switchNextNode(-1);
 		m_cont.eventMgr.notify('onListItemUpdated');
@@ -1351,11 +941,11 @@ function directoryBrowserWidget(p_args)
 		{title: 'Scan', cmd: 'library_scan'},
 		{title: 'Refresh', callback: function() { m_cont.reset(); loadDir(-1, 'Folders'); }}
 	];
-	var m_cont = MusicTree.container(m_args).addClass('directory');
+	var m_cont = TreeViewer.container(m_args).addClass('directory');
 
 	var m_renderers = {
 		dir: function(p_data) {
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
@@ -1370,7 +960,7 @@ function directoryBrowserWidget(p_args)
 			return item;
 		},
 		file: function(p_data) {
-			var item = MusicTree.item({
+			var item = TreeViewer.item({
 				parent: m_cont,
 				id: p_data.id,
 				name: p_data.name,
@@ -1388,7 +978,7 @@ function directoryBrowserWidget(p_args)
 	var loadDir = function(p_dirId, p_name)
 	{
 		g_env.rpc.request.send('library_list_directory', {directory_id: p_dirId}, function(p_data) {
-			var list = MusicTree.listItem({list: p_data, parent: m_cont}, function(item) {
+			var list = TreeViewer.listItem({list: p_data, parent: m_cont}, function(item) {
 				return m_renderers[item.type](item);
 			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, ['type','name']);
 			m_cont.addNode({title: p_name, id: p_dirId, container: list});

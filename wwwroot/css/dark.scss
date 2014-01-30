@@ -28,7 +28,7 @@ input.tiny:focus {
 }
 
 .widget {
-	.music_item {
+	.tree_item {
 		border-top: 1px solid #333;
 	}
 	.face {
@@ -79,7 +79,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 
 $letter_box_shadow: rgba(black,0.8);
 
-.music_container{
+.tree_container{
 	.highlighted {
 		@include transition(background-color 0.5s);
 		background-color: rgba($base_color, 0.5);
@@ -96,7 +96,7 @@ $letter_box_shadow: rgba(black,0.8);
 			}
 		}
 	}
-	.music_list {
+	.tree_list {
 		.tags {
 			box-shadow: -2px 0 3px $letter_box_shadow inset;
 			background-color: rgba(white,0.05);
@@ -210,5 +210,22 @@ $letter_box_shadow: rgba(black,0.8);
 				text-shadow: 0 0 2px $base_color;
 			}
 		}
+	}
+}
+
+.config_panel {
+	.item {
+		border-top: 1px solid #777;
+	}
+	.node {
+		&:hover {
+			background-color: rgba(255,255,255,0.5);
+		}
+	}
+	.item:last-child {
+		border-bottom: 1px solid #777;
+	}
+	.header .clTextButton {
+		color: black;
 	}
 }

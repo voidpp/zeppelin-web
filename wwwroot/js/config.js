@@ -1,40 +1,107 @@
-function parseConfig()
-{
-	if(typeof g_config == 'undefined')
-		throw 'Config is missing or broken.<br>To create please copy the config.example.json to config.json and study it.';
-
-	Map.init(g_config, {
-		rpc: {
-			host: window.location.hostname
+var Config = {
+	eventMgr: new EventManager(),
+	descriptor: {
+		server: {
+			title: 'Server',
+			children: {
+				address: {
+					title: 'Address',
+					default: window.location.hostname,
+				},
+				controller_port: {
+					title: 'Controller port',
+					default: window.location.port,
+				},
+				controller_path: {
+					title: 'Controller path',
+					default: '/jsonrpc',
+				},
+			}
 		},
 		music_lists: {
-			letter_grouping: {
-				artists: 42,
-				albums: 42,
-				songs: false,
-				directories: 42,
-			},
-			queue: {
-				auto_jump: false,
-			},
-			auto_scroll: false,
-		},
-	});
-
-	var parseURL = function(p_parts)
+			title: 'Music lists',
+			children: {
+				letter_grouping: {
+					title: 'Grouping',
+					help: 'Group library lists by the starting letter.',
+					details: 'Letter grouping will be turned on after having at least the configured amount of items. Leave the fields empty if you do not want to enable this feature.',
+					children: {
+						artists: {
+							title: 'Artists',
+							format: 'number',
+							default: 42,
+						},
+						albums: {
+							title: 'Albums',
+							format: 'number',
+							default: 42,
+						},
+						songs: {
+							title: 'Songs',
+							format: 'number',
+							default: '',
+						},
+						directories: {
+							title: 'Directories',
+							format: 'number',
+							default: 42,
+						},
+					}
+				},
+				queue: {
+					title: 'Queue',
+					children: {
+						auto_jump: {
+							title: 'Auto jumping',
+							help: 'The highlight jumps automatically to the currently played item',
+							default: true,
+						},
+						auto_scroll: {
+							title: 'Auto scrolling',
+							help: 'The highlight scrolls automatically to the currently played item',
+							default: false,
+						},
+					}
+				},
+			}
+		}
+	},
+	fillDefaults: function(p_conf, p_desc)
 	{
-		var res = '';
-		res += Map.def(p_parts, 'protocol', 'http') + '://';
+		foreach(p_desc, function(val, key){
+			if(val.hasOwnProperty('children')) {
+				if(!p_conf.hasOwnProperty(key))
+					p_conf[key] = {};
+				Config.fillDefaults(p_conf[key], val.children);
+			} else {
+				if(!val.hasOwnProperty('default'))
+					throw 'Not found default value in descriptor for '+key;
 
-		res += p_parts.host;
+				if(!p_conf.hasOwnProperty(key))
+					p_conf[key] = val.default;
+			}
+		});
+	},
+	load: function()
+	{
+		var conf = {};
 
-		if(p_parts.port)
-			res += ':' + p_parts.port;
+		try {
+			if(localStorage.hasOwnProperty('config')) {
+				conf = JSON.parse(localStorage.config);
+				Map.numberize(conf);
+			}
+		} catch (e) {
+			console.error(e);
+		}
 
-		res += Map.def(p_parts, 'path', '/');
+		//default values
+		this.fillDefaults(conf, this.descriptor);
 
-		return res;
-	}
-
-	g_config.rpc.url = parseURL(g_config.rpc);
+		return conf;
+	},
+	save: function(p_conf)
+	{
+		localStorage.config = JSON.stringify(p_conf);
+	},
 }

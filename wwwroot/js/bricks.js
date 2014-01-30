@@ -467,7 +467,13 @@ function sField(p_desc, p_parent)
 				//TODO: improve p_desc for use not only 0 or 1 value
 				inp.value = this.checked ? 1 : 0;
 			}
-			return div(cb,inp, {style:'display: inline-block'});
+			var cont = div(cb,inp, {style:'display: inline-block'});
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return cb.checked ? 1 : 0; },
+				set: function(val){ cb.checked = (val || 0) == 1 ? true : false; },
+				enumerable : true,
+			});
+			return cont;
 		case 'number':
 			var desc = p_desc;
 			desc.type = 'text';

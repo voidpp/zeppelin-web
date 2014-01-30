@@ -21,7 +21,7 @@
 <script type="text/javascript" src="/js/layouts.js"></script>
 <script type="text/javascript" src="/js/zeppelin.js"></script>
 <script type="text/javascript" src="/js/config.js"></script>
-<script type="text/javascript" src="/config.json"></script>
+<script type="text/javascript" src="/js/treeviewer.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/dark-hive/jquery-ui-1.10.3.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/css/jquery.mCustomScrollbar.css">
 <link rel="stylesheet" type="text/css" href="/css/tipsy.css">
@@ -32,9 +32,11 @@
 <link rel="stylesheet" type="text/css" href="/css/clButton-3d.css">
 <link rel="stylesheet" type="text/css" href="/css/clMenu-3d.css">
 <link rel="stylesheet" type="text/css" href="/css/clDialog-3d.css">
+<link rel="stylesheet" type="text/css" href="/css/checkbox.css">
 <script type="text/javascript">
 
 var g_env = {};
+var g_config = {};
 
 var g_descriptors = {
 	sortMethods: {
@@ -45,12 +47,14 @@ var g_descriptors = {
 
 function createEnviroment()
 {
+	var rpcURL = makeURL({host: g_config.server.address, port: g_config.server.controller_port, path: g_config.server.controller_path});
+
 	g_env = {
 		getCodec: function(p_type) {
 			return {title: p_type.toUpperCase()};
 		},
 		rpc: {
-			request: new RPC({host: g_config.rpc.url}),
+			request: new RPC({host: rpcURL}),
 		},
 		data: {
 			mgr: new EventManager(),
@@ -86,8 +90,9 @@ function start_engine()
 	clDialogGlobalIcon = '/favico.ico';
 
 	try {
-		parseConfig();
+		g_config = Config.load();
 	} catch (ex) {
+		console.error(ex);
 		clMessageBox(ex, 'Failed to load the config');
 		return;
 	}

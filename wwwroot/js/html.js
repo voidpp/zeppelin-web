@@ -68,6 +68,7 @@ var html = {
 		datalist: {
 			child:'option'
 		},
+		label: {},
 	},
 	externals: {}
 }
