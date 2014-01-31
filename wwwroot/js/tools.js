@@ -521,8 +521,13 @@ var Map = {
 		foreach(p_obj, function(val, key) {
 			if(typeof val == 'object')
 				Map.numberize(val);
-			else if(isNumber(val))
-				p_obj[key] = parseInt(val);
+			else if(isNumber(val)) {
+				var number = parseFloat(val);
+				/*  If we have is a string "192.168.1.42" the isNumber will recognize as a number and the parseFloat will cut to 192.168. But this is wrong.
+					The single equal operator will returns true for 5.42 == "5.42", and returns false for 5.42 == "5.42.1" */
+				if(number == val)
+					p_obj[key] = number;
+			}
 		});
 	},
 	def: function(p_obj, p_key, p_default)
