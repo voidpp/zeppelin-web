@@ -237,7 +237,8 @@ var TreeViewer = {
 			m_list.add(p_desc.cont);
 
 			foreach(p_desc.items, function(item) {
-				item.container = p_itemProcess(item.data);
+				var renderer = typeof p_itemProcess == 'object' ? p_itemProcess[item.data.type] : p_itemProcess;
+				item.container = renderer(item.data);
 				p_desc.cont.add(item.container);
 			});
 
