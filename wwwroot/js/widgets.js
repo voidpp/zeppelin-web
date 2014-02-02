@@ -773,10 +773,8 @@ function queueWidget(p_args)
 		if(currNodePath === false)
 			return;
 
-		foreach(currNodePath, function(nodeId) {
-			var node = m_cont.getNode(nodeId);
-			if(node !== false)
-				node.container.resetHighlight();
+		foreach(m_cont.getNodes(), function(node) {
+			node.container.resetHighlight();
 		});
 
 		foreach(newNodePath, function(nodeId, i) {

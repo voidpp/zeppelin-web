@@ -560,6 +560,11 @@ var TreeViewer = {
 			m_nodes[p_desc.id] = p_desc;
 		}
 
+		m_cont.getNodes = function()
+		{
+			return m_nodes;
+		}
+
 		m_cont.getNode = function(p_id)
 		{
 			if(this.hasNode(p_id))
