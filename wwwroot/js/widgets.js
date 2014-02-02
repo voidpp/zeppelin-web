@@ -645,13 +645,22 @@ var MusicTree = {
 			},
 			directory: function(p_data)
 			{
+				var stat = {file: {cnt: 0, label: ' files'}, directory: {cnt: 0, label: ' folders'}};
+				foreach(p_data.items, function(item) {
+					stat[item.type].cnt++;
+				});
+				var statHtml = [];
+				foreach(stat, function(desc) {
+					if(desc.cnt)
+						statHtml.push(desc.cnt + desc.label);
+				});
 				return TreeViewer.directOpenableItem({
 					parent: p_cont,
 					id: p_data.id,
 					name: p_data.name,
 					type: p_data.type,
 					items: p_data.items,
-					desc: p_data.items.length + " items",
+					desc: statHtml.join(', '),
 					image: '/pic/default_folder.png',
 					menu: p_menu.directory(p_data)
 				}).addClass('album');
