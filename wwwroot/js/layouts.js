@@ -18,7 +18,7 @@ var Layouts = {
 
 			var lib1 = libraryWidget({desc: p_zeppelin.libraryTypes.artists});
 			var lib2 = libraryWidget({desc: p_zeppelin.libraryTypes.albums});
-			var dirs = directoryBrowserWidget();
+			var lib3 = libraryWidget({desc: p_zeppelin.libraryTypes.directories});
 
 			var tabbedWidgets = clTabulable({
 				settings: p_zeppelin.clientSettings,
@@ -26,12 +26,12 @@ var Layouts = {
 				pages: [
 					{title: p_zeppelin.libraryTypes.artists.title, container: lib1},
 					{title: p_zeppelin.libraryTypes.albums.title, container: lib2},
-					{title: 'Folders', container: dirs},
+					{title: p_zeppelin.libraryTypes.directories.title, container: lib3},
 					{title: 'Stats', container: statisticsWidget()},
 				],
 				onShowPage: function(p_idx, p_page) {
 					if(p_page.container.eventMgr)
-						p_page.container.eventMgr.notify('onLayoutChanged');
+						p_page.container.eventMgr.notify('onDomReady');
 				},
 			}).css({width: 340, height: 500});
 
@@ -43,9 +43,6 @@ var Layouts = {
 			g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 
 				queue.eventMgr.notify('onDomReady');
-				lib1.eventMgr.notify('onDomReady');
-				lib2.eventMgr.notify('onDomReady');
-				dirs.eventMgr.notify('onDomReady');
 
 				var windowSize = getClientSize();
 

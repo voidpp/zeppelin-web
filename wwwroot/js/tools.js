@@ -515,6 +515,7 @@ function isElement(obj)
       (typeof obj.ownerDocument ==="object");
   }
 }
+
 var Map = {
 	numberize: function(p_obj)
 	{

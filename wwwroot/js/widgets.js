@@ -213,17 +213,17 @@ function currentSongInfoWidget(p_args)
 	var m_codec = td();
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+		try {
+			var file = g_env.library.get('file', p_data.current);
+			m_sampleRate.set(parseInt(file.sample_rate/1000));
+			m_compRate.set('na');
+			m_codec.set(g_env.getCodec(file.codec).title);
+		} catch (ex) {
+			console.error(ex);
 			m_sampleRate.clear();
 			m_compRate.clear();
 			m_codec.clear();
-			return;
-		}
-
-		var file = g_env.storage.queue.file[p_data.current];
-		m_sampleRate.set(parseInt(file.sampling_rate/1000));
-		m_compRate.set('na');
-		m_codec.set(g_env.getCodec(file.codec).title);
+		};
 	});
 
 	return m_cont.add(table({cellpadding: 0, cellspacing: 0},
@@ -343,12 +343,12 @@ function currentPositionNumWidget(p_args)
 	var m_back = div({class: 'background'}, '88:88:88');
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+		try {
+			g_env.library.get('file', p_data.current);
+			m_disp.set(formatTime(p_data.position));
+		} catch (e) {
 			m_disp.clear();
-			return;
 		}
-
-		m_disp.set(formatTime(p_data.position));
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
@@ -367,25 +367,26 @@ function currentSongWidget(p_args)
 	var m_fid = 0;
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])){
+
+		try {
+			var file = g_env.library.get('file', p_data.current);
+
+			if(m_fid == p_data.current)
+				return;
+
+			m_fid = p_data.current;
+
+			m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
+
+			$(m_text).autoScroll({
+				duration: 5000,
+				wait: 500
+			});
+
+		} catch (ex) {
 			m_text.clear();
 			m_fid = 0;
-			return;
 		}
-
-		if(m_fid == p_data.current)
-			return;
-
-		m_fid = p_data.current;
-
-		var file = g_env.storage.queue.file[p_data.current];
-
-		m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
-
-		$(m_text).autoScroll({
-			duration: 5000,
-			wait: 500
-		});
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
@@ -458,14 +459,13 @@ function currentPositionBarWidget(p_args)
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		$(m_slider).slider(p_data.state ? "enable" : "disable");
 		$(m_cont).tipsy(p_data.state ? "enable" : "disable");
-		if(!Map.checkTree(g_env.storage, ['queue','file', p_data.current])) {
+		try {
+			m_file = g_env.library.get('file', p_data.current);
+			if(!m_isDragging)
+				$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
+		} catch(ex) {
 			$(m_slider).slider('value', 0);
-			return;
 		}
-
-		m_file = g_env.storage.queue.file[p_data.current];
-		if(!m_isDragging)
-			$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
 	});
 
 	return m_cont.add(m_slider);
@@ -613,21 +613,64 @@ function volumeWidget(p_args)
 }
 
 var MusicTree = {
-	types: {
-		playlist: {
-			cache_key: '',
-		},
-		album: {
-			cache_key: 'files',
-			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
-		},
-		file: {
-		},
-		dir: {
-			cache_key: 'files',
-			getGrouping: function() { return {limit: g_config.music_lists.letter_grouping.songs, name: 'title'} }
-		}
-	},
+	renderers: function(p_cont, p_menu, p_itemClick) {
+		return {
+			artist: function(p_data)
+			{
+				return TreeViewer.directOpenableItem({
+					parent: p_cont,
+					id: p_data.id,
+					name: p_data.id == -1 ? 'unknown' : p_data.name,
+					type: p_data.type,
+					desc: p_data.albums.length + " albums",
+					items: p_data.albums,
+					image: '/pic/default_artist.png',
+					menu: p_menu.artist(p_data)
+				}).addClass('album');
+			},
+			album: function(p_data)
+			{
+				return TreeViewer.directOpenableItem({
+					parent: p_cont,
+					id: p_data.id,
+					name: p_data.name,
+					type: p_data.type,
+					desc: p_data.files.length + " songs",
+					items: p_data.files,
+					image: '/pic/default_album.png',
+					menu: p_menu.album(p_data)
+				}).addClass('album');
+			},
+			directory: function(p_data)
+			{
+				return TreeViewer.directOpenableItem({
+					parent: p_cont,
+					id: p_data.id,
+					name: p_data.name,
+					type: p_data.type,
+					items: p_data.items,
+					desc: p_data.items.length + " items",
+					image: '/pic/default_folder.png',
+					menu: p_menu.directory(p_data)
+				}).addClass('album');
+			},
+			file: function(p_data)
+			{
+				var item = TreeViewer.item({
+					parent: p_cont,
+					id: p_data.id,
+					name: p_data.title || p_data.name,
+					desc: formatTime(p_data.length),
+					image: '/pic/default_song.png',
+					label: g_env.getCodec(p_data.codec).title,
+					menu: p_menu.file(p_data)
+				}).addClass('file');
+				if(p_itemClick)
+					item.onclick = function() { p_itemClick(p_data); };
+				return item;
+			},
+		};
+	}
 }
 
 function queueWidget(p_args)
@@ -639,62 +682,22 @@ function queueWidget(p_args)
 	var m_cont = TreeViewer.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
-	m_cont.renderers = {
-		playlist: function(p_data)
-		{
-			return div();
+	m_cont.renderers = MusicTree.renderers(m_cont, {
+		album: function(item) {
+			return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
 		},
-		album: function(p_data)
-		{
-			var item = TreeViewer.directOpenableItem({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.name,
-				type: p_data.type,
-				desc: p_data.files.length + " songs",
-				items: p_data.files,
-				image: '/pic/default_album.png',
-				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
-			}, MusicTree.types[p_data.type]).addClass('album');
-
-			return item;
+		directory: function(item) {
+			return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
 		},
-		file: function(p_data)
-		{
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.title || p_data.name,
-				desc: formatTime(p_data.length),
-				image: '/pic/default_song.png',
-				label: g_env.getCodec(p_data.codec).title,
-				menu: [
-					{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}},
-					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
-				]
-			}).addClass('file');
-
-			item.onclick = function() {
-				g_env.rpc.request.send('player_goto', {index: p_data.index});
-			}
-			return item;
+		file: function(item) {
+			return [
+				{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}},
+				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }},
+			];
 		},
-		dir: function(p_data)
-		{
-			var item = TreeViewer.directOpenableItem({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.name,
-				type: p_data.type,
-				desc: p_data.files.length + " songs",
-				items: p_data.files,
-				image: '/pic/default_folder.png',
-				menu: [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: p_data.index}}}]
-			}, MusicTree.types[p_data.type]).addClass('dir');
-
-			return item;
-		},
-	}
+	}, function(p_data) {
+		g_env.rpc.request.send('player_goto', {index: p_data.index});
+	});
 
 	var calcNodePathForIndex = function(p_index)
 	{
@@ -786,28 +789,58 @@ function queueWidget(p_args)
 		});
 	}
 
-	var cache = function(p_data, p_index) {
-		var idx = 0;
-		foreach(p_data, function(item) {
-			item.index = clone(p_index);
-			item.index.push(idx++);
-			var type = MusicTree.types[item.type];
-			g_env.storage.queue[item.type][item.id] = item;
-			if(type.cache_key)
-				cache(item[type.cache_key], item.index);
-		});
-	}
-
 	g_env.data.mgr.subscribe('player_queue_remove_all', function() {
 		g_env.data.request('player_queue_get');
 	});
 
+	var m_subNodes = {
+		album: 'files',
+		directory: 'items'
+	}
+
+	var generateIndex = function(p_data, p_index) {
+		var idx = 0;
+		foreach(p_data, function(item) {
+			item.index = clone(p_index);
+			item.index.push(idx++);
+			if(m_subNodes.hasOwnProperty(item.type))
+				generateIndex(item[m_subNodes[item.type]], item.index);
+		});
+	}
+
+	var m_playListParser = {
+		album: function(listItem, libItem) {
+			var item = clone(libItem);
+			item.files = [];
+			fillPlayList(listItem.files, item.files);
+			return item;
+		},
+		directory: function(listItem, libItem) {
+			var item = clone(libItem);
+			item.items = [];
+			fillPlayList(listItem.files, item.items);
+			return item;
+		},
+		file: function(listItem, libItem) {
+			return clone(libItem);
+		},
+	}
+
+	var fillPlayList = function(p_list, p_out)
+	{
+		foreach(p_list, function(listItem) {
+			p_out.push(m_playListParser[listItem.type](listItem, g_env.library.get(listItem.type, listItem.id)));
+		});
+	}
+
 	g_env.data.mgr.subscribe('player_queue_get', function(p_data) {
 		m_cont.reset();
 
-		cache(p_data, []);
+		var data = [];
+		fillPlayList(p_data, data);
+		generateIndex(data, []);
 
-		var list = TreeViewer.listItem({list: p_data, parent: m_cont}, function(item) {
+		var list = TreeViewer.listItem({list: data, parent: m_cont}, function(item) {
 			return m_cont.renderers[item.type](item);
 		}).addClass('playlist');
 
@@ -836,157 +869,41 @@ function queueWidget(p_args)
 function libraryWidget(p_args)
 {
 	var m_args = def(p_args, {});
+	var m_desc = p_args.desc;
 
 	m_args.menubar = [
 		{title: 'Scan', cmd: 'library_scan'},
-		{title: 'Refresh', cmd: p_args.desc.cmd}
 	];
 	m_args.quick_search = true;
+
 	var m_cont = TreeViewer.container(m_args).addClass('library');
 
-	var m_renderers = {
-		artist: function(p_data)
-		{
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.id == -1 ? 'unknown' : p_data.name,
-				desc: p_data.albums + ' albums',
-				image: '/pic/default_artist.png'
-			}).addClass('artist');
-
-			item.onclick = function() {
-				var aid = 'artist_'+p_data.id;
-
-				if(m_cont.hasNode(aid))
-					m_cont.switchNextNode(aid);
-				else{
-					g_env.rpc.request.send('library_get_albums_by_artist', {artist_id: p_data.id}, function(data) {
-						var list = TreeViewer.listItem({list: data, parent: m_cont}, m_renderers.album, {limit: g_config.music_lists.letter_grouping.albums, name: 'name'}, ['name', 'songs']);
-						m_cont.addNode({title: p_data.name, id: aid, container: list});
-						m_cont.switchNextNode(aid);
-					});
-				}
-			}
-
-			return item;
+	m_cont.renderers = MusicTree.renderers(m_cont, {
+		artist: function(item) {
+			return [{title: 'Add to queue', href: {cmd: 'player_queue_artist', params: {id: item.id}}}];
 		},
-		album: function(p_data)
-		{
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.name || 'unknown',
-				desc: p_data.songs + ' songs',
-				image: '/pic/default_album.png',
-				menu: [{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: p_data.id}}}]
-			}).addClass('album');
-
-			item.onclick = function() {
-				var aid = 'album_'+p_data.id;
-
-				if(m_cont.hasNode(aid))
-					m_cont.switchNextNode(aid);
-				else{
-					g_env.rpc.request.send('library_get_files_of_album', {album_id: p_data.id}, function(data) {
-						var list = TreeViewer.listItem({list: data, parent: m_cont}, m_renderers.file, {limit: g_config.music_lists.letter_grouping.songs, name: 'title'}, ['track_index', 'title', 'name']);
-						m_cont.addNode({title: p_data.name, id: aid, container: list});
-						m_cont.switchNextNode(aid);
-					});
-				}
-			}
-
-			return item;
+		album: function(item) {
+			return [{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}}];
 		},
-		file: function(p_data)
-		{
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.title || p_data.name,
-				desc: formatTime(p_data.length),
-				image: '/pic/default_song.png',
-				label: g_env.getCodec(p_data.codec).title,
-				menu: [
-					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}},
-					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }}
-				]
-			}).addClass('file');
-			return item;
-		}
-	}
+		directory: function(item) {
+			return [{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {directory_id: item.id}}}];
+		},
+		file: function(item) {
+			return [
+				{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: item.id}}},
+				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }}
+			];
+		},
+	});
 
-	g_env.data.request(p_args.desc.cmd);
-
-	g_env.data.mgr.subscribe(p_args.desc.cmd, function(p_data) {
-		m_cont.reset();
-		var list = TreeViewer.listItem({list: p_data, parent: m_cont}, m_renderers[p_args.desc.root_renderer], p_args.desc.lists.grouping, p_args.desc.lists.sorting);
-		m_cont.addNode({title: p_args.desc.title, id: -1, container: list});
+	m_cont.eventMgr.subscribe('onDomReady', function() {
+		if(m_cont.hasNode(-1))
+			return;
+		var list = TreeViewer.listItem({list: g_env.library.data[m_desc.name], parent: m_cont, filter: m_desc.root_filter || null}, m_cont.renderers, m_desc.lists.grouping, m_desc.lists.sorting);
+		m_cont.addNode({title: m_desc.title, id: -1, container: list});
 		m_cont.switchNextNode(-1);
 		m_cont.eventMgr.notify('onListItemUpdated');
 	});
-
-	m_cont.eventMgr.subscribe('send_'+p_args.desc.cmd, function() {
-		m_cont.reset();
-	});
-
-	return m_cont;
-}
-
-function directoryBrowserWidget(p_args)
-{
-	var m_args = def(p_args, {});
-	m_args.quick_search = true;
-	m_args.menubar = [
-		{title: 'Scan', cmd: 'library_scan'},
-		{title: 'Refresh', callback: function() { m_cont.reset(); loadDir(-1, 'Folders'); }}
-	];
-	var m_cont = TreeViewer.container(m_args).addClass('directory');
-
-	var m_renderers = {
-		dir: function(p_data) {
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.name,
-				image: '/pic/default_folder.png',
-				menu: [
-					{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {directory_id: p_data.id}}},
-				]
-			}).addClass('dir_item');
-			item.onclick = function() {
-				loadDir(p_data.id, p_data.name);
-			};
-			return item;
-		},
-		file: function(p_data) {
-			var item = TreeViewer.item({
-				parent: m_cont,
-				id: p_data.id,
-				name: p_data.name,
-				image: '/pic/default_song.png',
-				label: p_data.codec ? g_env.getCodec(p_data.codec).title : '',
-				menu: [
-					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: p_data.id}}},
-					{title: 'Edit metadata', callback: function() { MetaDataEditor(p_data.id); }},
-				]
-			}).addClass('dir_item');
-			return item;
-		}
-	};
-
-	var loadDir = function(p_dirId, p_name)
-	{
-		g_env.rpc.request.send('library_list_directory', {directory_id: p_dirId}, function(p_data) {
-			var list = TreeViewer.listItem({list: p_data, parent: m_cont}, function(item) {
-				return m_renderers[item.type](item);
-			}, {limit: g_config.music_lists.letter_grouping.directories, name: 'name'}, ['type','name']);
-			m_cont.addNode({title: p_name, id: p_dirId, container: list});
-			m_cont.switchNextNode(p_dirId);
-		});
-	}
-
-	loadDir(-1, 'Folders');
 
 	return m_cont;
 }

@@ -152,6 +152,7 @@ $place_for_list_item_scrollbar: 9px;
 	}
 	.tree_list {
 		display: inline-block;
+		text-align: left;
 		.tags {
 			vertical-align: top;
 			display: inline-block;
@@ -173,8 +174,6 @@ $place_for_list_item_scrollbar: 9px;
 		.list {
 			vertical-align: top;
 			display: inline-block;
-		}
-		.nodes {
 		}
 		.dir_item {
 			.content {

@@ -48,12 +48,12 @@ function RPC(p_args)
 			params: params
 		};
 
-		$.ajax({
+		var xhr = $.ajax({
 			url: p_args.host,
 			type: 'POST',
 			data: JSON.stringify(data),
 			success: function(res) {
-				//console.debug('RPC returned. Command: '+p_command,', params:', p_params, ', result:', res.result);
+				//console.debug('RPC returned. Command: '+p_command,', params:', p_params, ', result size:', xhr.responseText.length ); //', result:', res.result
 				if(p_success)
 					p_success(res.result);
 			}

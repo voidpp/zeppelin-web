@@ -1,4 +1,69 @@
 
+function LoadLibrary(p_onLoaded)
+{
+	var start = (new Date()).getTime();
+
+	var m_loadCnt = Map.size(g_descriptors.library);
+
+	var parse = function()
+	{
+		var parseStart = (new Date()).getTime();
+
+		for(var a = 0; a < g_env.library.data.files.length; ++a) {
+			var file = g_env.library.data.files[a];
+			if(file.album_id) {
+				var album = g_env.library.data.albums[g_env.library.idToIdxMap.albums[file.album_id]];
+				if(!(album.files instanceof Array))
+					album.files = [];
+				album.files.push(file);
+			}
+
+			var directory = g_env.library.data.directories[g_env.library.idToIdxMap.directories[file.directory_id]];
+			if(!(directory.items instanceof Array))
+				directory.items = [];
+			directory.items.push(file);
+		}
+		for(var a = 0; a < g_env.library.data.albums.length; ++a) {
+			var album = g_env.library.data.albums[a];
+			if(!album.artist_id)
+				continue;
+			var artist = g_env.library.data.artists[g_env.library.idToIdxMap.artists[album.artist_id]];
+			if(!(artist.albums instanceof Array))
+				artist.albums = [];
+			artist.albums.push(album);
+		}
+		for(var a = 0; a < g_env.library.data.directories.length; ++a) {
+			var dir = g_env.library.data.directories[a];
+			if(!dir.parent_id)
+				continue;
+			var parent_dir = g_env.library.data.directories[g_env.library.idToIdxMap.directories[dir.parent_id]];
+			if(!(parent_dir.items instanceof Array))
+				parent_dir.items = [];
+			parent_dir.items.push(dir);
+		}
+
+		var end = (new Date()).getTime();
+
+		console.debug('Library loaded and parsed. (Times: full: ' + (end - start) + ' ms, parse: ' + (end - parseStart) + ' ms)');
+
+		p_onLoaded();
+	}
+
+	foreach(g_descriptors.library, function(desc, name) {
+		g_env.library.data[desc.nodeName] = [];
+		g_env.library.idToIdxMap[desc.nodeName] = {};
+		g_env.rpc.request.send(desc.getter, {id: []}, function(res) {
+			foreach(res, function(data) {
+				data.type = name;
+				var len = g_env.library.data[desc.nodeName].push(data);
+				g_env.library.idToIdxMap[desc.nodeName][data.id] = len-1;
+			});
+			if(!--m_loadCnt)
+				parse();
+		});
+	});
+}
+
 function ZeppelinClient()
 {
 	var zeppelin = {
@@ -6,43 +71,35 @@ function ZeppelinClient()
 		libraryTypes: {
 			albums: {
 				title: 'Albums',
-				cmd: 'library_get_albums',
-				root_renderer: 'album',
+				name: 'albums',
 				lists: {
 					grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
-					sorting: ['name', 'songs']
+					sorting: ['name']
 				}
 			},
 			artists: {
 				title: 'Artists',
-				cmd: 'library_get_artists',
-				root_renderer: 'artist',
+				name: 'artists',
 				lists: {
 					grouping: {limit: g_config.music_lists.letter_grouping.artists, name: 'name'},
-					sorting: ['name', 'albums']
+					sorting: ['name']
 				}
-			}
+			},
+			directories: {
+				title: 'Folders',
+				name: 'directories',
+				lists: {
+					grouping: {limit: '', name: ''},
+					sorting: ['name']
+				},
+				root_filter: {
+					parent_id: function(item) {
+						return item.parent_id != 0;
+					}
+				},
+			},
 		}
 	}
-
-	//cache the library
-	g_env.data.mgr.subscribe('library_get_artists', function(p_list) {
-		foreach(p_list, function(data) {
-			g_env.storage.library.artist[data.id] = data;
-		});
-	});
-
-	g_env.data.mgr.subscribe('library_get_albums', function(p_list) {
-		foreach(p_list, function(data) {
-			g_env.storage.library.album[data.id] = data;
-		});
-	});
-
-	g_env.data.mgr.subscribe('library_get_files_of_album', function(p_list) {
-		foreach(p_list, function(data) {
-			g_env.storage.library.file[data.id] = data;
-		});
-	});
 
 	var windowSize = getClientSize();
 	var browserType = isMobileBrowser() ? 'mobile' : 'desktop';
@@ -66,7 +123,7 @@ function ZeppelinClient()
 
 	var player = layout.render(zeppelin);
 
-	body().add(div({class: 'player'}, player));
+	body().set(div({class: 'player'}, player));
 
 	g_env.eventMgr.notify('onZeppelinBuilt');
 

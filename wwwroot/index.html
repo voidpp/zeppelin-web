@@ -43,6 +43,24 @@ var g_descriptors = {
 		number: intcmp,
 		string: strcmp
 	},
+	library: {
+		artist: {
+			getter: 'library_get_artists',
+			nodeName: 'artists',
+		},
+		album: {
+			getter: 'library_get_albums',
+			nodeName: 'albums',
+		},
+		file: {
+			getter: 'library_get_files',
+			nodeName: 'files',
+		},
+		directory: {
+			getter: 'library_get_directories',
+			nodeName: 'directories',
+		},
+	}
 }
 
 function createEnviroment()
@@ -66,18 +84,20 @@ function createEnviroment()
 			}
 		},
 		eventMgr: new EventManager(),
-		storage: {
-			queue: {
-				file: {},
-				album: {},
-				playlist: {},
-				dir: {}
+		library: {
+			get: function(p_type, p_id) {
+				if(!g_descriptors.library.hasOwnProperty(p_type))
+					throw "Unkown library node! ("+p_type+")";
+				var node = g_descriptors.library[p_type].nodeName;
+				if(!g_env.library.idToIdxMap[node].hasOwnProperty(p_id))
+					throw "Id: '"+p_id+"' not found in the '"+node+"' library!";
+				var idx = g_env.library.idToIdxMap[node][p_id];
+				if(idx < 0 || idx >= g_env.library.data[node].length)
+					throw "Wrong index ("+idx+") in the '"+node+"' library!";
+				return g_env.library.data[node][idx];
 			},
-			library: {
-				file: {},
-				album: {},
-				artist: {}
-			}
+			data: {},
+			idToIdxMap: {},
 		},
 		clearTipsy: function() {
 
@@ -99,12 +119,15 @@ function start_engine()
 
 	createEnviroment();
 
-	new ZeppelinClient();
+	LoadLibrary(ZeppelinClient);
 }
 
 </script>
 </head>
 <body onload="start_engine()">
+	<div class="player">
+		<img src="/pic/preloader.gif">
+	</div>
 </body>
 </html>
 <!-- The answer to Life, the Universe, and Everything: 42 -->

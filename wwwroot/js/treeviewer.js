@@ -83,7 +83,11 @@ var TreeViewer = {
 		var grouping = def(p_grouping, {});
 
 		if(p_sortName) {
+			//var s = new Date();
 			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
+			//'casue this list is a reference for the original, need to clone it...
+			p_data.list = clone(p_data.list);
+			//console.log((new Date()).getTime()-s);
 			p_data.list.sort(function(a, b){
 				var res = 0;
 				foreach(sortNames, function(name) {
@@ -100,7 +104,7 @@ var TreeViewer = {
 		else
 			return this.listItemMixed(p_data, p_itemProcess);
 	},
-	listItemBase: function()
+	listItemBase: function(p_data)
 	{
 		var m_cont = div({class: 'tree_list'});
 
@@ -123,15 +127,29 @@ var TreeViewer = {
 			});
 		}
 
+		m_cont.filter = function(p_item)
+		{
+			if(!p_data.filter || typeof p_data.filter != 'object')
+				return false;
+			for(var name in p_data.filter) {
+				var res = p_data.filter[name](p_item);
+				if(res)
+					return true;
+			}
+			return false;
+		}
+
 		return m_cont;
 	},
 	listItemMixed: function(p_data, p_itemProcess)
 	{
-		var m_cont = this.listItemBase();
+		var m_cont = this.listItemBase(p_data);
 		var m_items = [];
 		var m_currHighLightedItem = -1;
 
 		foreach(p_data.list, function(item) {
+			if(m_cont.filter(item))
+				return;
 			var renderer = typeof p_itemProcess == 'object' ? p_itemProcess[item.type] : p_itemProcess;
 			var cont = renderer(item);
 			m_items.push({data: item, container: cont});
@@ -203,7 +221,7 @@ var TreeViewer = {
 	{
 		var m_tagCont = div({class: 'tags'});
 		var m_list = div({class: 'list'});
-		var m_cont = this.listItemBase().add(m_tagCont, m_list);
+		var m_cont = this.listItemBase(p_data).add(m_tagCont, m_list);
 		var m_tags = {};
 		var m_letters = {};
 		var m_currGroupLetter = -1;
@@ -341,7 +359,7 @@ var TreeViewer = {
 		var m_menuBar = div({class: 'menubar'});
 		var m_breadcrumbs = div({class: 'breadcrumbs'});
 		var m_header = div({class: 'header'}, m_menuBar, m_breadcrumbs);
-		var m_nodesCont = div({class: 'nodes'}).css({width: 1000}); //TODO...
+		var m_nodesCont = div({class: 'nodes'});
 		var m_nodes = {};
 		var m_path = [];
 		var m_quickSearch = null;
@@ -504,6 +522,10 @@ var TreeViewer = {
 
 		m_cont.addNode = function(p_desc)
 		{
+			if(!Map.size(m_nodes)) {
+				m_nodesCont.css({width: 1000}); //TODO...  if Map.size(m_nodes) == 2 updateLayout: $(p_desc.container).outerWidth() * 2
+			}
+
 			m_nodesCont.add(p_desc.container);
 
 			var h = $(m_header).outerHeight(true);
@@ -546,7 +568,7 @@ var TreeViewer = {
 				return false;
 		}
 
-		m_cont.updateBreadCrumbsLayout = function()
+		m_cont.updateLayout = function()
 		{
 			m_breadcrumbs.css({width: $(m_header).width()});
 			$(m_breadcrumbs).tipsy({
@@ -556,7 +578,7 @@ var TreeViewer = {
 			});
 		}
 
-		m_cont.eventMgr.subscribe(['onDomReady','onLayoutChanged'], m_cont.updateBreadCrumbsLayout);
+		m_cont.eventMgr.subscribe(['onDomReady','onLayoutChanged'], m_cont.updateLayout);
 
 		$(m_breadcrumbs).bind('mousewheel',function(ev, delta) {
 			var scrollLeft = $(this).scrollLeft();
