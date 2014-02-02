@@ -57,7 +57,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 
 .current_song_info {
 	tr {
-		td:first-child {
+		td:first-child, .value {
 			color: $base_color;
 			text-shadow: 0 0 2px $base_color;
 		}

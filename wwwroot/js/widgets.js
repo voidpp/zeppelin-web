@@ -211,6 +211,7 @@ function currentSongInfoWidget(p_args)
 	var m_sampleRate = td();
 	var m_compRate = td();
 	var m_codec = td();
+	var m_sampleSize = span({class: 'value'});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		try {
@@ -218,17 +219,19 @@ function currentSongInfoWidget(p_args)
 			m_sampleRate.set(parseInt(file.sample_rate/1000));
 			m_compRate.set('na');
 			m_codec.set(g_env.getCodec(file.codec).title);
+			m_sampleSize.set(file.sample_size);
 		} catch (ex) {
 			m_sampleRate.clear();
 			m_compRate.clear();
 			m_codec.clear();
+			m_sampleSize.clear();
 		};
 	});
 
 	return m_cont.add(table({cellpadding: 0, cellspacing: 0},
 		tr(m_codec, td('codec')),
 		tr(m_compRate, td('kbps')),
-		tr(m_sampleRate , td('khz'))
+		tr(m_sampleRate , td('khz, ', m_sampleSize, ' bit'))
 	));
 }
 
