@@ -219,7 +219,6 @@ function currentSongInfoWidget(p_args)
 			m_compRate.set('na');
 			m_codec.set(g_env.getCodec(file.codec).title);
 		} catch (ex) {
-			console.error(ex);
 			m_sampleRate.clear();
 			m_compRate.clear();
 			m_codec.clear();
@@ -886,7 +885,7 @@ function libraryWidget(p_args)
 			return [{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}}];
 		},
 		directory: function(item) {
-			return [{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {directory_id: item.id}}}];
+			return [{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {id: item.id}}}];
 		},
 		file: function(item) {
 			return [
