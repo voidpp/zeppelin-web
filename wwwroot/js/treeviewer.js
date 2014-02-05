@@ -1,39 +1,51 @@
 var TreeViewer = {
 	item: function(p_data)
 	{
-		var cont = div({class: 'tree_item face'});
+		var m_cont = div({class: 'tree_item face'});
+		var m_binder = new DataBinder();
 
 		if(p_data.hasOwnProperty('id'))
-			cont.p('dbId', p_data.id);
+			m_cont.p('dbId', p_data.id);
 
-		var nameCont = div({class: 'name'}, p_data.name);
+		var m_nameCont = m_binder.add(div({class: 'name'}), 'name');
+		var m_iconCont = m_binder.add(img(), 'image', function(v) { this.p('src', v); });
 
-		var iconCont = div({class: 'image'}, img({src: p_data.image}), p_data.label ? div({class: 'label'}, p_data.label) : null);
+		m_cont.add(
+			div({class: 'image'},
+				m_iconCont,
+				m_binder.add(div({class: 'label'}), 'label')
+			),
+			m_nameCont,
+			m_binder.add(div({class: 'desc'}), 'desc')
+		);
 
-		cont.add(iconCont, nameCont, (p_data.desc ? div({class: 'desc'}, p_data.desc) : null));
+		m_binder.set(p_data);
 
 		var waitForDomReady = 0;
 
-		var update = function()
+		var updateLayout = function()
 		{
 			if(++waitForDomReady < 2)
 				return;
-			nameCont.css({maxWidth: $(cont).width() - $(iconCont).outerWidth() - parseInt(nameCont.css('marginRight'))});
-			if(nameCont.scrollWidth > $(nameCont).width())
-				$(cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
+			m_nameCont.css({maxWidth: $(m_cont).width() - $(m_iconCont).parent().outerWidth() - parseInt(m_nameCont.css('marginRight'))});
+			if(m_nameCont.scrollWidth > $(m_nameCont).width())
+				$(m_cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
 		}
 
-		$(iconCont).find('img').load(update);
-		p_data.parent.eventMgr.subscribe('onListItemUpdated', update);
+		$(m_iconCont).load(updateLayout);
+		p_data.parent.eventMgr.subscribe('onListItemUpdated', updateLayout);
 
 		if(p_data.menu && p_data.menu.length) {
-			cont.oncontextmenu = function() {
+			m_cont.oncontextmenu = function() {
 				if(window.location.search == '?nocontextmenu')
 					return true;
 				var contextMenu = new clMenu({
 					destroyAfterHide: true,
 					link_handler: function(p_href) {
-						g_env.data.request(p_href.cmd, p_href.params);
+						if(p_href.cmd)
+							g_env.data.request(p_href.cmd, p_href.params);
+						else if(p_href.rpc)
+							g_env.rpc.request.send(p_href.rpc, p_href.params, p_href.callback);
 					}
 				});
 				foreach(p_data.menu, function(m) {
@@ -44,11 +56,25 @@ var TreeViewer = {
 			}
 		}
 
-		return cont;
+		m_cont.update = function(p_values)
+		{
+			m_binder.set(p_values);
+		}
+
+		return m_cont;
 	},
 	directOpenableHandler: function(p_cont, p_data, p_typeDesc, p_onPanelGenerated)
 	{
 		var typeDesc = def(p_typeDesc, {});
+
+		p_cont.rebuildList = function(p_list)
+		{
+			if(this.list) {
+				this.list.removeAllItem();
+				this.list.addItems(p_list);
+			} else
+				p_data.items = p_list;
+		}
 
 		p_cont.generateList = function()
 		{
@@ -60,6 +86,7 @@ var TreeViewer = {
 				p_data.parent.addNode({title: p_data.name, id: aid, container: list});
 				if(p_onPanelGenerated)
 					p_onPanelGenerated(list);
+				p_cont.list = list;
 			}
 
 			return aid;
@@ -67,7 +94,8 @@ var TreeViewer = {
 
 		p_cont.onclick = function()
 		{
-			p_data.parent.switchNextNode(this.generateList());
+			if(p_data.items.length)
+				p_data.parent.switchNextNode(this.generateList());
 		}
 	},
 	directOpenableItem: function(p_data, p_typeDesc)
@@ -82,7 +110,7 @@ var TreeViewer = {
 	{
 		var grouping = def(p_grouping, {});
 
-		if(p_sortName) {
+		if(p_sortName && 0) {
 			//var s = new Date();
 			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
 			//'casue this list is a reference for the original, need to clone it...
@@ -99,14 +127,23 @@ var TreeViewer = {
 			});
 		}
 
+		var list;
+
 		if(grouping.hasOwnProperty('name') && grouping.limit !== '' && p_data.list.length > grouping.limit)
-			return this.listItemGrouped(p_data, p_itemProcess, grouping.name);
+			list = this.listItemGrouped(p_data, p_itemProcess, grouping.name);
 		else
-			return this.listItemMixed(p_data, p_itemProcess);
+			list = this.listItemMixed(p_data, p_itemProcess);
+
+		var added = list.addItems(p_data.list);
+
+		list.start(added);
+
+		return list;
 	},
 	listItemBase: function(p_data)
 	{
 		var m_cont = div({class: 'tree_list'});
+		m_cont.started = false;
 
 		m_cont.search = function(p_items, p_val)
 		{
@@ -147,24 +184,53 @@ var TreeViewer = {
 		var m_items = [];
 		var m_currHighLightedItem = -1;
 
-		foreach(p_data.list, function(item) {
-			if(m_cont.filter(item))
-				return;
-			var renderer = typeof p_itemProcess == 'object' ? p_itemProcess[item.type] : p_itemProcess;
-			var cont = renderer(item);
-			m_items.push({data: item, container: cont});
-			m_cont.add(cont);
-		});
-
-		$(m_cont).mCustomScrollbar({
-			contentTouchScroll: true,
-			autoHideScrollbar: true,
-			mouseWheelPixels: 200
-		});
-
 		p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
 			$(m_cont).mCustomScrollbar("update");
 		});
+
+		var getContainer = function()
+		{
+			return m_cont.started ? _cl($(m_cont).find('.mCSB_container')[0]) : m_cont;
+		}
+
+		m_cont.removeAllItem = function()
+		{
+			m_items = [];
+			getContainer().clear();
+			p_data.parent.eventMgr.notify('onListItemUpdated');
+		}
+
+		m_cont.removeItems = function(p_idList)
+		{
+			var removable = [];
+			foreach(m_items, function(item, idx) {
+				if(p_idList.indexOf(item.data.id) == -1)
+					return;
+				removable.push(idx);
+			});
+			removable.reverse();
+			foreach(removable, function(idx) {
+				var item = m_items.splice(idx,1)[0];
+				$(item.container).slideUp('fast', function() {
+					p_data.parent.eventMgr.notify('onListItemUpdated');
+				});
+			});
+		}
+
+		m_cont.addItems = function(p_dataList)
+		{
+			var listCont = getContainer();
+
+			foreach(p_dataList, function(item) {
+				if(m_cont.filter(item))
+					return;
+				var renderer = typeof p_itemProcess == 'object' ? p_itemProcess[item.type] : p_itemProcess;
+				var cont = renderer(item);
+				var newLen = m_items.push({data: item, container: cont});
+				listCont.add(cont);
+			});
+			p_data.parent.eventMgr.notify('onListItemUpdated');
+		}
 
 		m_cont.onQuickSearch = function(p_val)
 		{
@@ -215,6 +281,17 @@ var TreeViewer = {
 
 		m_cont.updateLayout = function() {};
 
+		m_cont.start = function()
+		{
+			this.started = true;
+
+			$(m_cont).mCustomScrollbar({
+				contentTouchScroll: true,
+				autoHideScrollbar: true,
+				mouseWheelPixels: 200
+			});
+		};
+
 		return m_cont;
 	},
 	listItemGrouped: function(p_data, p_itemProcess, p_groupingName)
@@ -224,67 +301,29 @@ var TreeViewer = {
 		var m_cont = this.listItemBase(p_data).add(m_tagCont, m_list);
 		var m_tags = {};
 		var m_letters = {};
-		var m_currGroupLetter = -1;
+		var m_currGroupLetter = false;
 		var m_css = {};
-
-		foreach(p_data.list, function(item) {
-			var letter = item[p_groupingName][0];
-			if(!letter)
-				return;
-
-			letter = letter.toUpperCase();
-
-			if(letter == ' ')
-				return;
-
-			if(!m_letters.hasOwnProperty(letter)) {
-				m_letters[letter] = {
-					count: 0,
-					cont: null,
-					items: []
-				};
-			}
-			m_letters[letter].count++;
-			m_letters[letter].items.push({data: item});
-		});
 
 		var generateGroup = function(p_desc)
 		{
-			p_desc.cont = div().hide();
+			if(!p_desc.items.length)
+				return;
 
-			m_list.add(p_desc.cont);
+			var list = p_desc.cont;
 
-			foreach(p_desc.items, function(item) {
-				var renderer = typeof p_itemProcess == 'object' ? p_itemProcess[item.data.type] : p_itemProcess;
-				item.container = renderer(item.data);
-				p_desc.cont.add(item.container);
-			});
+			if(list)
+				list.addItems(p_desc.items);
+			else {
+				list = TreeViewer.listItemMixed(p_data, p_itemProcess);
+				m_list.add(list);
+				list.addItems(p_desc.items);
+				$(list).css(m_css);
+				list.start();
+				p_desc.cont = list;
+			}
 
-			$(p_desc.cont).css(m_css).mCustomScrollbar({
-				contentTouchScroll: true,
-				autoHideScrollbar: true,
-				mouseWheelPixels: 200
-			});
-
-			p_data.parent.eventMgr.subscribe('onListItemUpdated', function() {
-				$(p_desc.cont).mCustomScrollbar("update");
-			});
+			p_desc.items = [];
 		}
-
-		var lettersArr = Map.keys(m_letters);
-
-		lettersArr.sort();
-
-		foreach(lettersArr, function(letter) {
-			var tagCont = div(letter, {class: 'letter', onclick: function() {
-				hideGroup(m_currGroupLetter);
-				showGroup(letter);
-			}});
-
-			m_tags[letter] = tagCont;
-
-			m_tagCont.add(tagCont);
-		});
 
 		var hideGroup = function(p_letter)
 		{
@@ -296,8 +335,7 @@ var TreeViewer = {
 		{
 			var desc = m_letters[p_letter];
 
-			if(!desc.cont)
-				generateGroup(desc);
+			generateGroup(desc);
 
 			desc.cont.show();
 			m_tags[p_letter].addClass('active');
@@ -310,10 +348,70 @@ var TreeViewer = {
 			p_data.parent.eventMgr.notify('onListItemUpdated');
 		}
 
+		m_cont.removeItems = function(p_idList)
+		{
+			m_letters[m_currGroupLetter].cont.removeItems(p_idList);
+		}
+
+		m_cont.addItems = function(dataList)
+		{
+			var newLetters = [];
+			foreach(dataList, function(item) {
+				var letter = item[p_groupingName][0];
+				if(!letter)
+					return;
+
+				letter = letter.toUpperCase();
+
+				if(letter == ' ')
+					return;
+
+				if(!m_letters.hasOwnProperty(letter)) {
+					newLetters.push(letter);
+					m_letters[letter] = {
+						count: 0,
+						cont: null,
+						items: [],
+						letter: letter,
+					};
+				}
+				m_letters[letter].count++;
+				m_letters[letter].items.push(item);
+			});
+
+			newLetters.sort();
+
+			foreach(newLetters, function(letter) {
+				var tagCont = div(letter, {class: 'letter', onclick: function() {
+					hideGroup(m_currGroupLetter);
+					showGroup(letter);
+				}});
+
+				m_tags[letter] = tagCont;
+
+				m_tagCont.add(tagCont);
+			});
+
+			if(m_currGroupLetter !== false)
+				showGroup(m_currGroupLetter); //refresh the current group
+
+			p_data.parent.eventMgr.notify('onListItemUpdated');
+
+			return newLetters;
+		}
+
+		m_cont.start = function(letters)
+		{
+			this.started = true;
+
+			if(letters.length)
+				showGroup(letters[0]);
+		}
+
 		m_cont.onQuickSearch = function(p_val)
 		{
 			var desc = m_letters[m_currGroupLetter];
-			this.search(desc.items, p_val);
+			desc.cont.onQuickSearch(p_val);
 		}
 
 		m_cont.updateLayout = function()
@@ -333,14 +431,6 @@ var TreeViewer = {
 			}
 		}
 
-		$(m_tagCont).bind('mousewheel',function(ev, delta) {
-			var scrollTop = $(this).scrollTop();
-			$(this).scrollTop(scrollTop-Math.round(delta*50));
-		});
-
-		if(lettersArr.length)
-			showGroup(lettersArr[0]);
-
 		m_cont.highlightItem = function(p_idx)
 		{
 			throw 'Not implemented.';
@@ -350,6 +440,11 @@ var TreeViewer = {
 		{
 			throw 'Not implemented.';
 		}
+
+		$(m_tagCont).bind('mousewheel',function(ev, delta) {
+			var scrollTop = $(this).scrollTop();
+			$(this).scrollTop(scrollTop-Math.round(delta*50));
+		});
 
 		return m_cont;
 	},
@@ -551,6 +646,9 @@ var TreeViewer = {
 			p_desc.quickSearchValue = '';
 			p_desc.container.setQuickSearchValue = function(p_val)
 			{
+				if(!m_quickSearch)
+					return;
+
 				p_desc.quickSearchValue = p_val;
 				m_quickSearch.setValue(p_val);
 			}
@@ -563,6 +661,11 @@ var TreeViewer = {
 		m_cont.getNodes = function()
 		{
 			return m_nodes;
+		}
+
+		m_cont.getActiveNode = function()
+		{
+			return this.getNode(m_path.last().id);
 		}
 
 		m_cont.getNode = function(p_id)

@@ -78,17 +78,15 @@ for(var name in html.elements) {
 	registerHTML(name, desc.child || null, desc.custom || null);
 }
 
-function head() { var h = document.getElementsByTagName("head")[0]; add_spec_ext_to_element(h); return h; }
-function body() { var b = document.getElementsByTagName("body")[0]; add_spec_ext_to_element(b); return b; }
+function head() { var h = document.getElementsByTagName("head")[0]; return add_spec_ext_to_element(h); }
+function body() { var b = document.getElementsByTagName("body")[0]; return add_spec_ext_to_element(b); }
 
 function dGE2(id) {
 	var el = document.getElementById(id)
 	if(!el)
 		return el;
 
-	add_spec_ext_to_element(el);
-
-	return el;
+	return add_spec_ext_to_element(el);
 };
 
 function a2(p_href, p_label, p_params)
@@ -107,7 +105,7 @@ function a2(p_href, p_label, p_params)
 function add_spec_ext_to_element(element, p_preferredChild)
 {
 	if(element.hasOwnProperty('hasCL'))
-		return;
+		return element;
 
 	p_preferredChild = (p_preferredChild || 'text');
 
@@ -258,6 +256,14 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		return element;
 	}
 
+	element.getChildren = function()
+	{
+		foreach(element.childNodes, function(child) {
+			add_spec_ext_to_element(child);
+		});
+		return element.childNodes;
+	}
+
 	element.alignCenter = function()
 	{
 		var ew = $(element).outerWidth();
@@ -318,8 +324,7 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		for(var i = 0; i < step; i++) {
 			res = res.parentNode;
 		}
-		add_spec_ext_to_element(res);
-		return res;
+		return add_spec_ext_to_element(res);
 	}
 
 	element.html = function(p_html)
@@ -348,7 +353,11 @@ function add_spec_ext_to_element(element, p_preferredChild)
 	for(var name in html.externals) {
 		element[name] = html.externals[name];
 	}
+
+	return element;
 }
+
+window['_cl'] = window.add_spec_ext_to_element;
 
 function create_html(p_type, p_args, p_preferredChild)
 {

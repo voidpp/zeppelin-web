@@ -22,6 +22,7 @@
 <script type="text/javascript" src="/js/zeppelin.js"></script>
 <script type="text/javascript" src="/js/config.js"></script>
 <script type="text/javascript" src="/js/treeviewer.js"></script>
+<script type="text/javascript" src="/js/library.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/dark-hive/jquery-ui-1.10.3.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/css/jquery.mCustomScrollbar.css">
 <link rel="stylesheet" type="text/css" href="/css/tipsy.css">
@@ -43,24 +44,6 @@ var g_descriptors = {
 		number: intcmp,
 		string: strcmp
 	},
-	library: {
-		artist: {
-			getter: 'library_get_artists',
-			nodeName: 'artists',
-		},
-		album: {
-			getter: 'library_get_albums',
-			nodeName: 'albums',
-		},
-		file: {
-			getter: 'library_get_files',
-			nodeName: 'files',
-		},
-		directory: {
-			getter: 'library_get_directories',
-			nodeName: 'directories',
-		},
-	}
 }
 
 function createEnviroment()
@@ -84,21 +67,6 @@ function createEnviroment()
 			}
 		},
 		eventMgr: new EventManager(),
-		library: {
-			get: function(p_type, p_id) {
-				if(!g_descriptors.library.hasOwnProperty(p_type))
-					throw "Unkown library node! ("+p_type+")";
-				var node = g_descriptors.library[p_type].nodeName;
-				if(!g_env.library.idToIdxMap[node].hasOwnProperty(p_id))
-					throw "Id: '"+p_id+"' not found in the '"+node+"' library!";
-				var idx = g_env.library.idToIdxMap[node][p_id];
-				if(idx < 0 || idx >= g_env.library.data[node].length)
-					throw "Wrong index ("+idx+") in the '"+node+"' library!";
-				return g_env.library.data[node][idx];
-			},
-			data: {},
-			idToIdxMap: {},
-		},
 		clearTipsy: function() {
 
 		}

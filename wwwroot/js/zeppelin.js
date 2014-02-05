@@ -3,44 +3,15 @@ function LoadLibrary(p_onLoaded)
 {
 	var start = (new Date()).getTime();
 
-	var m_loadCnt = Map.size(g_descriptors.library);
+	var m_loadCnt = Map.size(Library.types);
 
 	var parse = function()
 	{
 		var parseStart = (new Date()).getTime();
 
-		for(var a = 0; a < g_env.library.data.files.length; ++a) {
-			var file = g_env.library.data.files[a];
-			if(file.album_id) {
-				var album = g_env.library.data.albums[g_env.library.idToIdxMap.albums[file.album_id]];
-				if(!(album.files instanceof Array))
-					album.files = [];
-				album.files.push(file);
-			}
-
-			var directory = g_env.library.data.directories[g_env.library.idToIdxMap.directories[file.directory_id]];
-			if(!(directory.items instanceof Array))
-				directory.items = [];
-			directory.items.push(file);
-		}
-		for(var a = 0; a < g_env.library.data.albums.length; ++a) {
-			var album = g_env.library.data.albums[a];
-			if(!album.artist_id)
-				continue;
-			var artist = g_env.library.data.artists[g_env.library.idToIdxMap.artists[album.artist_id]];
-			if(!(artist.albums instanceof Array))
-				artist.albums = [];
-			artist.albums.push(album);
-		}
-		for(var a = 0; a < g_env.library.data.directories.length; ++a) {
-			var dir = g_env.library.data.directories[a];
-			if(!dir.parent_id)
-				continue;
-			var parent_dir = g_env.library.data.directories[g_env.library.idToIdxMap.directories[dir.parent_id]];
-			if(!(parent_dir.items instanceof Array))
-				parent_dir.items = [];
-			parent_dir.items.push(dir);
-		}
+		foreach(Library.types, function(type) {
+			type.parse();
+		});
 
 		var end = (new Date()).getTime();
 
@@ -49,14 +20,14 @@ function LoadLibrary(p_onLoaded)
 		p_onLoaded();
 	}
 
-	foreach(g_descriptors.library, function(desc, name) {
-		g_env.library.data[desc.nodeName] = [];
-		g_env.library.idToIdxMap[desc.nodeName] = {};
+	foreach(Library.types, function(desc, name) {
+		Library.data[desc.nodeName] = [];
+		Library.idToIdxMap[desc.nodeName] = {};
 		g_env.rpc.request.send(desc.getter, {id: []}, function(res) {
 			foreach(res, function(data) {
 				data.type = name;
-				var len = g_env.library.data[desc.nodeName].push(data);
-				g_env.library.idToIdxMap[desc.nodeName][data.id] = len-1;
+				var len = Library.data[desc.nodeName].push(data);
+				Library.idToIdxMap[desc.nodeName][data.id] = len-1;
 			});
 			if(!--m_loadCnt)
 				parse();
@@ -132,7 +103,7 @@ function ZeppelinClient()
 	g_env.data.request('player_queue_get');
 	g_env.data.request('player_get_volume');
 
-	g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory'], function() {
+	g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory', 'player_queue_playlist'], function() {
 		g_env.data.request('player_queue_get');
 	});
 
@@ -153,6 +124,7 @@ function ZeppelinClient()
 		getStatus();
 		if(m_statusTimerId)
 			clearTimeout(m_statusTimerId);
+
 		m_statusTimerId = setInterval(getStatus, 500);
 	}
 
@@ -175,67 +147,44 @@ function CookieClientSettings()
 
 function MetaDataEditor(p_fileId, p_onSuccess)
 {
-	var openEditor = function(p_data, p_onSuccess)
-	{
-		var artists = Map.mine(g_env.storage.library.artist, 'name');
-		var albums = Map.mine(g_env.storage.library.album, 'name');
-		artists.sort(strcmp);
-		albums.sort(strcmp);
+	var data = Library.get('file', p_fileId);
+	var artists = Map.mine(Library.data.artists, 'name');
+	var albums = Map.mine(Library.data.albums, 'name');
+	artists.sort(strcmp);
+	albums.sort(strcmp);
 
-		var form = {
-			params: {
-				class: 'sForm'
-			},
-			fields: {
-				id: {name: 'id', type: 'hidden', value: p_data.id},
-				artist: {name: "artist", type: "text", label: "Artist", value: p_data.artist, list: artists},
-				album: {name: "album", type: "text", label: "Album", value: p_data.album, list: albums},
-				title: {name: "title", type: "text", label: "Title", value: p_data.title},
-				year: {name: "year", type: "number", label: "Year", value: p_data.year},
-				track_index: {name: "track_index", type: "number", label: "Track", value: p_data.track_index},
-			},
-			submit: {
-				type: "submit",
-				value: "Submit"
-			},
-			errors:[]
-		}
-
-		formDialog({
-			title: 'Edit metadata for file ' + p_data.name,
-			skeleton: form,
-			onsubmit: function(formData, dlg) {
-				formData.id = parseInt(formData.id);
-				formData.year = parseInt(formData.year);
-				formData.track_index = parseInt(formData.track_index);
-
-				g_env.rpc.request.send('library_update_metadata', formData, function() {
-					if(p_onSuccess)
-						p_onSuccess(formData);
-				});
-				dlg.close();
-			}
-		});
+	var form = {
+		params: {
+			class: 'sForm'
+		},
+		fields: {
+			id: {name: 'id', type: 'hidden', value: data.id},
+			artist: {name: "artist", type: "text", label: "Artist", value: Library.get('artist', data.artist_id).name, list: artists},
+			album: {name: "album", type: "text", label: "Album", value: Library.get('album', data.album_id).name, list: albums},
+			title: {name: "title", type: "text", label: "Title", value: data.title},
+			year: {name: "year", type: "number", label: "Year", value: data.year},
+			track_index: {name: "track_index", type: "number", label: "Track", value: data.track_index},
+		},
+		submit: {
+			type: "submit",
+			value: "Submit"
+		},
+		errors:[]
 	}
 
-	var loadMetaData = function()
-	{
-		g_env.rpc.request.send('library_get_metadata', {id: p_fileId}, function(p_data) {
-			openEditor(p_data, p_onSuccess);
-		});
-	}
+	formDialog({
+		title: 'Edit metadata for file ' + data.name,
+		skeleton: form,
+		onsubmit: function(formData, dlg) {
+			formData.id = parseInt(formData.id);
+			formData.year = parseInt(formData.year);
+			formData.track_index = parseInt(formData.track_index);
 
-	if(g_env.storage.library.file.hasOwnProperty(p_fileId)) {
-		var data = g_env.storage.library.file[p_fileId];
-
-		if(!g_env.storage.library.artist.hasOwnProperty(data.artist_id) || !g_env.storage.library.album.hasOwnProperty(data.album_id)) {
-			loadMetaData()
-			return;
+			g_env.rpc.request.send('library_update_metadata', formData, function() {
+				if(p_onSuccess)
+					p_onSuccess(formData);
+			});
+			dlg.close();
 		}
-
-		data.artist = g_env.storage.library.artist[data.artist_id].name;
-		data.album = g_env.storage.library.album[data.album_id].name;
-		openEditor(data, p_onSuccess);
-	} else
-		loadMetaData();
+	});
 }

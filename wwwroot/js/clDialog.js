@@ -14,6 +14,40 @@ var isOpera = navigator.userAgent.indexOf("Opera") > -1;
 
 var clDialogGlobalIcon = '/favico.png';
 
+function clPrompt(p_args)
+{
+	Map.init(p_args, {
+		type: 'text',
+		callback: function() {},
+		message: '',
+		initval: '',
+		title: 'User input',
+	});
+
+	var field = sField({type: p_args.type, value:  p_args.initval, class: 'prompt'});
+	var content = div(p_args.message, br(), field);
+
+	var dlg = new clDialog({
+		caption: p_args.title,
+		content: content,
+		minwidth: 300,
+		icon: clDialogGlobalIcon,
+		buttons: {
+			ok: {
+				label: 'OK',
+				keyCodes: [13]
+			},
+			cancel: {
+				label: 'Cancel',
+				keyCodes: [27]
+			}
+		},
+		callback: function(code) { if(code=='ok') p_args.callback(field.value); }
+	});
+	dlg.build();
+	field.focus();
+}
+
 function clConfirm(args)
 {
 	var dlg = new clDialog({

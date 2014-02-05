@@ -19,6 +19,7 @@ var Layouts = {
 			var lib1 = libraryWidget({desc: p_zeppelin.libraryTypes.artists});
 			var lib2 = libraryWidget({desc: p_zeppelin.libraryTypes.albums});
 			var lib3 = libraryWidget({desc: p_zeppelin.libraryTypes.directories});
+			var playlist = playlistWidget();
 
 			var tabbedWidgets = clTabulable({
 				settings: p_zeppelin.clientSettings,
@@ -27,6 +28,7 @@ var Layouts = {
 					{title: p_zeppelin.libraryTypes.artists.title, container: lib1},
 					{title: p_zeppelin.libraryTypes.albums.title, container: lib2},
 					{title: p_zeppelin.libraryTypes.directories.title, container: lib3},
+					{title: 'Playlists', container: playlist},
 					{title: 'Stats', container: statisticsWidget()},
 				],
 				onShowPage: function(p_idx, p_page) {

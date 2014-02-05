@@ -1192,3 +1192,8 @@ function makeURL(p_parts)
 
 	return res;
 }
+
+function arrayize(p_var)
+{
+	return p_var instanceof Array ? p_var : [p_var];
+}

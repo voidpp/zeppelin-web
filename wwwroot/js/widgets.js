@@ -8,112 +8,6 @@ function widget(p_args)
 	return m_cont;
 }
 
-function configPanel(p_confDesc, p_config)
-{
-	var m_cont = TreeViewer.container({}).addClass('config_panel');
-	var m_confDesc = clone(p_confDesc);
-
-	var m_fieldRenderers = {
-		string: function(p_data) {
-			var inp = input({type: 'text'});
-			var cont = div(div({class: 'title'},p_data.title), inp);
-			if(p_data.help)
-				cont.add(div({class: 'help'}, p_data.help))
-			Object.defineProperty(cont, 'value', {
-				get: function(){ return inp.value; },
-				set: function(val){ inp.value = val; }
-			});
-			return cont;
-		},
-		number: function(p_data) {
-			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
-			var inp = input({type: 'text'});
-			Object.defineProperty(cont, 'value', {
-				get: function(){ return inp.value; },
-				set: function(val){ inp.value = val; }
-			});
-			return cont.add(label(inp, {class: 'input'}));
-		},
-		boolean: function(p_data) {
-			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
-			var inp = input({type: 'checkbox', class: 'cb-switch'});
-			var sw = div({class: 'switch'});
-			Object.defineProperty(cont, 'value', {
-				get: function(){ return inp.checked; },
-				set: function(val){ inp.checked = val; }
-			});
-			return cont.add(label(inp, sw, {class: 'input'}));
-		},
-	};
-
-	var formatConfig = function(p_desc, p_conf)
-	{
-		foreach(p_desc, function(val, key) {
-			if(val.hasOwnProperty('children')) {
-				val.type = 'node';
-				formatConfig(val.children, p_conf[key]);
-			} else {
-				val.type = 'leaf';
-				val.value = p_conf[key];
-			}
-		});
-	};
-
-	formatConfig(m_confDesc, p_config);
-
-	m_cont.renderers = {
-		leaf: function(p_data) {
-			var format = p_data.format ? p_data.format : (typeof p_data.default);
-			var leafRenderer = m_fieldRenderers[format];
-			var cont = leafRenderer(p_data);
-			cont.value = p_data.value;
-			p_data.container = cont;
-			return cont.addClass('leaf item');
-		},
-		node: function(p_data) {
-			var cont = div({class: 'node item'}, div({class:'title'}, p_data.title));
-			if(p_data.help)
-				cont.add(div({class: 'help'}, p_data.help));
-			TreeViewer.directOpenableHandler(cont, {
-				parent: m_cont,
-				id: randomString(5),
-				name: p_data.title,
-				type: p_data.type,
-				items: p_data.children,
-			}, {}, function(p_panel) {
-				if(p_data.details)
-					p_panel.pre(div({class: 'details'}, p_data.details));
-			});
-
-			return cont;
-		}
-	}
-
-	var list = TreeViewer.listItem({list: m_confDesc, parent: m_cont}, m_cont.renderers);
-
-	m_cont.addNode({title: 'Config', id: -1, container: list}); //root
-	m_cont.switchNextNode(-1);
-
-	var saveToConfig = function(p_desc, p_conf)
-	{
-		foreach(p_desc, function(val, key) {
-			if(val.hasOwnProperty('children')) {
-				saveToConfig(val.children, p_conf[key]);
-			} else {
-				if(val.container)
-					p_conf[key] = val.container.value;
-			}
-		});
-	}
-
-	m_cont.saveConfig = function(p_conf)
-	{
-		saveToConfig(m_confDesc, p_conf);
-	}
-
-	return m_cont;
-}
-
 function configIconWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('config');
@@ -215,7 +109,7 @@ function currentSongInfoWidget(p_args)
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		try {
-			var file = g_env.library.get('file', p_data.current);
+			var file = Library.get('file', p_data.current);
 			m_sampleRate.set(parseInt(file.sample_rate/1000));
 			m_compRate.set('na');
 			m_codec.set(g_env.getCodec(file.codec).title);
@@ -346,7 +240,7 @@ function currentPositionNumWidget(p_args)
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		try {
-			g_env.library.get('file', p_data.current);
+			Library.get('file', p_data.current);
 			m_disp.set(formatTime(p_data.position));
 		} catch (e) {
 			m_disp.clear();
@@ -371,7 +265,7 @@ function currentSongWidget(p_args)
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 
 		try {
-			var file = g_env.library.get('file', p_data.current);
+			var file = Library.get('file', p_data.current);
 
 			if(m_fid == p_data.current)
 				return;
@@ -462,7 +356,7 @@ function currentPositionBarWidget(p_args)
 		$(m_slider).slider(p_data.state ? "enable" : "disable");
 		$(m_cont).tipsy(p_data.state ? "enable" : "disable");
 		try {
-			m_file = g_env.library.get('file', p_data.current);
+			m_file = Library.get('file', p_data.current);
 			if(!m_isDragging)
 				$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
 		} catch(ex) {
@@ -615,6 +509,31 @@ function volumeWidget(p_args)
 }
 
 var MusicTree = {
+	getStat: function(p_items) {
+		var stat = {
+			file: {
+				cnt: 0,
+				label: ' files'
+			},
+			directory: {
+				cnt: 0,
+				label: ' folders'
+			},
+			album: {
+				cnt: 0,
+				label: ' albums'
+			},
+		};
+		foreach(p_items, function(item) {
+			stat[item.type].cnt++;
+		});
+		var statHtml = [];
+		foreach(stat, function(desc) {
+			if(desc.cnt)
+				statHtml.push(desc.cnt + desc.label);
+		});
+		return statHtml.length ? statHtml.join(', ') : span({class: 'empty'}, 'empty');
+	},
 	renderers: function(p_cont, p_menu, p_itemClick) {
 		return {
 			artist: function(p_data)
@@ -628,7 +547,7 @@ var MusicTree = {
 					items: p_data.albums,
 					image: '/pic/default_artist.png',
 					menu: p_menu.artist(p_data)
-				}).addClass('album');
+				});
 			},
 			album: function(p_data)
 			{
@@ -641,29 +560,20 @@ var MusicTree = {
 					items: p_data.files,
 					image: '/pic/default_album.png',
 					menu: p_menu.album(p_data)
-				}).addClass('album');
+				});
 			},
 			directory: function(p_data)
 			{
-				var stat = {file: {cnt: 0, label: ' files'}, directory: {cnt: 0, label: ' folders'}};
-				foreach(p_data.items, function(item) {
-					stat[item.type].cnt++;
-				});
-				var statHtml = [];
-				foreach(stat, function(desc) {
-					if(desc.cnt)
-						statHtml.push(desc.cnt + desc.label);
-				});
 				return TreeViewer.directOpenableItem({
 					parent: p_cont,
 					id: p_data.id,
 					name: p_data.name,
 					type: p_data.type,
 					items: p_data.items,
-					desc: statHtml.join(', '),
+					desc: MusicTree.getStat(p_data.items),
 					image: '/pic/default_folder.png',
 					menu: p_menu.directory(p_data)
-				}).addClass('album');
+				});
 			},
 			file: function(p_data)
 			{
@@ -675,13 +585,113 @@ var MusicTree = {
 					image: '/pic/default_song.png',
 					label: g_env.getCodec(p_data.codec).title,
 					menu: p_menu.file(p_data)
-				}).addClass('file');
+				});
 				if(p_itemClick)
 					item.onclick = function() { p_itemClick(p_data); };
 				return item;
 			},
+			playlist: function(p_data)
+			{
+				var item = TreeViewer.directOpenableItem({
+					parent: p_cont,
+					id: p_data.id,
+					name: p_data.name,
+					type: p_data.type,
+					items: p_data.items,
+					desc: MusicTree.getStat(p_data.items),
+					image: '/pic/default_playlist.png',
+					menu: p_menu.playlist(p_data)
+				});
+
+				Library.agent.subscribe('remove', 'playlist', p_data.id, function() {
+					p_cont.getActiveNode().container.removeItems([p_data.id]);
+				});
+
+				Library.agent.subscribe('change', 'playlist', p_data.id, function(data) {
+					item.update({
+						name: data.name,
+						desc: MusicTree.getStat(data.items),
+					});
+					item.rebuildList(data.items);
+				});
+
+				return item;
+			},
 		};
 	}
+}
+
+function createPlaylist(p_onSuccess)
+{
+	clPrompt({title: 'Create new playlist', message: 'Name:', callback: function(val) {
+		g_env.rpc.request.send('library_create_playlist', {name: val}, function(res) {
+			var data = {id: res, name: val, items: [], type: 'playlist'};
+			Library.set('playlist', data.id, data);
+			if(p_onSuccess && typeof p_onSuccess == 'function')
+				p_onSuccess(data.id);
+		});
+	}});
+}
+
+function playlistWidget(p_args)
+{
+	var m_args = def(p_args, {});
+	var m_rootNode;
+	m_args.menubar = [
+		{title: 'create playlist', callback: createPlaylist},
+	];
+	var m_cont = TreeViewer.container(m_args).addClass('playlist');
+
+	var removeItem = function(p_item)
+	{
+		m_cont.getActiveNode().container.removeItems([p_item.id]);
+
+		var p_list = Library.get('playlist', p_item.list_id);
+
+		foreach(p_list.items, function(item, idx) {
+			if(item.list_item_id != p_item.list_item_id)
+				return;
+			p_list.items.splice(idx, 1);
+			return false;
+		});
+
+		Library.set('playlist', p_list.id, p_list);
+	}
+
+	var menuItems = {
+		album: function(item) {
+			return [{title: 'Remove', href: {rpc: 'library_delete_playlist_item', params: {id: item.list_item_id}, callback: function() {removeItem(item)}}}];
+		},
+		file: function(item) {
+			return [];
+		},
+		playlist: function(item) {
+			return [
+				{title: 'Add to queue', href: {cmd: 'player_queue_playlist', params: {id: item.id}}},
+				{title: 'Remove', href: {rpc: 'library_delete_playlist', params: {id: item.id}, callback: function() { Library.remove('playlist', item.id); }}},
+			];
+		},
+	}
+
+	menuItems.directory = menuItems.album;
+
+	m_cont.renderers = MusicTree.renderers(m_cont, menuItems);
+
+	m_cont.eventMgr.subscribe('onDomReady', function() {
+		if(m_cont.hasNode(-1))
+			return;
+
+		Library.agent.subscribe('add', 'playlist', -1, function(lib) {
+			m_rootNode.addItems([lib]);
+		});
+
+		m_rootNode = TreeViewer.listItem({list: Library.data.playlists, parent: m_cont}, m_cont.renderers, {limit: '', name: 'name'}, ['track_index','name', 'title']);
+		m_cont.addNode({title: 'Playlists', id: -1, container: m_rootNode});
+		m_cont.switchNextNode(-1);
+		m_cont.eventMgr.notify('onListItemUpdated');
+	});
+
+	return m_cont;
 }
 
 function queueWidget(p_args)
@@ -693,10 +703,7 @@ function queueWidget(p_args)
 	var m_cont = TreeViewer.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
-	m_cont.renderers = MusicTree.renderers(m_cont, {
-		album: function(item) {
-			return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
-		},
+	var m_menuGetters = {
 		directory: function(item) {
 			return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
 		},
@@ -706,7 +713,11 @@ function queueWidget(p_args)
 				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }},
 			];
 		},
-	}, function(p_data) {
+	};
+
+	m_menuGetters.playlist = m_menuGetters.album = m_menuGetters.directory;
+
+	m_cont.renderers = MusicTree.renderers(m_cont, m_menuGetters, function(p_data) {
 		g_env.rpc.request.send('player_goto', {index: p_data.index});
 	});
 
@@ -804,7 +815,8 @@ function queueWidget(p_args)
 
 	var m_subNodes = {
 		album: 'files',
-		directory: 'items'
+		directory: 'items',
+		playlist: 'items',
 	}
 
 	var generateIndex = function(p_data, p_index) {
@@ -833,12 +845,18 @@ function queueWidget(p_args)
 		file: function(listItem, libItem) {
 			return clone(libItem);
 		},
+		playlist: function(listItem, libItem) {
+			var item = clone(libItem);
+			item.items = [];
+			fillPlayList(listItem.items, item.items);
+			return item;
+		},
 	}
 
 	var fillPlayList = function(p_list, p_out)
 	{
 		foreach(p_list, function(listItem) {
-			p_out.push(m_playListParser[listItem.type](listItem, g_env.library.get(listItem.type, listItem.id)));
+			p_out.push(m_playListParser[listItem.type](listItem, Library.get(listItem.type, listItem.id)));
 		});
 	}
 
@@ -887,19 +905,80 @@ function libraryWidget(p_args)
 
 	var m_cont = TreeViewer.container(m_args).addClass('library');
 
+	var addItemToPlayList = function(p_type, p_id)
+	{
+		var panel = div({class: 'playlist_panel'});
+		var dlg;
+
+		var createItem = function(p_data)
+		{
+			var item = table({class: 'item', cellpadding: 0, cellspacing: 0},
+				tr(
+					td({rowspan: 2}, img({src: '/pic/default_playlist.png'})),
+					td({class: 'name'}, p_data.name)
+				),
+				tr(
+					td({class: 'desc'}, MusicTree.getStat(p_data.items))
+				)
+			);
+			item.onclick = function()
+			{
+				g_env.rpc.request.send('library_add_playlist_item', {type: p_type, item_id: p_id, id: p_data.id}, function(r) {
+					p_data.items.push({id: r, type: p_type, item_id: p_id});
+					Library.set('playlist', p_data.id, p_data);
+					dlg.close();
+				});
+			}
+			return item;
+		}
+
+		var playlistCreated = function(p_id)
+		{
+			var item = createItem(Library.get('playlist', p_id));
+			item.onclick();
+		}
+
+		panel.add(clButton({label: 'Create new playlist', callback: function() { createPlaylist(playlistCreated); } }));
+
+		foreach(Library.data.playlists, function(pl) {
+			panel.add(createItem(pl));
+		});
+
+		dlg = new clDialog({
+			caption: 'Add '+p_type+' to playlist',
+			content: panel,
+			minwidth: 200,
+			icon: clDialogGlobalIcon,
+			buttons: {
+				cancel: {
+					label: 'Cancel',
+					keyCodes: [27]
+				}
+			},
+		});
+		dlg.build();
+	}
+
 	m_cont.renderers = MusicTree.renderers(m_cont, {
 		artist: function(item) {
 			return [{title: 'Add to queue', href: {cmd: 'player_queue_artist', params: {id: item.id}}}];
 		},
 		album: function(item) {
-			return [{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}}];
+			return [
+				{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}},
+				{title: 'Add to playlist', callback: function() { addItemToPlayList('album', item.id); }},
+			];
 		},
 		directory: function(item) {
-			return [{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {id: item.id}}}];
+			return [
+				{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {id: item.id}}},
+				{title: 'Add to playlist', callback: function() { addItemToPlayList('directory', item.id); }}
+			];
 		},
 		file: function(item) {
 			return [
 				{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: item.id}}},
+				{title: 'Add to playlist', callback: function() { addItemToPlayList('file', item.id); }},
 				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }}
 			];
 		},
@@ -908,7 +987,7 @@ function libraryWidget(p_args)
 	m_cont.eventMgr.subscribe('onDomReady', function() {
 		if(m_cont.hasNode(-1))
 			return;
-		var list = TreeViewer.listItem({list: g_env.library.data[m_desc.name], parent: m_cont, filter: m_desc.root_filter || null}, m_cont.renderers, m_desc.lists.grouping, m_desc.lists.sorting);
+		var list = TreeViewer.listItem({list: Library.data[m_desc.name], parent: m_cont, filter: m_desc.root_filter || null}, m_cont.renderers, m_desc.lists.grouping, m_desc.lists.sorting);
 		m_cont.addNode({title: m_desc.title, id: -1, container: list});
 		m_cont.switchNextNode(-1);
 		m_cont.eventMgr.notify('onListItemUpdated');

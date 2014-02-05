@@ -111,10 +111,8 @@ $place_for_list_item_scrollbar: 9px;
 			@include transition(background-color 0.5s);
 		}
 	}
-	.playlist {
-
-	}
 }
+
 .directory .face {
 	.name {
 		right: auto;
@@ -174,12 +172,6 @@ $place_for_list_item_scrollbar: 9px;
 		.list {
 			vertical-align: top;
 			display: inline-block;
-		}
-		.dir_item {
-			.content {
-				text-align: left;
-				vertical-align: bottom;
-			}
 		}
 	}
 }
@@ -463,5 +455,25 @@ miniButton3D:hover {
 	.details {
 		font-size: 0.9em;
 		padding: 5px;
+	}
+}
+
+.playlist_panel {
+	text-align: center;
+	margin: -10px;
+	.button3D {
+		margin: 8px;
+	}
+	.item {
+		td:not([rowspan="2"]) {
+			width: 100%;
+			padding-left: 5px;
+		}
+		width: 100%;
+		text-shadow: none;
+		text-align: left;
+		padding: 2px 5px;
+		cursor: pointer;
+		@include user-select(none);
 	}
 }

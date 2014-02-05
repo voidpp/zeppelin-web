@@ -134,3 +134,9 @@ table.clMessageBox td {
 	vertical-align: middle;
 	font-size: 13px;
 }
+
+.prompt {
+	width: 100%;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}

@@ -105,3 +105,109 @@ var Config = {
 		localStorage.config = JSON.stringify(p_conf);
 	},
 }
+
+function configPanel(p_confDesc, p_config)
+{
+	var m_cont = TreeViewer.container({}).addClass('config_panel');
+	var m_confDesc = clone(p_confDesc);
+
+	var m_fieldRenderers = {
+		string: function(p_data) {
+			var inp = input({type: 'text'});
+			var cont = div(div({class: 'title'},p_data.title), inp);
+			if(p_data.help)
+				cont.add(div({class: 'help'}, p_data.help))
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.value; },
+				set: function(val){ inp.value = val; }
+			});
+			return cont;
+		},
+		number: function(p_data) {
+			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
+			var inp = input({type: 'text'});
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.value; },
+				set: function(val){ inp.value = val; }
+			});
+			return cont.add(label(inp, {class: 'input'}));
+		},
+		boolean: function(p_data) {
+			var cont = div(div({class: 'label'}, div({class: 'title'},p_data.title), p_data.help ? div({class:'help'}, p_data.help) : null));
+			var inp = input({type: 'checkbox', class: 'cb-switch'});
+			var sw = div({class: 'switch'});
+			Object.defineProperty(cont, 'value', {
+				get: function(){ return inp.checked; },
+				set: function(val){ inp.checked = val; }
+			});
+			return cont.add(label(inp, sw, {class: 'input'}));
+		},
+	};
+
+	var formatConfig = function(p_desc, p_conf)
+	{
+		foreach(p_desc, function(val, key) {
+			if(val.hasOwnProperty('children')) {
+				val.type = 'node';
+				formatConfig(val.children, p_conf[key]);
+			} else {
+				val.type = 'leaf';
+				val.value = p_conf[key];
+			}
+		});
+	};
+
+	formatConfig(m_confDesc, p_config);
+
+	m_cont.renderers = {
+		leaf: function(p_data) {
+			var format = p_data.format ? p_data.format : (typeof p_data.default);
+			var leafRenderer = m_fieldRenderers[format];
+			var cont = leafRenderer(p_data);
+			cont.value = p_data.value;
+			p_data.container = cont;
+			return cont.addClass('leaf item');
+		},
+		node: function(p_data) {
+			var cont = div({class: 'node item'}, div({class:'title'}, p_data.title));
+			if(p_data.help)
+				cont.add(div({class: 'help'}, p_data.help));
+			TreeViewer.directOpenableHandler(cont, {
+				parent: m_cont,
+				id: randomString(5),
+				name: p_data.title,
+				type: p_data.type,
+				items: p_data.children,
+			}, {}, function(p_panel) {
+				if(p_data.details)
+					p_panel.pre(div({class: 'details'}, p_data.details));
+			});
+
+			return cont;
+		}
+	}
+
+	var list = TreeViewer.listItem({list: m_confDesc, parent: m_cont}, m_cont.renderers);
+
+	m_cont.addNode({title: 'Config', id: -1, container: list}); //root
+	m_cont.switchNextNode(-1);
+
+	var saveToConfig = function(p_desc, p_conf)
+	{
+		foreach(p_desc, function(val, key) {
+			if(val.hasOwnProperty('children')) {
+				saveToConfig(val.children, p_conf[key]);
+			} else {
+				if(val.container)
+					p_conf[key] = val.container.value;
+			}
+		});
+	}
+
+	m_cont.saveConfig = function(p_conf)
+	{
+		saveToConfig(m_confDesc, p_conf);
+	}
+
+	return m_cont;
+}

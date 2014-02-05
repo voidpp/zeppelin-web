@@ -114,13 +114,6 @@ $letter_box_shadow: rgba(black,0.8);
 				box-shadow: -1px 2px 2px -1px $letter_box_shadow, -1px -2px 2px -1px $letter_box_shadow;
 			}
 		}
-		.dir_item {
-			@include transition(background-color 1s);
-			&:hover {
-				@include transition(background-color 0.2s);
-				background-color: $unfilled_bg_color;
-			}
-		}
 	}
 }
 
@@ -213,19 +206,42 @@ $letter_box_shadow: rgba(black,0.8);
 	}
 }
 
+.dialog_item_hover{
+	@include transition(background-color 0.5s);
+	&:hover {
+		@include transition(background-color 0.2s);
+		background-color: rgba(255,255,255,0.5);
+	}
+}
+
 .config_panel {
 	.item {
 		border-top: 1px solid #777;
 	}
 	.node {
-		&:hover {
-			background-color: rgba(255,255,255,0.5);
-		}
+		@extend .dialog_item_hover;
 	}
 	.item:last-child {
 		border-bottom: 1px solid #777;
 	}
 	.header .clTextButton {
 		color: black;
+	}
+}
+
+.empty {
+	font-style: italic;
+	color: #555;
+}
+.playlist_panel {
+	.name {
+		color: black;
+		font-weight: bold;
+	}
+	.desc {
+		color: #555;
+	}
+	.item {
+		@extend .dialog_item_hover;
 	}
 }

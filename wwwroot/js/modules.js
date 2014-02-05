@@ -19,7 +19,36 @@ function EventManager()
 			return;
 
 		foreach(m_subscribers[p_name], function(callback) {
-			callback.func.call(callback.object, p_data);
+			callback.func.call(callback.object, p_data, p_name);
+		});
+	}
+}
+
+function DataBinder()
+{
+	var m_self = this;
+	var m_contents = {};
+
+	this.add = function(p_element, p_name, p_renderer)
+	{
+		m_contents[p_name] = {
+			container: p_element,
+			renderer: def(p_renderer, p_element.set),
+		};
+
+		return p_element;
+	}
+
+	this.set = function(p_values)
+	{
+		foreach(p_values, function(value, name) {
+			if(!m_contents.hasOwnProperty(name))
+				return;
+
+			if(value == null)
+				m_contents[name].container.clear();
+			else
+				m_contents[name].renderer.call(m_contents[name].container, value);
 		});
 	}
 }
