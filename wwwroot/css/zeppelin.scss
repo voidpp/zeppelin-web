@@ -371,8 +371,6 @@ miniButton3D:hover {
 		cursor: pointer;
 		margin: 0 1px;
 		position: relative;
-		.base {
-		}
 		.down {
 			position: absolute;
 			top: 0;
@@ -380,7 +378,7 @@ miniButton3D:hover {
 			opacity: 0;
 			@include transition(opacity 0.5s);
 		}
-		.icon, .frame {
+		.icon, .base {
 			position: absolute;
 			top: 0;
 			left: 0;

@@ -379,20 +379,20 @@ function controlButton(p_type)
 	}
 
 	var m_layers = [
+		img({class: 'frame'}),
+		img({class: 'highlight'}),
 		img({class: 'base'}),
 		img({class: 'down'}),
-		img({class: 'icon'}),
-		img({class: 'frame'}),
-		img({class: 'highlight'})
+		img({class: 'icon'})
 	];
 
 	m_cont.setSize = function(p_size) {
 		var size = searchInRange(p_size, m_sizes);
-		m_layers[0].add({src:'/pic/circ-buttons/' + size + '/common-base-up.png'}).css({maxHeight: p_size});
-		m_layers[1].add({src:'/pic/circ-buttons/' + size + '/common-base-down.png'}).css({maxHeight: p_size});
-		m_layers[2].add({src:'/pic/circ-buttons/' + size + '/' + p_type + '.png'}).css({maxHeight: p_size});
-		m_layers[3].add({src:'/pic/circ-buttons/' + size + '/common-base-frame.png'}).css({maxHeight: p_size});
-		m_layers[4].add({src:'/pic/circ-buttons/' + size + '/common-hl.png'}).css({maxHeight: p_size});
+		m_layers[0].add({src:'/pic/circ-buttons/' + size + '/common-base-frame.png'}).css({maxHeight: p_size});
+		m_layers[1].add({src:'/pic/circ-buttons/' + size + '/common-hl.png'}).css({maxHeight: p_size});
+		m_layers[2].add({src:'/pic/circ-buttons/' + size + '/common-base-up.png'}).css({maxHeight: p_size});
+		m_layers[3].add({src:'/pic/circ-buttons/' + size + '/common-base-down.png'}).css({maxHeight: p_size});
+		m_layers[4].add({src:'/pic/circ-buttons/' + size + '/' + p_type + '.png'}).css({maxHeight: p_size});
 	}
 
 	m_cont.add(m_layers);
