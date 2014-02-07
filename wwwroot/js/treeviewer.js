@@ -94,7 +94,7 @@ var TreeViewer = {
 
 		p_cont.onclick = function()
 		{
-			if(p_data.items.length)
+			if(Map.size(p_data.items))
 				p_data.parent.switchNextNode(this.generateList());
 		}
 	},
