@@ -81,7 +81,7 @@ var TreeViewer = {
 			var aid = p_data.type+'_'+p_data.id;
 
 			if(!p_data.parent.hasNode(aid)) {
-				var list = TreeViewer.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers, typeDesc.getGrouping ? typeDesc.getGrouping() : {});
+				var list = TreeViewer.listItem({list: p_data.items, parent: p_data.parent}, p_data.parent.renderers, typeDesc.grouping, typeDesc.sorting);
 				list.p('id', aid);
 				p_data.parent.addNode({title: p_data.name, id: aid, container: list});
 				if(p_onPanelGenerated)
@@ -110,7 +110,7 @@ var TreeViewer = {
 	{
 		var grouping = def(p_grouping, {});
 
-		if(p_sortName && 0) {
+		if(p_sortName) {
 			//var s = new Date();
 			sortNames = p_sortName instanceof Array ? p_sortName : [p_sortName];
 			//'casue this list is a reference for the original, need to clone it...
@@ -119,6 +119,8 @@ var TreeViewer = {
 			p_data.list.sort(function(a, b){
 				var res = 0;
 				foreach(sortNames, function(name) {
+					if(!a.hasOwnProperty(name))
+						return;
 					res = g_descriptors.sortMethods[typeof a[name]](a[name],b[name]);
 					if(res != 0)
 						return false;

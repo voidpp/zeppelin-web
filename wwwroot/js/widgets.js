@@ -534,7 +534,7 @@ var MusicTree = {
 		});
 		return statHtml.length ? statHtml.join(', ') : span({class: 'empty'}, 'empty');
 	},
-	renderers: function(p_cont, p_menu, p_itemClick) {
+	renderers: function(p_cont, p_desc, p_itemClick) {
 		return {
 			artist: function(p_data)
 			{
@@ -546,8 +546,8 @@ var MusicTree = {
 					desc: p_data.albums.length + " albums",
 					items: p_data.albums,
 					image: '/pic/default_artist.png',
-					menu: p_menu.artist(p_data)
-				});
+					menu: p_desc.artist.menu(p_data)
+				}, p_desc.artist.listDesc);
 			},
 			album: function(p_data)
 			{
@@ -559,8 +559,8 @@ var MusicTree = {
 					desc: p_data.files.length + " songs",
 					items: p_data.files,
 					image: '/pic/default_album.png',
-					menu: p_menu.album(p_data)
-				});
+					menu: p_desc.album.menu(p_data)
+				}, p_desc.album.listDesc);
 			},
 			directory: function(p_data)
 			{
@@ -572,8 +572,8 @@ var MusicTree = {
 					items: p_data.items,
 					desc: MusicTree.getStat(p_data.items),
 					image: '/pic/default_folder.png',
-					menu: p_menu.directory(p_data)
-				});
+					menu: p_desc.directory.menu(p_data)
+				}, p_desc.directory.listDesc);
 			},
 			file: function(p_data)
 			{
@@ -584,8 +584,8 @@ var MusicTree = {
 					desc: formatTime(p_data.length),
 					image: '/pic/default_song.png',
 					label: g_env.getCodec(p_data.codec).title,
-					menu: p_menu.file(p_data)
-				});
+					menu: p_desc.file.menu(p_data)
+				}, p_desc.file.listDesc);
 				if(p_itemClick)
 					item.onclick = function() { p_itemClick(p_data); };
 				return item;
@@ -600,8 +600,8 @@ var MusicTree = {
 					items: p_data.items,
 					desc: MusicTree.getStat(p_data.items),
 					image: '/pic/default_playlist.png',
-					menu: p_menu.playlist(p_data)
-				});
+					menu: p_desc.playlist.menu(p_data)
+				}, p_desc.playlist.listDesc);
 
 				Library.agent.subscribe('remove', 'playlist', p_data.id, function() {
 					p_cont.getActiveNode().container.removeItems([p_data.id]);
@@ -658,24 +658,30 @@ function playlistWidget(p_args)
 		Library.set('playlist', p_list.id, p_list);
 	}
 
-	var menuItems = {
-		album: function(item) {
-			return [{title: 'Remove', href: {rpc: 'library_delete_playlist_item', params: {id: item.list_item_id}, callback: function() {removeItem(item)}}}];
+	var desc = {
+		album: {
+			menu: function(item) {
+				return [{title: 'Remove', href: {rpc: 'library_delete_playlist_item', params: {id: item.list_item_id}, callback: function() {removeItem(item)}}}];
+			},
 		},
-		file: function(item) {
-			return [];
+		file: {
+			menu: function(item) {
+				return [];
+			},
 		},
-		playlist: function(item) {
-			return [
-				{title: 'Add to queue', href: {cmd: 'player_queue_playlist', params: {id: item.id}}},
-				{title: 'Remove', href: {rpc: 'library_delete_playlist', params: {id: item.id}, callback: function() { Library.remove('playlist', item.id); }}},
-			];
+		playlist: {
+			menu: function(item) {
+				return [
+					{title: 'Add to queue', href: {cmd: 'player_queue_playlist', params: {id: item.id}}},
+					{title: 'Remove', href: {rpc: 'library_delete_playlist', params: {id: item.id}, callback: function() { Library.remove('playlist', item.id); }}},
+				];
+			},
 		},
 	}
 
-	menuItems.directory = menuItems.album;
+	desc.directory = desc.album;
 
-	m_cont.renderers = MusicTree.renderers(m_cont, menuItems);
+	m_cont.renderers = MusicTree.renderers(m_cont, desc);
 
 	m_cont.eventMgr.subscribe('onDomReady', function() {
 		if(m_cont.hasNode(-1))
@@ -703,21 +709,25 @@ function queueWidget(p_args)
 	var m_cont = TreeViewer.container(m_args).addClass('queue');
 	var m_currentIndex = [];
 
-	var m_menuGetters = {
-		directory: function(item) {
-			return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
+	var desc = {
+		directory: {
+			menu: function(item) {
+				return [{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}}];
+			}
 		},
-		file: function(item) {
-			return [
-				{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}},
-				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }},
-			];
+		file: {
+			menu: function(item) {
+				return [
+					{title: 'Remove', href: {cmd: 'player_queue_remove', params: {index: item.index}}},
+					{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }},
+				];
+			}
 		},
 	};
 
-	m_menuGetters.playlist = m_menuGetters.album = m_menuGetters.directory;
+	desc.playlist = desc.album = desc.directory;
 
-	m_cont.renderers = MusicTree.renderers(m_cont, m_menuGetters, function(p_data) {
+	m_cont.renderers = MusicTree.renderers(m_cont, desc, function(p_data) {
 		g_env.rpc.request.send('player_goto', {index: p_data.index});
 	});
 
@@ -896,7 +906,7 @@ function queueWidget(p_args)
 function libraryWidget(p_args)
 {
 	var m_args = def(p_args, {});
-	var m_desc = p_args.desc;
+	var m_desc = p_args.desc[p_args.type];
 
 	m_args.menubar = [
 		{title: 'Scan', cmd: 'library_scan'},
@@ -960,27 +970,38 @@ function libraryWidget(p_args)
 	}
 
 	m_cont.renderers = MusicTree.renderers(m_cont, {
-		artist: function(item) {
-			return [{title: 'Add to queue', href: {cmd: 'player_queue_artist', params: {id: item.id}}}];
+		artist: {
+			menu: function(item) {
+				return [{title: 'Add to queue', href: {cmd: 'player_queue_artist', params: {id: item.id}}}];
+			},
+			listDesc: p_args.desc.artists.lists
 		},
-		album: function(item) {
-			return [
-				{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}},
-				{title: 'Add to playlist', callback: function() { addItemToPlayList('album', item.id); }},
-			];
+		album: {
+			menu: function(item) {
+				return [
+					{title: 'Add to queue', href: {cmd: 'player_queue_album', params: {id: item.id}}},
+					{title: 'Add to playlist', callback: function() { addItemToPlayList('album', item.id); }},
+				];
+			},
+			listDesc: p_args.desc.albums.lists
 		},
-		directory: function(item) {
-			return [
-				{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {id: item.id}}},
-				{title: 'Add to playlist', callback: function() { addItemToPlayList('directory', item.id); }}
-			];
+		directory: {
+			menu: function(item) {
+				return [
+					{title: 'Add to queue', href: {cmd: 'player_queue_directory', params: {id: item.id}}},
+					{title: 'Add to playlist', callback: function() { addItemToPlayList('directory', item.id); }}
+				];
+			},
+			listDesc: p_args.desc.directories.lists
 		},
-		file: function(item) {
-			return [
-				{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: item.id}}},
-				{title: 'Add to playlist', callback: function() { addItemToPlayList('file', item.id); }},
-				{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }}
-			];
+		file: {
+			menu: function(item) {
+				return [
+					{title: 'Add to queue', href: {cmd: 'player_queue_file', params: {id: item.id}}},
+					{title: 'Add to playlist', callback: function() { addItemToPlayList('file', item.id); }},
+					{title: 'Edit metadata', callback: function() { MetaDataEditor(item.id); }}
+				];
+			}
 		},
 	});
 

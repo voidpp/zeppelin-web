@@ -16,9 +16,9 @@ var Layouts = {
 						)
 					).css({padding: 10, width: 680});
 
-			var lib1 = libraryWidget({desc: p_zeppelin.libraryTypes.artists});
-			var lib2 = libraryWidget({desc: p_zeppelin.libraryTypes.albums});
-			var lib3 = libraryWidget({desc: p_zeppelin.libraryTypes.directories});
+			var lib1 = libraryWidget({type: 'artists', desc: p_zeppelin.libraryTypes});
+			var lib2 = libraryWidget({type: 'albums', desc: p_zeppelin.libraryTypes});
+			var lib3 = libraryWidget({type: 'directories', desc: p_zeppelin.libraryTypes});
 			var playlist = playlistWidget();
 
 			var tabbedWidgets = clTabulable({

@@ -61,7 +61,7 @@ function ZeppelinClient()
 				name: 'directories',
 				lists: {
 					grouping: {limit: '', name: ''},
-					sorting: ['name']
+					sorting: ['type','name']
 				},
 				root_filter: {
 					parent_id: function(item) {
