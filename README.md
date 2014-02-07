@@ -21,8 +21,5 @@ Install notes
  - jsonrpc-remote path to such as /jsonrpc
  - http-server port eg 8080
  - file-server document-root to this wwwroot directory
-- Configure web client:
- - copy config.example.json to config.json
- - set the rpc.path and port according to Zeppelin settings
 - Run css.py after git clone and each pull
 - The Zeppelin will serve the files for this client so just open the url of Zeppelin in a web browser.
