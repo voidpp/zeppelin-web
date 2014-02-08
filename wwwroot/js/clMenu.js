@@ -117,25 +117,37 @@ function clMenu(args)
 		var offs = 0;//((mp[0]+mwidth)>pwidth)?(-mwidth):0;
 
 		var cs = getClientSize();
-		var jm = $(m_container);
+		var jcont = $(m_container);
 
 		//console.log(m_container.style.left);
 
-		if(cs.w < jm.width() + clMenuMousePos.x)
-		{
-			offs = -jm.width();
-			if(m_parentMenu)
-				offs -= m_parentMenu.getSize().w;
+		if(args.isMobile === true) {
+
+			jcont.css({
+				left: 10,
+				top: (cs.h-jcont.height())/2,
+				width: cs.w-20
+			});
+
+		} else {
+			if(cs.w < jcont.width() + clMenuMousePos.x)
+			{
+				offs = -jcont.width();
+				if(m_parentMenu)
+					offs -= m_parentMenu.getSize().w;
+			}
+
+			//console.log(offs);
+
+			var cpos = pos ? pos : {x:(clMenuMousePos.x),y:(clMenuMousePos.y+2)};
+
+			cpos.x += offs;
+
+			jcont.css({
+				left: cpos.x,
+				top: cpos.y,
+			});
 		}
-
-		//console.log(offs);
-
-		var cpos = pos ? pos : {x:(clMenuMousePos.x),y:(clMenuMousePos.y+2)};
-
-		cpos.x += offs;
-
-		m_container.style.top = cpos.y+'px';
-		m_container.style.left = cpos.x+'px';
 
 		m_self.on = true;
 

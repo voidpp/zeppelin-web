@@ -1,6 +1,7 @@
 @import 'wwwroot/css/functions';
 
 .clTabulable {
+	@include box-sizing(border-box);
 	.container {
 		.page {
 			position: absolute;

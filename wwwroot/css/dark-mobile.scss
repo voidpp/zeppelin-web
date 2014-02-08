@@ -1,0 +1,21 @@
+@import 'wwwroot/css/dark';
+
+body {
+	background-image: url(/pic/bg-wood-logo-640.png);
+	font-size: 14px;
+}
+
+.panel {
+	background: none;
+	box-shadow: none;
+	margin: 0;
+	@include box-sizing(border-box);
+}
+
+.current_song {
+	font-family: Arial;
+}
+
+.clMenu_container {
+	font-size: 150%;
+}

@@ -65,6 +65,7 @@ $place_for_list_item_scrollbar: 9px;
 		@include transition(background-color 1s);
 	}
 	.face {
+		@include user-select(none);
 		@include transition(background-color 1.5s);
 		width: 100%;
 		position: relative;
@@ -113,15 +114,6 @@ $place_for_list_item_scrollbar: 9px;
 	}
 }
 
-.directory .face {
-	.name {
-		right: auto;
-		top: 7px;
-	}
-	.image img {
-		max-height: 2em;
-	}
-}
 .current_position {
 	cursor: pointer;
 }

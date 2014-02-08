@@ -36,11 +36,12 @@ var TreeViewer = {
 		p_data.parent.eventMgr.subscribe('onListItemUpdated', updateLayout);
 
 		if(p_data.menu && p_data.menu.length) {
-			m_cont.oncontextmenu = function() {
+			var popupMenu = function() {
 				if(window.location.search == '?nocontextmenu')
 					return true;
 				var contextMenu = new clMenu({
 					destroyAfterHide: true,
+					isMobile: isMobileBrowser(),
 					link_handler: function(p_href) {
 						if(p_href.cmd)
 							g_env.data.request(p_href.cmd, p_href.params);
@@ -54,6 +55,11 @@ var TreeViewer = {
 				contextMenu.popup();
 				return false;
 			}
+
+			if(isMobileBrowser()) {
+				$(m_cont).on('taphold', popupMenu);
+			} else
+				m_cont.oncontextmenu = popupMenu;
 		}
 
 		m_cont.update = function(p_values)
@@ -290,7 +296,8 @@ var TreeViewer = {
 			$(m_cont).mCustomScrollbar({
 				contentTouchScroll: true,
 				autoHideScrollbar: true,
-				mouseWheelPixels: 200
+				mouseWheelPixels: 200,
+				scrollInertia: g_env.settings.lists.scroll_anim,
 			});
 		};
 
@@ -419,7 +426,7 @@ var TreeViewer = {
 		m_cont.updateLayout = function()
 		{
 			m_css = {
-				width: $(m_cont).width() - $(m_tagCont).width(),
+				width: $(m_cont).width() - $(m_tagCont).width() - 1,
 				height: $(m_cont).height(),
 				overflow: 'hidden'
 			};
@@ -537,8 +544,6 @@ var TreeViewer = {
 			if(!m_path.length)
 				return;
 
-			var animLen = 200;
-
 			var idx = -1;
 			foreach(m_path, function(part, i) {
 				if(part.id == p_id) {
@@ -561,7 +566,7 @@ var TreeViewer = {
 
 			cont.animate({
 					marginLeft: 0
-				}, animLen, 'swing', function() {
+				}, g_env.settings.lists.swipe_anim, 'swing', function() {
 					m_nodes[curr.id].container.hide();
 				});
 
@@ -581,7 +586,7 @@ var TreeViewer = {
 
 			cont.animate({
 					marginLeft: -1 * cont.outerWidth()
-				}, 200, 'swing', function() {
+				}, g_env.settings.lists.swipe_anim, 'swing', function() {
 					cont.hide();
 				});
 		}

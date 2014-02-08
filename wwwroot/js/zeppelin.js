@@ -92,43 +92,68 @@ function ZeppelinClient()
 		return;
 	}
 
+	g_env.settings = layout.settings;
+
 	var player = layout.render(zeppelin);
 
-	body().set(div({class: 'player'}, player));
+	if(layout.styles) {
+		var loadingCnt = layout.styles;
+		var sheetLoaded = function()
+		{
+			if(--loadingCnt > 0)
+				return;
 
-	g_env.eventMgr.notify('onZeppelinBuilt');
+			build(player);
+		}
 
-	$('.ui-slider-range-min').addClass('custom-slider-value');
+		foreach(layout.styles, function(style) {
+			var sheet = link({rel: 'stylesheet', type: 'text/css', href: style});
+			head().add(sheet);
+			$(sheet).load(sheetLoaded);
+		});
+	}
 
-	g_env.data.request('player_queue_get');
-	g_env.data.request('player_get_volume');
+	var build = function(p_player)
+	{
+		body().set(div({class: 'player'}, p_player));
 
-	g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory', 'player_queue_playlist'], function() {
+		g_env.eventMgr.notify('onZeppelinBuilt');
+
+		$('.ui-slider-range-min').addClass('custom-slider-value');
+
 		g_env.data.request('player_queue_get');
-	});
+		g_env.data.request('player_get_volume');
 
-	var getStatus = function() {
-		g_env.data.request('player_status');
-	};
+		g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory', 'player_queue_playlist'], function() {
+			g_env.data.request('player_queue_get');
+		});
 
-	var m_statusTimerId = 0;
+		var getStatus = function() {
+			g_env.data.request('player_status');
+		};
 
-	window.onblur = function()
-	{
-		if(m_statusTimerId)
-			clearTimeout(m_statusTimerId);
+		var m_statusTimerId = 0;
+
+		window.onblur = function()
+		{
+			if(m_statusTimerId)
+				clearTimeout(m_statusTimerId);
+		}
+
+		window.onfocus = function()
+		{
+			getStatus();
+			if(m_statusTimerId)
+				clearTimeout(m_statusTimerId);
+
+			m_statusTimerId = setInterval(getStatus, 500);
+		}
+
+		window.onfocus(); //because the wonderful chrome does not send an onfocus event after onload...
 	}
 
-	window.onfocus = function()
-	{
-		getStatus();
-		if(m_statusTimerId)
-			clearTimeout(m_statusTimerId);
-
-		m_statusTimerId = setInterval(getStatus, 500);
-	}
-
-	window.onfocus(); //because the wonderful chrome does not send an onfocus event after onload...
+	if(!layout.styles)
+		build(player);
 }
 
 function CookieClientSettings()
