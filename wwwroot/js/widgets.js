@@ -556,7 +556,7 @@ var MusicTree = {
 					id: p_data.id,
 					name: p_data.name,
 					type: p_data.type,
-					desc: p_data.files.length + " songs",
+					desc: p_desc.album.desc ? p_desc.album.desc(p_data) : (Library.get('artist', p_data.artist_id).name + ', ' + p_data.files.length + ' songs'),
 					items: p_data.files,
 					image: '/pic/default_album.png',
 					menu: p_desc.album.menu(p_data)
@@ -969,7 +969,7 @@ function libraryWidget(p_args)
 		dlg.build();
 	}
 
-	m_cont.renderers = MusicTree.renderers(m_cont, {
+	var m_rendererDesc = {
 		artist: {
 			menu: function(item) {
 				return [{title: 'Add to queue', href: {cmd: 'player_queue_artist', params: {id: item.id}}}];
@@ -1003,7 +1003,14 @@ function libraryWidget(p_args)
 				];
 			}
 		},
-	});
+	};
+
+	m_cont.renderers = MusicTree.renderers(m_cont, m_rendererDesc);
+
+	if(p_args.type == 'artists')
+		m_rendererDesc.album.desc = function(p_data) {
+			return p_data.files.length + ' songs';
+		}
 
 	m_cont.eventMgr.subscribe('onDomReady', function() {
 		if(m_cont.hasNode(-1))
