@@ -54,7 +54,7 @@ var Config = {
 						auto_jump: {
 							title: 'Auto jumping',
 							help: 'The highlight jumps automatically to the currently played item',
-							default: true,
+							default: false,
 						},
 						auto_scroll: {
 							title: 'Auto scrolling',
