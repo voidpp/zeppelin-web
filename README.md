@@ -12,7 +12,7 @@ Requirements
 -
 
 - [Zeppelin](https://github.com/giszo/zeppelin) with jsonrpc-remote, http-server and file-server plugins.
-- Python with pyScss lib
+- Python with [pyScss lib](https://github.com/Kronuz/pyScss/)
 
 Install notes
 -
@@ -23,3 +23,4 @@ Install notes
  - file-server document-root to this wwwroot directory
 - Run css.py after git clone and each pull
 - The Zeppelin will serve the files for this client so just open the url of Zeppelin in a web browser.
+
