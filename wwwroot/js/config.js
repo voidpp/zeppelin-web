@@ -18,8 +18,8 @@ var Config = {
 				},
 			}
 		},
-		music_lists: {
-			title: 'Music lists',
+		library: {
+			title: 'Library',
 			children: {
 				letter_grouping: {
 					title: 'Grouping',
@@ -48,23 +48,23 @@ var Config = {
 						},
 					}
 				},
-				queue: {
-					title: 'Queue',
-					children: {
-						auto_jump: {
-							title: 'Auto jumping',
-							help: 'The highlight jumps automatically to the currently played item',
-							default: false,
-						},
-						auto_scroll: {
-							title: 'Auto scrolling',
-							help: 'The highlight scrolls automatically to the currently played item',
-							default: false,
-						},
-					}
+			},
+		},
+		queue: {
+			title: 'Queue',
+			children: {
+				auto_jump: {
+					title: 'Auto jumping',
+					help: 'The highlight jumps automatically to the currently played item',
+					default: false,
+				},
+				auto_scroll: {
+					title: 'Auto scrolling',
+					help: 'The highlight scrolls automatically to the currently played item',
+					default: false,
 				},
 			}
-		}
+		},
 	},
 	fillDefaults: function(p_conf, p_desc)
 	{

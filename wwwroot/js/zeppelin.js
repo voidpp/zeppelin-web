@@ -44,7 +44,7 @@ function ZeppelinClient()
 				title: 'Albums',
 				name: 'albums',
 				lists: {
-					grouping: {limit: g_config.music_lists.letter_grouping.albums, name: 'name'},
+					grouping: {limit: g_config.library.letter_grouping.albums, name: 'name'},
 					sorting: ['name']
 				}
 			},
@@ -52,7 +52,7 @@ function ZeppelinClient()
 				title: 'Artists',
 				name: 'artists',
 				lists: {
-					grouping: {limit: g_config.music_lists.letter_grouping.artists, name: 'name'},
+					grouping: {limit: g_config.library.letter_grouping.artists, name: 'name'},
 					sorting: ['name']
 				}
 			},

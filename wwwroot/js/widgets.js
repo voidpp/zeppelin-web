@@ -708,6 +708,7 @@ function queueWidget(p_args)
 	];
 	var m_cont = TreeViewer.container(m_args).addClass('queue');
 	var m_currentIndex = [];
+	m_cont.config = g_config;
 
 	var desc = {
 		directory: {
@@ -894,7 +895,7 @@ function queueWidget(p_args)
 			m_currentIndex = p_data.index;
 		}
 
-		if(g_config.music_lists.queue.auto_jump)
+		if(g_config.queue.auto_jump)
 			jumpToNode();
 
 		highlightCurrentItem();

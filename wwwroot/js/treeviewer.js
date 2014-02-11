@@ -273,7 +273,7 @@ var TreeViewer = {
 			var cont = $(item.container);
 			cont.addClass('highlighted');
 
-			if(g_config.music_lists.auto_scroll)
+			if(p_data.parent.config && p_data.parent.config.queue.auto_scroll)
 			{
 				var scrollContTop = $(m_cont).find('.mCSB_container').position().top;
 				var to = cont.position().top - $(m_cont).height() + cont.outerHeight();
