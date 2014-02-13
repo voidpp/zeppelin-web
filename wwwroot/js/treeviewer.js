@@ -29,7 +29,7 @@ var TreeViewer = {
 				return;
 			m_nameCont.css({maxWidth: $(m_cont).width() - $(m_iconCont).parent().outerWidth() - parseInt(m_nameCont.css('marginRight'))});
 			if(m_nameCont.scrollWidth > $(m_nameCont).width())
-				$(m_cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9});
+				$(m_cont.p('title', p_data.name)).tipsy({gravity: 's', fade: true, opacity: 0.9, delayIn: 500});
 		}
 
 		$(m_iconCont).load(updateLayout);
