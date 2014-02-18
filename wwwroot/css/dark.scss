@@ -245,3 +245,8 @@ $letter_box_shadow: rgba(black,0.8);
 		@extend .dialog_item_hover;
 	}
 }
+
+.current_song_details {
+	color: $gray;
+	font-weight: bold;
+}

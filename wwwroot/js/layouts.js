@@ -9,17 +9,26 @@ var Layouts = {
 			},
 		},
 		render: function(p_zeppelin) {
+			var mainCss = {
+				padding: 10,
+				width: 700,
+				height: 135,
+			};
+
 			var main = panel(
-						playerStatusWidget().css({marginRight: 5, width: 8}),
-						currentPositionNumWidget().css({marginRight: 10, height: 42}),
-						currentSongInfoWidget(), br(),
-						currentSongWidget().css({height: 20, width: '100%'}), br(),
-						currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}),
-						div(
-							controlWidget().css({height: 32}),
-							volumeWidget({orientation: 'horizontal'}).css({width: 150, margin: 8})
-						)
-					).css({padding: 10, width: 680});
+							currentSongImageWidget().css({width: 115, display: 'inline-block'}),
+							div(
+								playerStatusWidget().css({marginRight: 5, width: 8}),
+								currentPositionNumWidget().css({marginRight: 10, height: 42}),
+								currentSongInfoWidget(), br(),
+								currentSongWidget({show_length: true}).css({height: 20, width: '100%'}), br(),
+								currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}),
+								div(
+									controlWidget().css({height: 32}),
+									volumeWidget({orientation: 'horizontal'}).css({width: 150, margin: 8})
+								)
+							).css({display: 'inline-block', verticalAlign: 'top', marginLeft: 15, width: 550})
+						).css(mainCss);
 
 			var lib1 = libraryWidget({type: 'artists', desc: p_zeppelin.libraryTypes});
 			var lib2 = libraryWidget({type: 'albums', desc: p_zeppelin.libraryTypes});

@@ -1,11 +1,115 @@
 
 registerHTML('panel', 'text', function() { var p = create_html('div', arguments, 'text'); p.addClass('panel'); return p; });
 
+function tableData(p_struct)
+{
+	var m_binder = new DataBinder();
+	var m_cont = table();
+
+	m_cont.binder = m_binder;
+
+	var m_rowTypes = {
+		section: function(desc) {
+			return tr(td({colspan: 2, class: 'section'}, desc.title));
+		},
+		item: function(desc) {
+			var val = td({class: 'value'}, def(desc.init_val, ''));
+			m_binder.add(val, desc.name, desc.formatter ? function(v) { val.set(desc.formatter(v)); } : undefined);
+			return tr(td({class: 'title'}, desc.title), val);
+		},
+	}
+
+	foreach(p_struct, function(desc) {
+		m_cont.add(m_rowTypes[desc.type](desc));
+	});
+
+	return m_cont;
+}
+
 function widget(p_args)
 {
 	var m_cont = div({class: 'widget'});
 
 	return m_cont;
+}
+
+function currentSongImageWidget(p_args)
+{
+	var m_cont = widget(p_args).addClass('current_song_image');
+	var m_fid = 0;
+	var m_picId = 0;
+	var m_image = img({class:'cover'});
+
+	g_env.data.mgr.subscribe('player_status', function(p_data) {
+		try {
+			var file = Library.get('file', p_data.current);
+			if(m_fid == p_data.current)
+				return;
+
+			m_fid = p_data.current;
+
+			g_env.rpc.request.send('library_get_pictures_of_albums', {id: [file.album_id]}, function(albums) {
+				foreach(albums[file.album_id], function(picture) {
+					console.log('pic data len:', picture.data.length);
+					m_image.set({src: 'data:' + picture.mimetype + ';base64, '+picture.data});
+					return false;
+				});
+				if(Map.empty(albums))
+					m_image.set({src: '/pic/default_album-128.png'});
+			});
+
+		} catch (ex) {
+			m_fid = 0;
+			m_image.set({src: '/pic/default_album.png'});
+		}
+	});
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		m_image.css({maxHeight: $(m_cont).parent().height()});
+	});
+
+	return m_cont.add(m_image);
+}
+
+function currentSongDetailsWidget(p_args)
+{
+	var m_cont = widget(p_args).addClass('current_song_details');
+	var m_fid = 0;
+	var m_binder = new DataBinder();
+	var m_file = {};
+
+	g_env.data.mgr.subscribe('player_status', function(p_data) {
+		try {
+			var file = Library.get('file', p_data.current);
+			if(m_fid == p_data.current)
+				return;
+
+			m_fid = p_data.current;
+
+			m_binder.set({
+				artist: Library.get('artist', file.artist_id).name,
+				album: Library.get('album', file.album_id).name,
+				year: file.year,
+				track_index: file.track_index,
+				length: formatTime(file.length),
+				song: file.title || file.name
+			});
+
+		} catch (ex) {
+			m_fid = 0;
+		}
+	});
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		m_mainImage.css({maxHeight: $(m_cont).parent().height()});
+	});
+
+	return m_cont.add(div({class: 'details'},
+		m_binder.add(div(), 'artist'),
+		div(m_binder.add(span(), 'album'), ' (', m_binder.add(span(), 'year'), ')'),
+		div(m_binder.add(span(), 'song'), ' (', m_binder.add(span(), 'length'), ')'),
+		div('Track #', m_binder.add(span(), 'track_index'))
+	));
 }
 
 function configIconWidget(p_args)
@@ -57,42 +161,18 @@ function configIconWidget(p_args)
 function statisticsWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('statistics');
-	var m_table = table();
+	var m_table = tableData([
+		{type: 'section', title: 'Library'},
+		{type: 'item', title: 'Number of artists', name: 'num_of_artists', init_val: 0},
+		{type: 'item', title: 'Number of albums', name: 'num_of_albums', init_val: 0},
+		{type: 'item', title: 'Number of songs', name: 'num_of_files', init_val: 0},
+		{type: 'item', title: 'Sum of song length', name: 'sum_of_song_lengths', init_val: 0, formatter: formatTime},
+		{type: 'item', title: 'Sum of file sizes', name: 'sum_of_file_sizes', init_val: 0, formatter: bytesToSize},
+	]);
 	m_cont.add(m_table);
-	var m_dynData = {
-		values: {},
-		addSectionLabel: function(p_title) {
-			m_table.add(tr(td({colspan: 2, class:'section'}, p_title)));
-			return this;
-		},
-		addValue: function(p_title, p_name, p_initVal, p_formatter) {
-			var val = td({class: 'value'}, def(p_initVal, ''));
-			this.values[p_name] = {cont: val, formatter: def(p_formatter, null)};
-			m_table.add(tr(td({class: 'title'}, p_title),val));
-			return this;
-		},
-		setValue: function(p_name, p_val) {
-			var desc = this.values[p_name];
-			desc.cont.set(desc.formatter ? desc.formatter(p_val) : p_val);
-			return this;
-		},
-		setMap: function(p_map) {
-			for(var name in p_map) {
-				this.setValue(name, p_map[name]);
-			}
-			return this;
-		}
-	}
-
-	m_dynData.addSectionLabel('Library')
-		.addValue('Number of artists', 'num_of_artists', 0)
-		.addValue('Number of albums', 'num_of_albums', 0)
-		.addValue('Number of songs', 'num_of_files', 0)
-		.addValue('Sum of song length', 'sum_of_song_lengths', 0, formatTime)
-		.addValue('Sum of file sizes', 'sum_of_file_sizes', 0, bytesToSize)
 
 	g_env.rpc.request.send('library_get_statistics', {}, function(res){
-		m_dynData.setMap(res);
+		m_table.binder.set(res);
 	});
 
 	return m_cont;
@@ -256,9 +336,11 @@ function currentPositionNumWidget(p_args)
 
 function currentSongWidget(p_args)
 {
-	var m_cont = widget(p_args).addClass('current_song');
+	var m_args = def(p_args, {});
+	var m_cont = widget(m_args).addClass('current_song');
 	var m_text = div({class: 'display'});
 	var m_back = div({class: 'background'}).html(Array(100).join('&#x2589;'));
+	var m_showLength = Map.def(m_args, 'show_length', false);
 
 	var m_fid = 0;
 
@@ -272,7 +354,7 @@ function currentSongWidget(p_args)
 
 			m_fid = p_data.current;
 
-			m_text.set((file.title || file.name) + ' (' + formatTime(file.length) + ')');
+			m_text.set((file.title || file.name) + (m_showLength ? (' (' + formatTime(file.length) + ')') : ''));
 
 			$(m_text).autoScroll({
 				duration: 5000,

@@ -52,6 +52,7 @@ input.tiny {
 	margin: 10px;
 	display: inline-block;
 	position: relative;
+	@include box-sizing(border-box);
 }
 
 $place_for_list_item_scrollbar: 9px;
@@ -465,5 +466,27 @@ miniButton3D:hover {
 		padding: 2px 5px;
 		cursor: pointer;
 		@include user-select(none);
+	}
+}
+
+.current_song_image {
+	.cover {
+		display: table-cell;
+		border-radius: 3px;
+		&:not([src*="default"]) {
+			box-shadow: 0 0 2px black;
+		}
+	}
+}
+
+.current_song_details {
+	display: table;
+	.details {
+		display: table-cell;
+		vertical-align: top;
+		padding: 5px;
+		> div {
+			padding: 3px;
+		}
 	}
 }
