@@ -40,6 +40,11 @@ function currentSongImageWidget(p_args)
 	var m_picId = 0;
 	var m_image = img({class:'cover'});
 
+	m_cont.resetImage = function()
+	{
+		m_image.set({src: '/pic/default_album-128.png'});
+	}
+
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
 		try {
 			var file = Library.get('file', p_data.current);
@@ -55,18 +60,20 @@ function currentSongImageWidget(p_args)
 					return false;
 				});
 				if(Map.empty(albums))
-					m_image.set({src: '/pic/default_album-128.png'});
+					m_cont.resetImage();
 			});
 
 		} catch (ex) {
 			m_fid = 0;
-			m_image.set({src: '/pic/default_album.png'});
+			m_cont.resetImage();
 		}
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		m_image.css({maxHeight: $(m_cont).parent().height()});
 	});
+
+	m_cont.resetImage();
 
 	return m_cont.add(m_image);
 }
