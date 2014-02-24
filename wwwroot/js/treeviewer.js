@@ -510,6 +510,9 @@ var TreeViewer = {
 			if(!m_nodes.hasOwnProperty(p_id))
 				return;
 
+			if(m_path.length && m_path.last().id == p_id)
+				return;
+
 			var node = m_nodes[p_id];
 			var cont = $(node.container);
 			node.container.show();
