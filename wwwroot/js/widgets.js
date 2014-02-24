@@ -394,7 +394,8 @@ function currentPositionBarWidget(p_args)
 
 	var getRef = function(p_x)
 	{
-		return (p_x - $(m_cont).offset().left) / $(m_cont).innerWidth();
+		var ref = (p_x - $(m_cont).offset().left) / $(m_cont).innerWidth();
+		return ref < 0 ? 0 : (ref > 1 ? 1 : ref);
 	}
 
 	m_slider.disabled = function()
@@ -432,6 +433,8 @@ function currentPositionBarWidget(p_args)
 		delayOut: 1000,
 		delayIn: 100,
 		fade: true,
+		//the tipsy use mouseover and mouseout events by default, but the mouseenter/mouseleave pair is more accurate, so triggers the visibility by manual
+		trigger: 'manual',
 	}).mousemove(function(ev){
 		if(m_slider.disabled())
 			return;
@@ -439,6 +442,10 @@ function currentPositionBarWidget(p_args)
 		$('.tipsy-inner').html(formatTime(Math.floor(getRef(ev.clientX) * m_file.length)));
 		//update directly the pos of the tipsy outer cont
 		$('.tipsy').css({left: ev.clientX - $('.tipsy').outerWidth()/2});
+	}).mouseenter(function(ev) {
+		$(m_cont).tipsy('show');
+	}).mouseleave(function() {
+		$(m_cont).tipsy('hide');
 	});
 
 	g_env.data.mgr.subscribe('player_status', function(p_data) {
