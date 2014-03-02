@@ -33,6 +33,23 @@ function widget(p_args)
 	return m_cont;
 }
 
+function libraryStatusWidget(p_args)
+{
+	var m_cont = widget(p_args).addClass('library_status');
+	var m_binder = new DataBinder();
+
+	m_cont.add(
+		m_binder.add(div('Scanning'), 'scanner_running', function(v) { this.setClass('on', v); }),
+		m_binder.add(div('Metaparsing'), 'metaparser_running', function(v) { this.setClass('on', v); })
+	);
+
+	g_env.data.mgr.subscribe('library_get_status', function(p_data) {
+		m_binder.set(p_data);
+	});
+
+	return m_cont;
+}
+
 function currentSongImageWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song_image');

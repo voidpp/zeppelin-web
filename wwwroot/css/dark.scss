@@ -13,6 +13,11 @@ a {
 	color: $base_color;
 }
 
+.highlight_text {
+	color: $base_color;
+	text-shadow: 0 0 2px $base_color;
+}
+
 input.tiny {
 	box-shadow: 1px 1px 2px #444 inset;
 	border-color: $unfilled_bg_color;
@@ -58,8 +63,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 .current_song_info {
 	tr {
 		td:first-child, .value {
-			color: $base_color;
-			text-shadow: 0 0 2px $base_color;
+			@extend .highlight_text;
 		}
 		td:last-child {
 			color: $gray;
@@ -72,8 +76,7 @@ $blured_background: url(/pic/bg-wood-logo-blured.jpg) center center fixed;
 		color: $unfilled_bg_color;
 	}
 	.active {
-		color: $base_color;
-		text-shadow: 0 0 2px $base_color;
+		@extend .highlight_text;
 	}
 }
 
@@ -91,8 +94,7 @@ $letter_box_shadow: rgba(black,0.8);
 			&:hover {
 				@include transition(color 0.3s, text-shadow 0.3s);
 				text-decoration: underline;
-				color: $base_color;
-				text-shadow: 0 0 2px $base_color;
+				@extend .highlight_text;
 			}
 		}
 	}
@@ -128,8 +130,7 @@ $letter_box_shadow: rgba(black,0.8);
 
 .current_song {
 	.display {
-		color: $base_color;
-		text-shadow: 0 0 2px $base_color;
+		@extend .highlight_text;
 	}
 	.background {
 		color: $unfilled_bg_color;
@@ -199,8 +200,7 @@ $letter_box_shadow: rgba(black,0.8);
 				color: $gray;
 			}
 			.value {
-				color: $base_color;
-				text-shadow: 0 0 2px $base_color;
+				@extend .highlight_text;
 			}
 		}
 	}
@@ -249,4 +249,11 @@ $letter_box_shadow: rgba(black,0.8);
 .current_song_details {
 	color: $gray;
 	font-weight: bold;
+}
+
+.library_status {
+	color: $unfilled_bg_color;
+	.on {
+		@extend .highlight_text;
+	}
 }

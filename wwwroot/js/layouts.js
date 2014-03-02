@@ -20,7 +20,8 @@ var Layouts = {
 							div(
 								playerStatusWidget().css({marginRight: 5, width: 8}),
 								currentPositionNumWidget().css({marginRight: 10, height: 42}),
-								currentSongInfoWidget(), br(),
+								currentSongInfoWidget(),
+								libraryStatusWidget(), br(),
 								currentSongWidget({show_length: true}).css({height: 20, width: '100%'}), br(),
 								currentPositionBarWidget().css({width: '100%', paddingTop: 5, paddingBottom: 5}),
 								div(

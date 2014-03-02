@@ -130,6 +130,7 @@ function ZeppelinClient()
 
 		var getStatus = function() {
 			g_env.data.request('player_status');
+			g_env.data.request('library_get_status');
 		};
 
 		var m_statusTimerId = 0;

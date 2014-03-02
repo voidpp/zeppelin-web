@@ -278,6 +278,11 @@ function add_spec_ext_to_element(element, p_preferredChild)
 		return element;
 	}
 
+	element.setClass = function(p_className, p_isSet)
+	{
+		return p_isSet ? this.addClass(p_className) : this.removeClass(p_className);
+	}
+
 	element.addClass = function(p_className)
 	{
 		var classes = element.getClasses();
