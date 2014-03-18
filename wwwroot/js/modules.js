@@ -1,3 +1,19 @@
+
+function WebsocketClient(p_args)
+{
+	var m_socket = new ReconnectingWebSocket(p_args.host);
+
+	m_socket.onmessage = function(event)
+	{
+		try {
+			var data = JSON.parse(event.data);
+			p_args.callback(data);
+		} catch (e) {
+			console.error(event, e);
+		}
+	}
+}
+
 function EventManager()
 {
 	var m_self = this;
@@ -11,16 +27,24 @@ function EventManager()
 			Map.init_arr(m_subscribers, [name], []);
 			m_subscribers[name].push({func: p_callback, object: def(p_obj, null)});
 		});
+
+		return m_self;
 	}
 
 	this.notify = function(p_name, p_data)
 	{
 		if(!m_subscribers.hasOwnProperty(p_name))
-			return;
+			return m_self;
 
 		foreach(m_subscribers[p_name], function(callback) {
-			callback.func.call(callback.object, p_data, p_name);
+			try {
+				callback.func.call(callback.object, p_data, p_name);
+			} catch (ex) {
+				console.error('Error occured during', p_name, 'notify, with data:', p_data, '. Message:', ex);
+			}
 		});
+
+		return m_self;
 	}
 }
 
@@ -57,7 +81,6 @@ function RPC(p_args)
 {
 	var m_self = this;
 	var m_callId = 0;
-	var m_callbacks = {};
 
 	this.getNewCallId = function()
 	{

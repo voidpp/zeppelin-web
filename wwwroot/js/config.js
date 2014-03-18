@@ -16,6 +16,10 @@ var Config = {
 					title: 'Controller path',
 					default: '/jsonrpc',
 				},
+				notifier_port: {
+					title: 'Websocket notifier port',
+					default: '0',
+				},
 			}
 		},
 		library: {

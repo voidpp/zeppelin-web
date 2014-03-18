@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/js/jquery.tipsy.js"></script>
 <script type="text/javascript" src="/js/jquery.mobile.custom.min.js"></script>
+<script type="text/javascript" src="/js/reconnecting-websocket.js"></script>
 <script type="text/javascript" src="/js/tools.js"></script>
 <script type="text/javascript" src="/js/html.js"></script>
 <script type="text/javascript" src="/js/bricks.js"></script>
@@ -53,6 +54,19 @@ function createEnviroment()
 {
 	var rpcURL = makeURL({host: g_config.server.address, port: g_config.server.controller_port, path: g_config.server.controller_path});
 
+	var queueSearch = function(p_item, p_idxArr, p_idx) {
+		var items = false;
+		if(p_item.hasOwnProperty('files'))
+			items = p_item.files;
+		else if(p_item.hasOwnProperty('items'))
+			items = p_item.items;
+
+		if(items === false)
+			return p_item;
+
+		return queueSearch(items[p_idxArr[p_idx]], p_idxArr, p_idx++);
+	}
+
 	g_env = {
 		getCodec: function(p_type) {
 			return {title: p_type.toUpperCase()};
@@ -69,11 +83,72 @@ function createEnviroment()
 				});
 			}
 		},
+		zeppelinAgent: new EventManager(),
+		queueStorage: new function() {
+			m_data = [];
+			this.setData = function(p_data) {
+				m_data = p_data;
+				g_env.eventMgr.notify('onQueueReceived', p_data);
+			}
+			this.getItem = function(p_idxArr) {
+				if(!p_idxArr.length || !m_data.length)
+					return false;
+
+				return queueSearch(m_data[p_idxArr[0]], p_idxArr, 1);
+			}
+		},
 		eventMgr: new EventManager(),
 		clearTipsy: function() {
 
 		}
 	}
+
+	var requestDesc = {
+		player_status: {
+			interval: 500
+		}
+	};
+
+	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+		if(parseInt(g_config.server.notifier_port)) {
+			new WebsocketAgent({
+				host: makeURL({host: g_config.server.address, port: g_config.server.notifier_port, protocol: 'ws'}),
+				rpc: g_env.rpc,
+				notifier: g_env.zeppelinAgent,
+				request_desc: requestDesc
+			});
+		} else {
+			var requesters = [
+				new RPCIntervalRequester({rpc: g_env.rpc, desc: requestDesc}),
+				{
+					//fallback for queue-changed event
+					start: function(p_callback) {
+						g_env.data.mgr.subscribe(['player_queue_album', 'player_queue_file', 'player_queue_remove', 'player_queue_directory', 'player_queue_playlist'], function(){
+							p_callback('_player_queue_change');
+						});
+					}
+				}
+			];
+
+			g_env.eventMgr.subscribe('onQueueReceived', function() {
+				new RPCAgentBackend({notifier: g_env.zeppelinAgent, requesters: requesters});
+			});
+		}
+
+        new RPCAgentBackend({
+			notifier: g_env.zeppelinAgent,
+			requesters: [
+				new RPCIntervalRequester({
+					rpc: g_env.rpc,
+					desc: {
+						library_get_status: {
+							interval: 500
+						}
+					}
+				})
+			]
+		});
+	});
 }
 
 function start_engine()

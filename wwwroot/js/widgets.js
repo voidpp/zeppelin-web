@@ -39,12 +39,22 @@ function libraryStatusWidget(p_args)
 	var m_binder = new DataBinder();
 
 	m_cont.add(
-		m_binder.add(div('Scanning'), 'scanner_running', function(v) { this.setClass('on', v); }),
-		m_binder.add(div('Metaparsing'), 'metaparser_running', function(v) { this.setClass('on', v); })
+		m_binder.add(div('Scanning'), 'scanner', function(v) { this.setClass('on', v); }),
+		m_binder.add(div('Metaparsing'), 'metaparser', function(v) { this.setClass('on', v); })
 	);
 
-	g_env.data.mgr.subscribe('library_get_status', function(p_data) {
-		m_binder.set(p_data);
+	g_env.zeppelinAgent.subscribe('metaparser-started', function() {
+		m_binder.set({metaparser: true});
+
+	}).subscribe('metaparser-stopped', function() {
+		m_binder.set({metaparser: false});
+
+	}).subscribe('scanner-started', function(e) {
+		m_binder.set({scanner: true});
+
+	}).subscribe('scanner-stopped', function() {
+		m_binder.set({scanner: false});
+
 	});
 
 	return m_cont;
@@ -53,8 +63,6 @@ function libraryStatusWidget(p_args)
 function currentSongImageWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song_image');
-	var m_fid = 0;
-	var m_picId = 0;
 	var m_image = img({class:'cover'});
 
 	m_cont.resetImage = function()
@@ -62,29 +70,19 @@ function currentSongImageWidget(p_args)
 		m_image.set({src: '/pic/default_album-128.png'});
 	}
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		try {
-			var file = Library.get('file', p_data.current);
-			if(m_fid == p_data.current)
-				return;
-
-			m_fid = p_data.current;
-
-			g_env.rpc.request.send('library_get_pictures_of_albums', {id: [file.album_id]}, function(albums) {
-				foreach(albums[file.album_id], function(picture) {
-					console.log('pic data len:', picture.data.length);
-					m_image.set({src: 'data:' + picture.mimetype + ';base64, '+picture.data});
-					return false;
-				});
-				if(Map.empty(albums))
-					m_cont.resetImage();
+	g_env.eventMgr.subscribe('onSongChanged', function(file) {
+		g_env.rpc.request.send('library_get_pictures_of_albums', {id: [file.album_id]}, function(albums) {
+			foreach(albums[file.album_id], function(picture) {
+				console.log('pic data len:', picture.data.length);
+				m_image.set({src: 'data:' + picture.mimetype + ';base64, '+picture.data});
+				return false;
 			});
-
-		} catch (ex) {
-			m_fid = 0;
-			m_cont.resetImage();
-		}
+			if(Map.empty(albums))
+				m_cont.resetImage();
+		});
 	});
+
+	g_env.eventMgr.subscribe('onSongCleared', m_cont.resetImage);
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		m_image.css({maxHeight: $(m_cont).parent().height()});
@@ -98,30 +96,17 @@ function currentSongImageWidget(p_args)
 function currentSongDetailsWidget(p_args)
 {
 	var m_cont = widget(p_args).addClass('current_song_details');
-	var m_fid = 0;
 	var m_binder = new DataBinder();
-	var m_file = {};
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		try {
-			var file = Library.get('file', p_data.current);
-			if(m_fid == p_data.current)
-				return;
-
-			m_fid = p_data.current;
-
-			m_binder.set({
-				artist: Library.get('artist', file.artist_id).name,
-				album: Library.get('album', file.album_id).name,
-				year: file.year,
-				track_index: file.track_index,
-				length: formatTime(file.length),
-				song: file.title || file.name
-			});
-
-		} catch (ex) {
-			m_fid = 0;
-		}
+	g_env.eventMgr.subscribe('onSongChanged', function(file) {
+		m_binder.set({
+			artist: Library.get('artist', file.artist_id).name,
+			album: Library.get('album', file.album_id).name,
+			year: file.year,
+			track_index: file.track_index,
+			length: formatTime(file.length),
+			song: file.title || file.name
+		});
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
@@ -211,19 +196,18 @@ function currentSongInfoWidget(p_args)
 	var m_codec = td();
 	var m_sampleSize = span({class: 'value'});
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		try {
-			var file = Library.get('file', p_data.current);
-			m_sampleRate.set(parseInt(file.sample_rate/1000));
-			m_compRate.set('na');
-			m_codec.set(g_env.getCodec(file.codec).title);
-			m_sampleSize.set(file.sample_size);
-		} catch (ex) {
-			m_sampleRate.clear();
-			m_compRate.clear();
-			m_codec.clear();
-			m_sampleSize.clear();
-		};
+	g_env.eventMgr.subscribe('onSongChanged', function(file) {
+		m_sampleRate.set(parseInt(file.sample_rate/1000));
+		m_compRate.set('na');
+		m_codec.set(g_env.getCodec(file.codec).title);
+		m_sampleSize.set(file.sample_size);
+	});
+
+	g_env.eventMgr.subscribe('onSongCleared', function() {
+		m_sampleRate.clear();
+		m_compRate.clear();
+		m_codec.clear();
+		m_sampleSize.clear();
 	});
 
 	return m_cont.add(table({cellpadding: 0, cellspacing: 0},
@@ -308,8 +292,9 @@ function playerStatusWidget(p_args)
 	var m_state = 0;
 	var m_play = indicator({renderer: Graphics.drawers.music.play});
 	var m_pause = indicator({renderer: Graphics.drawers.music.pause});
-	var m_stop = indicator({renderer: Graphics.drawers.music.stop}).addClass('active');
+	var m_stop = indicator({renderer: Graphics.drawers.music.stop});
 	var m_states = [m_stop, m_play, m_pause];
+	var m_events = ['stopped', 'started', 'paused'];
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
 		var size = $(m_cont).width();
@@ -320,17 +305,16 @@ function playerStatusWidget(p_args)
 		});
 	});
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(m_state == p_data.state)
-			return;
+	g_env.zeppelinAgent.subscribe(m_events, function(p_data) {
+		var state = m_events.indexOf(p_data.event);
 
 		m_states[m_state].removeClass('active');
-		m_states[p_data.state].addClass('active');
+		m_states[state].addClass('active');
 
 		m_states[m_state].draw();
-		m_states[p_data.state].draw();
+		m_states[state].draw();
 
-		m_state = p_data.state;
+		m_state = state;
 	});
 
 	return m_cont.add(m_play, m_pause, m_stop);
@@ -342,17 +326,12 @@ function currentPositionNumWidget(p_args)
 	var m_disp = div({class: 'display'});
 	var m_back = div({class: 'background'}, '88:88:88');
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		try {
-			Library.get('file', p_data.current);
-			m_disp.set(formatTime(p_data.position));
-		} catch (e) {
-			m_disp.clear();
-		}
-	});
+	g_env.eventMgr.subscribe('onPositionChanged', function(position) {
+		m_disp.set(formatTime(parseInt(position)));
 
-	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
+	}).subscribe('onZeppelinBuilt', function() {
 		m_cont.css({fontSize: $(m_cont).height()});
+
 	});
 
 	return m_cont.add(m_back, m_disp);
@@ -366,29 +345,18 @@ function currentSongWidget(p_args)
 	var m_back = div({class: 'background'}).html(Array(100).join('&#x2589;'));
 	var m_showLength = Map.def(m_args, 'show_length', false);
 
-	var m_fid = 0;
+	g_env.eventMgr.subscribe('onSongChanged', function(file) {
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
+		m_text.set((file.title || file.name) + (m_showLength ? (' (' + formatTime(file.length) + ')') : ''));
 
-		try {
-			var file = Library.get('file', p_data.current);
+		$(m_text).autoScroll({
+			duration: 5000,
+			wait: 500
+		});
 
-			if(m_fid == p_data.current)
-				return;
+	}).subscribe('onSongCleared', function() {
+		m_text.clear();
 
-			m_fid = p_data.current;
-
-			m_text.set((file.title || file.name) + (m_showLength ? (' (' + formatTime(file.length) + ')') : ''));
-
-			$(m_text).autoScroll({
-				duration: 5000,
-				wait: 500
-			});
-
-		} catch (ex) {
-			m_text.clear();
-			m_fid = 0;
-		}
 	});
 
 	g_env.eventMgr.subscribe('onZeppelinBuilt', function() {
@@ -465,16 +433,28 @@ function currentPositionBarWidget(p_args)
 		$(m_cont).tipsy('hide');
 	});
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		$(m_slider).slider(p_data.state ? "enable" : "disable");
-		$(m_cont).tipsy(p_data.state ? "enable" : "disable");
-		try {
-			m_file = Library.get('file', p_data.current);
-			if(!m_isDragging)
-				$(m_slider).slider('value', (p_data.position / m_file.length) * m_max);
-		} catch(ex) {
-			$(m_slider).slider('value', 0);
-		}
+	var enable = function(p_enable)
+	{
+		$(m_slider).slider(p_enable ? "enable" : "disable");
+		$(m_cont).tipsy(p_enable ? "enable" : "disable");
+	}
+
+	g_env.zeppelinAgent.subscribe(['started', 'paused'], function() {
+		enable(true);
+	}).subscribe('stopped', function() {
+		enable(false);
+	});
+
+	g_env.eventMgr.subscribe('onPositionChanged', function(position) {
+		if(!m_isDragging)
+			$(m_slider).slider('value', (position / m_file.length) * m_max);
+
+	}).subscribe('onSongChanged', function(file) {
+		m_file = file;
+
+	}).subscribe('onSongCleared', function() {
+		$(m_slider).slider('value', 0);
+
 	});
 
 	return m_cont.add(m_slider);
@@ -543,22 +523,14 @@ function controlWidget()
 		});
 	});
 
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		if(m_state == p_data.state)
-			return;
-		switch(p_data.state) {
-			case 1:
-				m_pause.show();
-				m_play.hide();
-				break;
-			case 0:
-			case 2:
-				m_pause.hide();
-				m_play.show();
-				break;
-		}
+	g_env.zeppelinAgent.subscribe('started', function() {
+		m_pause.show();
+		m_play.hide();
 
-		m_state = p_data.state;
+	}).subscribe(['paused','stopped'], function() {
+		m_pause.hide();
+		m_play.show();
+
 	});
 
 	return m_cont;
@@ -608,14 +580,9 @@ function volumeWidget(p_args)
 			$(m_slider).width($(m_cont).width() - $(m_icon).outerWidth());
 	});
 
-	g_env.data.mgr.subscribe('player_get_volume', function(p_data) {
-		$(m_slider).slider('value', p_data);
-		updateIcon(p_data);
-	});
-
-	g_env.data.mgr.subscribe('player_status', function(p_data) {
-		//$(m_slider).slider('value', p_data.volume);
-		updateIcon(p_data.volume);
+	g_env.zeppelinAgent.subscribe('volume-changed', function(event) {
+		$(m_slider).slider('value', event.level);
+		updateIcon(event.level);
 	});
 
 	return m_cont.add(m_icon, m_slider);
@@ -984,7 +951,7 @@ function queueWidget(p_args)
 		});
 	}
 
-	g_env.data.mgr.subscribe('player_queue_get', function(p_data) {
+	g_env.eventMgr.subscribe('onQueueReceived', function(p_data) {
 		m_cont.reset();
 
 		var data = [];
@@ -1001,12 +968,10 @@ function queueWidget(p_args)
 		m_cont.eventMgr.notify('onListItemUpdated');
 	});
 
-	g_env.data.mgr.subscribe(['player_status', 'player_queue_get'], function(p_data) {
-		if(p_data.index) {
-			if(equal(p_data.index, m_currentIndex))
-				return;
-			m_currentIndex = p_data.index;
-		}
+	g_env.zeppelinAgent.subscribe('song-changed', function(p_data) {
+		if(equal(p_data.index, m_currentIndex))
+			return;
+		m_currentIndex = p_data.index;
 
 		if(g_config.queue.auto_jump)
 			jumpToNode();
