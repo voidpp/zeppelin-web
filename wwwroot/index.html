@@ -130,9 +130,7 @@ function createEnviroment()
 				}
 			];
 
-			g_env.eventMgr.subscribe('onQueueReceived', function() {
-				new RPCAgentBackend({notifier: g_env.zeppelinAgent, requesters: requesters});
-			});
+			new RPCAgentBackend({notifier: g_env.zeppelinAgent, requesters: requesters});
 		}
 
         new RPCAgentBackend({
@@ -177,3 +175,4 @@ function start_engine()
 </body>
 </html>
 <!-- The answer to Life, the Universe, and Everything: 42 -->
+
