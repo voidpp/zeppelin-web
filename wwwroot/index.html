@@ -64,7 +64,7 @@ function createEnviroment()
 		if(items === false)
 			return p_item;
 
-		return queueSearch(items[p_idxArr[p_idx]], p_idxArr, p_idx++);
+		return queueSearch(items[p_idxArr[p_idx]], p_idxArr, ++p_idx);
 	}
 
 	g_env = {
