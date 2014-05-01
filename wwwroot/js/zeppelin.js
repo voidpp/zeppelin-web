@@ -135,8 +135,10 @@ function ZeppelinClient()
 
 			var item = g_env.queueStorage.getItem(p_data.index);
 
-			if(item === false)
+			if(item === false) {
+				g_env.eventMgr.notify('onSongCleared');
 				return false;
+			}
 
 			if(item.type != 'file') {
 				console.error("This item type (", item.type, ") is insane!", item);
