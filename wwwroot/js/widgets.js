@@ -966,6 +966,8 @@ function queueWidget(p_args)
 		m_cont.switchNextNode(-1);
 
 		m_cont.eventMgr.notify('onListItemUpdated');
+
+		highlightCurrentItem();
 	});
 
 	g_env.zeppelinAgent.subscribe('song-changed', function(p_data) {
