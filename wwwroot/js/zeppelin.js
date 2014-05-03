@@ -132,7 +132,7 @@ function ZeppelinClient()
 		});
 
 		g_env.zeppelinAgent.subscribe('song-changed', function(p_data) {
-
+/*
 			var item = g_env.queueStorage.getItem(p_data.index);
 
 			if(item === false) {
@@ -151,6 +151,14 @@ function ZeppelinClient()
 			} catch(ex) {
 				g_env.eventMgr.notify('onSongCleared');
 			}
+*/
+
+			var file = g_env.getFileFromQueue(p_data.index);
+
+			if(file)
+				g_env.eventMgr.notify('onSongChanged', file);
+			else
+				g_env.eventMgr.notify('onSongCleared');
 		});
 
         g_env.player = {
@@ -181,7 +189,8 @@ function WebsocketAgent(p_args)
 	g_env.eventMgr.subscribe('onQueueReceived', function() {
 		new RPCAgentBackend({
 			notifier: p_args.notifier,
-			requesters: [new RPCOneShotRequester({rpc: p_args.rpc, desc: p_args.request_desc})]
+			requesters: [new RPCOneShotRequester({rpc: p_args.rpc, desc: p_args.request_desc})],
+			queueItemChangeDetector: function() { return true; }
 		});
 	});
 }
@@ -256,6 +265,26 @@ function RPCAgentBackend(p_args)
 		}
 	}
 
+	var PlayerStatusIndexParser = function(p_queueItemChangeDetector)
+	{
+		var m_value = false;
+		var m_fid = -1;
+
+		this.request = 'player_status';
+
+		this.parse = function(data)
+		{
+			if(equal(m_value, data.index) && p_queueItemChangeDetector(m_value, data.index) == false)
+				return false;
+
+			m_value = data.index;
+			return {
+				event: 'song-changed',
+				index: m_value
+			};
+		}
+	}
+
 	var LibraryStatusParser = function(p_source, p_event, p_transitionDirection)
 	{
 		var m_value = false;
@@ -281,7 +310,7 @@ function RPCAgentBackend(p_args)
 		new PlayerStatusStateParser(1, 'started'),
 		new PlayerStatusStateParser(0, 'stopped'),
 		new PlayerStatusStateParser(2, 'paused'),
-		new PlayerStatusCommonParser('index', 'song-changed'),
+		new PlayerStatusIndexParser(p_args.queueItemChangeDetector),
 		new PlayerStatusCommonParser('volume', 'volume-changed', 'level'),
 		new PlayerStatusCommonParser('position', 'position-changed'),
 		{
