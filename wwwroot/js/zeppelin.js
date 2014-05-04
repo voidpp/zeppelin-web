@@ -254,7 +254,7 @@ function RPCAgentBackend(p_args)
 
 		this.parse = function(data)
 		{
-			if(equal(m_value, data.index) && p_queueItemChangeDetector(m_value, data.index) == false)
+			if(equal(m_value, data.index) || p_queueItemChangeDetector(m_value, data.index) == false)
 				return false;
 
 			m_value = data.index;
