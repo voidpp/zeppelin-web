@@ -132,26 +132,6 @@ function ZeppelinClient()
 		});
 
 		g_env.zeppelinAgent.subscribe('song-changed', function(p_data) {
-/*
-			var item = g_env.queueStorage.getItem(p_data.index);
-
-			if(item === false) {
-				g_env.eventMgr.notify('onSongCleared');
-				return false;
-			}
-
-			if(item.type != 'file') {
-				console.error("This item type (", item.type, ") is insane!", item);
-				return false;
-			}
-
-			try {
-				var file = Library.get('file', item.id);
-				g_env.eventMgr.notify('onSongChanged', file);
-			} catch(ex) {
-				g_env.eventMgr.notify('onSongCleared');
-			}
-*/
 
 			var file = g_env.getFileFromQueue(p_data.index);
 
